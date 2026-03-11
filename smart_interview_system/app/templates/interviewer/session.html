@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; }
+.s-page { min-height:100vh; background:#080b14; padding:48px 16px 80px; position:relative; }
+.s-bg { position:fixed; inset:0; z-index:0; pointer-events:none;
+  background: radial-gradient(ellipse 50% 40% at 10% 10%, rgba(245,158,11,.12) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 35% at 90% 85%, rgba(99,102,241,.12) 0%, transparent 55%); }
+.s-wrap { position:relative; z-index:10; max-width:760px; margin:0 auto; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
+.back-link { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,.4); font-size:.85rem; text-decoration:none; margin-bottom:24px; transition:color .2s; }
+.back-link:hover { color:#fbbf24; }
+.s-title { font-family:'Instrument Serif',serif; font-size:1.8rem; color:#fff; margin-bottom:4px; }
+.s-title em { font-style:italic; background:linear-gradient(135deg,#fbbf24,#818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.s-sub { color:rgba(255,255,255,.35); font-size:.88rem; margin-bottom:28px; }
+
+.answer-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:18px; padding:22px 24px; margin-bottom:14px; animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both; }
+.ans-q-label { font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#fbbf24; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.ans-question { font-family:'Instrument Serif',serif; font-size:1.05rem; color:rgba(255,255,255,.85); margin-bottom:12px; line-height:1.4; }
+.ans-divider { border:none; border-top:1px solid rgba(255,255,255,.06); margin:12px 0; }
+.ans-a-label { font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.3); margin-bottom:6px; }
+.ans-answer { color:rgba(255,255,255,.55); font-size:.9rem; line-height:1.7; }
+.score-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:99px; font-size:.78rem; font-weight:600; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.2); color:#34d399; margin-top:10px; }
+.feedback-box { margin-top:10px; padding:12px 14px; border-radius:10px; background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.15); color:rgba(255,255,255,.55); font-size:.85rem; line-height:1.6; }
+</style>
+
+<div class="s-page">
+  <div class="s-bg"></div>
+  <div class="s-wrap">
+
+    <a href="{{ url_for('interviewer.dashboard') }}" class="back-link">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <div class="s-title">Session <em>#{{ session_id }}</em></div>
+    {% if answers %}
+    <div class="s-sub">Candidate: {{ answers[0].candidate_name }} · {{ answers|length }} answers</div>
+    {% endif %}
+
+    {% for item in answers %}
+    <div class="answer-card" style="animation-delay:{{ loop.index0 * 0.08 }}s">
+      <div class="ans-q-label"><i class="bi bi-chat-square-quote"></i> Question {{ loop.index }}</div>
+      <div class="ans-question">{{ item.question }}</div>
+      <hr class="ans-divider"/>
+      <div class="ans-a-label">Candidate Answer</div>
+      <div class="ans-answer">{{ item.answer or 'No answer provided' }}</div>
+      {% if item.score %}
+      <div class="score-badge"><i class="bi bi-star-fill"></i> Score: {{ item.score }}/100</div>
+      {% endif %}
+      {% if item.feedback %}
+      <div class="feedback-box"><i class="bi bi-robot"></i> {{ item.feedback }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+{% endblock %}

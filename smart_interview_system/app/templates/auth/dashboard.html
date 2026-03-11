@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; }
+.d-page { min-height:100vh; background:#080b14; padding:48px 16px 80px; position:relative; overflow-x:hidden; }
+.d-bg { position:fixed; inset:0; z-index:0; pointer-events:none;
+  background: radial-gradient(ellipse 50% 40% at 5% 10%, rgba(10,255,237,.12) 0%, transparent 60%),
+              radial-gradient(ellipse 45% 35% at 95% 85%, rgba(99,102,241,.12) 0%, transparent 55%); }
+.d-grid { position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:60px 60px; mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%); }
+.d-orb { position:fixed; border-radius:50%; filter:blur(100px); opacity:.13; pointer-events:none; z-index:0; }
+.d-orb-1 { width:450px; height:450px; background:#0affed; top:-120px; left:-120px; }
+.d-orb-2 { width:350px; height:350px; background:#6366f1; bottom:-100px; right:-100px; }
+.d-wrap { position:relative; z-index:10; max-width:1000px; margin:0 auto; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(1.4);} }
+
+/* Header */
+.d-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:32px; animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
+.d-brand { font-family:'Instrument Serif',serif; font-size:1.8rem; color:#fff; }
+.d-brand em { font-style:italic; background:linear-gradient(135deg,#0affed,#818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.d-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(10,255,237,.1); border:1px solid rgba(10,255,237,.2); border-radius:99px; padding:5px 14px; font-size:.75rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#0affed; margin-top:6px; }
+.d-badge-dot { width:6px; height:6px; border-radius:50%; background:#0affed; animation:pulse 2s infinite; }
+.btn-logout { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:10px; padding:8px 16px; color:rgba(255,255,255,.55); font-size:.85rem; text-decoration:none; transition:background .2s,color .2s; }
+.btn-logout:hover { background:rgba(255,255,255,.09); color:#fff; text-decoration:none; }
+
+/* Stats */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:32px; animation:fadeUp .6s cubic-bezier(.22,1,.36,1) .08s both; }
+.stat-chip { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:24px; display:flex; align-items:center; gap:16px; transition:background .2s,border-color .2s; }
+.stat-chip:hover { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.13); }
+.stat-icon { width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+.si-teal   { background:rgba(10,255,237,.12);  color:#0affed; }
+.si-indigo { background:rgba(99,102,241,.12);  color:#818cf8; }
+.si-green  { background:rgba(16,185,129,.12);  color:#34d399; }
+.si-amber  { background:rgba(245,158,11,.12);  color:#fbbf24; }
+.stat-val { font-family:'Instrument Serif',serif; font-size:1.8rem; color:#fff; line-height:1; }
+.stat-lbl { font-size:.76rem; color:rgba(255,255,255,.35); margin-top:3px; }
+
+/* Action Cards */
+.section-title { font-family:'Instrument Serif',serif; font-size:1.15rem; color:rgba(255,255,255,.8); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.section-title::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.06); }
+
+.action-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:32px; animation:fadeUp .6s cubic-bezier(.22,1,.36,1) .12s both; }
+.action-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:24px; text-decoration:none; transition:background .2s,border-color .2s,transform .2s; display:flex; flex-direction:column; gap:12px; }
+.action-card:hover { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.14); transform:translateY(-3px); text-decoration:none; }
+.action-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+.ai-teal   { background:rgba(10,255,237,.12);  color:#0affed; }
+.ai-indigo { background:rgba(99,102,241,.12);  color:#818cf8; }
+.ai-green  { background:rgba(16,185,129,.12);  color:#34d399; }
+.action-title { font-family:'Instrument Serif',serif; font-size:1.05rem; color:#fff; }
+.action-desc  { font-size:.8rem; color:rgba(255,255,255,.35); line-height:1.5; }
+.action-arrow { font-size:.8rem; color:rgba(255,255,255,.25); margin-top:auto; }
+
+/* Recent Interviews */
+.recent-panel { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:18px; overflow:hidden; animation:fadeUp .6s cubic-bezier(.22,1,.36,1) .18s both; }
+.r-head { display:grid; grid-template-columns:1fr 1fr 1fr; padding:12px 20px; border-bottom:1px solid rgba(255,255,255,.06); }
+.r-head span { font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.3); }
+.r-row { display:grid; grid-template-columns:1fr 1fr 1fr; padding:14px 20px; border-bottom:1px solid rgba(255,255,255,.04); align-items:center; transition:background .15s; }
+.r-row:last-child { border-bottom:none; }
+.r-row:hover { background:rgba(255,255,255,.04); }
+.cell-text { font-size:.85rem; color:rgba(255,255,255,.5); }
+.status-done    { display:inline-flex; padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:600; background:rgba(16,185,129,.1); color:#34d399; border:1px solid rgba(16,185,129,.2); }
+.status-ongoing { display:inline-flex; padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:600; background:rgba(245,158,11,.1); color:#fbbf24; border:1px solid rgba(245,158,11,.2); }
+.empty-row { padding:32px; text-align:center; color:rgba(255,255,255,.2); font-size:.88rem; }
+
+.flash-msg { border-radius:12px; padding:12px 16px; font-size:.88rem; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+.flash-success { background:rgba(34,197,94,.1);  border:1px solid rgba(34,197,94,.25);  color:#4ade80; }
+.flash-danger  { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.25);  color:#f87171; }
+.flash-warning { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:#fbbf24; }
+.flash-info    { background:rgba(14,165,233,.1); border:1px solid rgba(14,165,233,.25); color:#38bdf8; }
+</style>
+
+<div class="d-page">
+  <div class="d-bg"></div>
+  <div class="d-grid"></div>
+  <div class="d-orb d-orb-1"></div>
+  <div class="d-orb d-orb-2"></div>
+
+  <div class="d-wrap">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">
+            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}x-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Header -->
+    <div class="d-header">
+      <div>
+        <div class="d-brand">Hello, <em>{{ session.user_name }}!</em></div>
+        <div><span class="d-badge"><span class="d-badge-dot"></span> Candidate Dashboard</span></div>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" class="btn-logout">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </a>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="stats-grid">
+      <div class="stat-chip">
+        <div class="stat-icon si-teal"><i class="bi bi-file-earmark-person"></i></div>
+        <div><div class="stat-val">{{ resume_count }}</div><div class="stat-lbl">Resumes Uploaded</div></div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-icon si-indigo"><i class="bi bi-mic"></i></div>
+        <div><div class="stat-val">{{ interview_count }}</div><div class="stat-lbl">Interviews Taken</div></div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-icon si-green"><i class="bi bi-graph-up"></i></div>
+        <div><div class="stat-val">{{ avg_score }}%</div><div class="stat-lbl">Avg Interview Score</div></div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-icon si-amber"><i class="bi bi-star"></i></div>
+        <div><div class="stat-val">{{ best_score }}%</div><div class="stat-lbl">Best Resume Score</div></div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title">Quick Actions</div>
+    <div class="action-grid">
+      <a href="{{ url_for('resume.upload') }}" class="action-card">
+        <div class="action-icon ai-teal"><i class="bi bi-upload"></i></div>
+        <div class="action-title">Upload Resume</div>
+        <div class="action-desc">Upload your resume and get instant AI-powered analysis and scoring.</div>
+        <div class="action-arrow"><i class="bi bi-arrow-right"></i> Upload now</div>
+      </a>
+      <a href="{{ url_for('resume.list_resumes') }}" class="action-card">
+        <div class="action-icon ai-indigo"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="action-title">My Resumes</div>
+        <div class="action-desc">View all your uploaded resumes with AI scores and skill analysis.</div>
+        <div class="action-arrow"><i class="bi bi-arrow-right"></i> View resumes</div>
+      </a>
+      <a href="{{ url_for('interview.start_interview') }}" class="action-card">
+        <div class="action-icon ai-green"><i class="bi bi-mic"></i></div>
+        <div class="action-title">Start Interview</div>
+        <div class="action-desc">Take a mock interview with 5 AI-evaluated questions and get instant feedback.</div>
+        <div class="action-arrow"><i class="bi bi-arrow-right"></i> Start now</div>
+      </a>
+    </div>
+
+    <!-- Recent Interviews -->
+    <div class="section-title">Recent Interviews</div>
+    <div class="recent-panel">
+      <div class="r-head">
+        <span>Date</span>
+        <span>Status</span>
+        <span>Score</span>
+      </div>
+      {% if recent_interviews %}
+        {% for i in recent_interviews %}
+        <div class="r-row">
+          <div class="cell-text">{{ i.started_at.strftime('%d %b %Y, %I:%M %p') if i.started_at else '—' }}</div>
+          <div>
+            {% if i.completed_at %}
+              <span class="status-done">Completed</span>
+            {% else %}
+              <span class="status-ongoing">In Progress</span>
+            {% endif %}
+          </div>
+          <div class="cell-text">
+            {% if i.total_score %}
+              {{ i.total_score }}%
+            {% else %}
+              —
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-row">No interviews yet — <a href="{{ url_for('interview.start_interview') }}" style="color:#0affed;">Start your first interview!</a></div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

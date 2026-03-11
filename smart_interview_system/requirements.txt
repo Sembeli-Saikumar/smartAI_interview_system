@@ -1,0 +1,6 @@
+# Add your dependencies here, e.g.:
+# Flask==3.0.3
+# mysql-connector-python==8.4.0
+# python-dotenv==1.0.1
+# Flask-WTF==1.2.1
+# Werkzeug==3.0.3

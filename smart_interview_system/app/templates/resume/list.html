@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; background:#080b14; }
+.rl-page { min-height:100vh; background:#080b14; padding:48px 16px 80px; position:relative; }
+.rl-bg { position:fixed; inset:0; z-index:0; pointer-events:none;
+  background: radial-gradient(ellipse 50% 40% at 5% 10%, rgba(10,255,237,.08) 0%, transparent 60%),
+              radial-gradient(ellipse 45% 35% at 95% 85%, rgba(99,102,241,.1) 0%, transparent 55%); }
+.rl-wrap { position:relative; z-index:10; max-width:860px; margin:0 auto; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+
+.rl-header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:32px; animation:fadeUp .5s ease both; }
+.rl-title { font-family:'Instrument Serif',serif; font-size:2rem; color:#fff; }
+.rl-title em { font-style:italic; background:linear-gradient(135deg,#0affed,#818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.rl-sub { color:rgba(255,255,255,.35); font-size:.88rem; margin-top:4px; }
+.btn-upload { display:inline-flex; align-items:center; gap:7px; padding:11px 22px; border-radius:12px; background:linear-gradient(135deg,#0affed,#6366f1); color:#080b14; font-weight:700; font-size:.88rem; text-decoration:none; transition:transform .2s,box-shadow .2s; box-shadow:0 4px 16px rgba(10,255,237,.2); }
+.btn-upload:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(10,255,237,.3); text-decoration:none; color:#080b14; }
+
+.back-link { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,.35); font-size:.83rem; text-decoration:none; margin-bottom:20px; transition:color .2s; }
+.back-link:hover { color:#0affed; text-decoration:none; }
+
+.resume-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:18px; padding:22px; margin-bottom:14px; transition:border-color .2s,background .2s; animation:fadeUp .5s ease both; }
+.resume-card:hover { border-color:rgba(255,255,255,.12); background:rgba(255,255,255,.05); }
+
+.rc-top { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+.rc-icon { width:42px; height:42px; border-radius:12px; background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); display:flex; align-items:center; justify-content:center; color:#f87171; font-size:1.2rem; flex-shrink:0; }
+.rc-info { flex:1; min-width:0; }
+.rc-name { font-size:.95rem; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rc-meta { font-size:.75rem; color:rgba(255,255,255,.3); margin-top:3px; }
+.rc-actions { display:flex; gap:8px; flex-shrink:0; }
+.btn-view { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:9px; background:rgba(10,255,237,.08); border:1px solid rgba(10,255,237,.2); color:#0affed; font-size:.8rem; text-decoration:none; transition:background .2s; }
+.btn-view:hover { background:rgba(10,255,237,.15); text-decoration:none; color:#0affed; }
+.btn-del { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:9px; background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.2); color:#f87171; font-size:.8rem; cursor:pointer; transition:background .2s; }
+.btn-del:hover { background:rgba(239,68,68,.15); }
+
+/* Score bars */
+.score-section { margin-top:4px; }
+.score-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.score-label { font-size:.72rem; color:rgba(255,255,255,.35); width:80px; flex-shrink:0; }
+.score-track { flex:1; height:6px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+.score-fill { height:100%; border-radius:99px; transition:width 1s ease; }
+.score-num { font-size:.75rem; font-weight:600; width:36px; text-align:right; flex-shrink:0; }
+
+/* Skills */
+.skills-wrap { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.skill-chip { padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:500; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.2); color:#a78bfa; }
+
+/* Pending */
+.pending-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:99px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); color:#fbbf24; font-size:.75rem; }
+
+.empty-state { text-align:center; padding:60px 20px; color:rgba(255,255,255,.3); }
+.empty-state i { font-size:3rem; margin-bottom:16px; display:block; }
+.empty-state a { color:#0affed; text-decoration:none; }
+
+.flash-msg { border-radius:12px; padding:12px 16px; font-size:.88rem; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+.flash-success { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); color:#4ade80; }
+.flash-danger  { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:#f87171; }
+.flash-warning { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:#fbbf24; }
+</style>
+
+<div class="rl-page">
+  <div class="rl-bg"></div>
+  <div class="rl-wrap">
+
+    <a href="{{ url_for('auth.dashboard') }}" class="back-link">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">
+            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}x-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="rl-header">
+      <div>
+        <div class="rl-title">My <em>Resumes</em></div>
+        <div class="rl-sub">{{ resumes|length }} resume{{ 's' if resumes|length != 1 }} uploaded</div>
+      </div>
+      <a href="{{ url_for('resume.upload') }}" class="btn-upload">
+        <i class="bi bi-upload"></i> Upload New
+      </a>
+    </div>
+
+    {% if resumes %}
+      {% for r in resumes %}
+      {% set has_score = r.overall_score and r.overall_score > 0 %}
+      <div class="resume-card">
+        <div class="rc-top">
+          <div class="rc-icon"><i class="bi bi-file-earmark-pdf"></i></div>
+          <div class="rc-info">
+            <div class="rc-name">{{ r.original_filename }}</div>
+            <div class="rc-meta">{{ r.file_type|upper }} · {{ r.size_display }} · {{ r.uploaded_at.strftime('%d %b %Y, %I:%M %p') if r.uploaded_at else '' }}</div>
+          </div>
+          <div class="rc-actions">
+            <a href="{{ url_for('static', filename=r.file_path) }}" target="_blank" class="btn-view">
+              <i class="bi bi-eye"></i> View
+            </a>
+            <form method="POST" action="{{ url_for('resume.delete', resume_id=r.id) }}" style="display:inline;" onsubmit="return confirm('Delete this resume?')">
+              <button type="submit" class="btn-del"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+          </div>
+        </div>
+
+        {% if has_score %}
+        <div class="score-section">
+          <!-- Overall -->
+          <div class="score-row">
+            <div class="score-label">Overall</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.overall_score }}%;background:{% if r.overall_score >= 70 %}linear-gradient(90deg,#0affed,#34d399){% elif r.overall_score >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#ef4444,#f87171){% endif %}"></div></div>
+            <div class="score-num" style="color:{% if r.overall_score >= 70 %}#34d399{% elif r.overall_score >= 40 %}#fbbf24{% else %}#f87171{% endif %}">{{ r.overall_score }}</div>
+          </div>
+          <!-- Technical -->
+          <div class="score-row">
+            <div class="score-label">Technical</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.technical_score or 0 }}%;background:linear-gradient(90deg,#6366f1,#818cf8)"></div></div>
+            <div class="score-num" style="color:#818cf8">{{ r.technical_score or 0 }}</div>
+          </div>
+          <!-- Experience -->
+          <div class="score-row">
+            <div class="score-label">Experience</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.experience_score or 0 }}%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+            <div class="score-num" style="color:#fbbf24">{{ r.experience_score or 0 }}</div>
+          </div>
+          <!-- Education -->
+          <div class="score-row">
+            <div class="score-label">Education</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.education_score or 0 }}%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+            <div class="score-num" style="color:#34d399">{{ r.education_score or 0 }}</div>
+          </div>
+
+          {% if r.skills %}
+          <div class="skills-wrap">
+            {% for skill in r.skills.split(',') %}
+              {% if skill.strip() %}
+              <span class="skill-chip">{{ skill.strip() }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div style="margin-top:8px;">
+          <span class="pending-badge"><i class="bi bi-hourglass-split"></i> AI Score pending — re-upload to get score</span>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <i class="bi bi-file-earmark-x"></i>
+        No resumes yet. <a href="{{ url_for('resume.upload') }}">Upload your first resume!</a>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

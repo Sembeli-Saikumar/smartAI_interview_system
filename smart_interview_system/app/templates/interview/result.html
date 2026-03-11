@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'DM Sans',sans-serif; background:#080b14; }
+.r-page { min-height:100vh; background:#080b14; padding:48px 16px 80px; position:relative; overflow-x:hidden; }
+.r-bg { position:fixed; inset:0; z-index:0; pointer-events:none;
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(10,255,237,.1) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 30% at 90% 90%, rgba(99,102,241,.1) 0%, transparent 55%); }
+.r-grid { position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:60px 60px; }
+.r-wrap { position:relative; z-index:10; max-width:900px; margin:0 auto; }
+
+@keyframes fadeUp     { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+@keyframes scoreIn    { from{stroke-dashoffset:var(--full);} to{stroke-dashoffset:var(--offset);} }
+@keyframes countUp    { from{opacity:0;} to{opacity:1;} }
+@keyframes confetti   { 0%{transform:translateY(-10px) rotate(0deg);opacity:1;} 100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
+@keyframes shimmer    { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+/* Header */
+.r-header { text-align:center; margin-bottom:40px; animation:fadeUp .6s ease both; }
+.r-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(10,255,237,.1); border:1px solid rgba(10,255,237,.2); border-radius:99px; padding:6px 18px; font-size:.75rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#0affed; margin-bottom:16px; }
+.r-title { font-family:'Instrument Serif',serif; font-size:2.4rem; color:#fff; line-height:1.2; margin-bottom:8px; }
+.r-title em { font-style:italic; background:linear-gradient(135deg,#0affed,#818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.r-sub { color:rgba(255,255,255,.4); font-size:.95rem; }
+
+/* Score Hero */
+.score-hero { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:24px; padding:40px 32px; display:flex; align-items:center; gap:40px; flex-wrap:wrap; justify-content:center; margin-bottom:28px; animation:fadeUp .6s ease .1s both; position:relative; overflow:hidden; }
+.score-hero::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(10,255,237,.04),rgba(99,102,241,.04)); pointer-events:none; }
+
+/* SVG Ring */
+.ring-wrap { position:relative; width:160px; height:160px; flex-shrink:0; }
+.ring-wrap svg { transform:rotate(-90deg); }
+.ring-bg   { fill:none; stroke:rgba(255,255,255,.06); stroke-width:10; }
+.ring-fill { fill:none; stroke-width:10; stroke-linecap:round; stroke-dasharray:440; stroke-dashoffset:440; transition:stroke-dashoffset 1.5s cubic-bezier(.22,1,.36,1); }
+.ring-val  { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-num  { font-family:'Instrument Serif',serif; font-size:2.4rem; color:#fff; line-height:1; }
+.ring-lbl  { font-size:.72rem; color:rgba(255,255,255,.35); margin-top:2px; }
+
+.score-info { flex:1; min-width:220px; }
+.score-grade { font-family:'Instrument Serif',serif; font-size:2rem; color:#fff; margin-bottom:6px; }
+.score-msg   { color:rgba(255,255,255,.45); font-size:.92rem; line-height:1.6; margin-bottom:20px; }
+.score-chips { display:flex; gap:10px; flex-wrap:wrap; }
+.chip { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:99px; font-size:.75rem; font-weight:600; border:1px solid; }
+.chip-green  { background:rgba(16,185,129,.1);  border-color:rgba(16,185,129,.25);  color:#34d399; }
+.chip-blue   { background:rgba(14,165,233,.1);  border-color:rgba(14,165,233,.25);  color:#38bdf8; }
+.chip-purple { background:rgba(139,92,246,.1);  border-color:rgba(139,92,246,.25);  color:#a78bfa; }
+.chip-amber  { background:rgba(245,158,11,.1);  border-color:rgba(245,158,11,.25);  color:#fbbf24; }
+.chip-red    { background:rgba(239,68,68,.1);   border-color:rgba(239,68,68,.25);   color:#f87171; }
+
+/* Bar Chart */
+.chart-section { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:28px; margin-bottom:28px; animation:fadeUp .6s ease .2s both; }
+.section-title { font-family:'Instrument Serif',serif; font-size:1.1rem; color:#fff; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+.section-title i { color:#0affed; }
+.bar-list { display:flex; flex-direction:column; gap:14px; }
+.bar-item { display:flex; align-items:center; gap:12px; }
+.bar-q    { font-size:.8rem; color:rgba(255,255,255,.45); width:90px; flex-shrink:0; }
+.bar-track { flex:1; height:8px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+.bar-fill  { height:100%; border-radius:99px; transition:width 1.2s cubic-bezier(.22,1,.36,1); width:0%; }
+.bar-score { font-size:.82rem; font-weight:600; width:40px; text-align:right; flex-shrink:0; }
+
+/* Answer Cards */
+.answers-section { margin-bottom:28px; animation:fadeUp .6s ease .3s both; }
+.answer-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:18px; padding:22px; margin-bottom:14px; transition:border-color .2s; }
+.answer-card:hover { border-color:rgba(255,255,255,.12); }
+.ac-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.ac-qnum { width:30px; height:30px; border-radius:9px; background:rgba(10,255,237,.1); border:1px solid rgba(10,255,237,.2); display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; color:#0affed; flex-shrink:0; }
+.ac-question { font-family:'Instrument Serif',serif; font-size:1rem; color:#fff; line-height:1.4; flex:1; }
+.ac-score-badge { padding:4px 12px; border-radius:99px; font-size:.78rem; font-weight:700; flex-shrink:0; }
+.ac-answer { color:rgba(255,255,255,.5); font-size:.87rem; line-height:1.7; margin-bottom:12px; padding:12px 14px; background:rgba(255,255,255,.03); border-radius:10px; border-left:2px solid rgba(255,255,255,.08); }
+.ac-answer.empty { color:rgba(255,255,255,.2); font-style:italic; }
+.ac-feedback { display:flex; gap:8px; align-items:flex-start; }
+.ac-feedback i { color:#818cf8; margin-top:2px; flex-shrink:0; }
+.ac-feedback-text { font-size:.83rem; color:rgba(255,255,255,.4); line-height:1.6; }
+
+/* Actions */
+.actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; animation:fadeUp .6s ease .4s both; }
+.btn-again { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:14px; background:linear-gradient(135deg,#0affed,#6366f1); color:#080b14; font-weight:700; font-size:.95rem; text-decoration:none; transition:transform .2s,box-shadow .2s; box-shadow:0 4px 20px rgba(10,255,237,.2); }
+.btn-again:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(10,255,237,.3); text-decoration:none; color:#080b14; }
+.btn-dash  { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:14px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:rgba(255,255,255,.6); font-weight:600; font-size:.95rem; text-decoration:none; transition:background .2s,color .2s; }
+.btn-dash:hover { background:rgba(255,255,255,.08); color:#fff; text-decoration:none; }
+
+/* Confetti */
+.confetti-wrap { position:fixed; inset:0; pointer-events:none; z-index:100; overflow:hidden; }
+.c-piece { position:absolute; top:-10px; width:8px; height:8px; border-radius:2px; animation:confetti linear both; }
+</style>
+
+<!-- Confetti -->
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<div class="r-page">
+  <div class="r-bg"></div>
+  <div class="r-grid"></div>
+  <div class="r-wrap">
+
+    <!-- Header -->
+    <div class="r-header">
+      <div class="r-badge"><i class="bi bi-check2-circle"></i> Interview Complete</div>
+      <div class="r-title">Your <em>Results</em></div>
+      <div class="r-sub">Here's how you performed — Session #{{ session_id }}</div>
+    </div>
+
+    <!-- Score Hero -->
+    <div class="score-hero">
+      <div class="ring-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle class="ring-bg"   cx="80" cy="80" r="70"/>
+          <circle class="ring-fill" cx="80" cy="80" r="70" id="scoreRing"/>
+        </svg>
+        <div class="ring-val">
+          <div class="ring-num" id="scoreNum">0</div>
+          <div class="ring-lbl">/ 100</div>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="score-grade" id="scoreGrade">—</div>
+        <div class="score-msg"  id="scoreMsg">—</div>
+        <div class="score-chips">
+          <span class="chip chip-blue"><i class="bi bi-mic"></i> {{ answers|length }} Questions</span>
+          <span class="chip chip-purple"><i class="bi bi-hash"></i> Session {{ session_id }}</span>
+          {% set answered = answers|selectattr('answer')|list|length %}
+          <span class="chip chip-green"><i class="bi bi-check2"></i> {{ answered }} Answered</span>
+          {% if (answers|length - answered) > 0 %}
+          <span class="chip chip-amber"><i class="bi bi-skip-forward"></i> {{ answers|length - answered }} Skipped</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="chart-section">
+      <div class="section-title"><i class="bi bi-bar-chart-line"></i> Score per Question</div>
+      <div class="bar-list" id="barList">
+        {% for a in answers %}
+        <div class="bar-item">
+          <div class="bar-q">Q{{ loop.index }}</div>
+          <div class="bar-track">
+            <div class="bar-fill" id="bar{{ loop.index }}"
+              data-score="{{ a.score or 0 }}"
+              style="background:{% if (a.score or 0) >= 70 %}linear-gradient(90deg,#0affed,#34d399){% elif (a.score or 0) >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#ef4444,#f87171){% endif %}">
+            </div>
+          </div>
+          <div class="bar-score" style="color:{% if (a.score or 0) >= 70 %}#34d399{% elif (a.score or 0) >= 40 %}#fbbf24{% else %}#f87171{% endif %}">
+            {{ a.score or 0 }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Answer Cards -->
+    <div class="answers-section">
+      <div class="section-title" style="margin-bottom:16px;"><i class="bi bi-chat-square-text" style="color:#818cf8;"></i> Detailed Feedback</div>
+      {% for a in answers %}
+      {% set s = a.score or 0 %}
+      <div class="answer-card">
+        <div class="ac-header">
+          <div class="ac-qnum">{{ loop.index }}</div>
+          <div class="ac-question">{{ a.question }}</div>
+          <div class="ac-score-badge"
+            style="background:{% if s >= 70 %}rgba(16,185,129,.12){% elif s >= 40 %}rgba(245,158,11,.12){% else %}rgba(239,68,68,.12){% endif %};
+                   color:{% if s >= 70 %}#34d399{% elif s >= 40 %}#fbbf24{% else %}#f87171{% endif %};
+                   border:1px solid {% if s >= 70 %}rgba(16,185,129,.3){% elif s >= 40 %}rgba(245,158,11,.3){% else %}rgba(239,68,68,.3){% endif %};">
+            {{ s }}/100
+          </div>
+        </div>
+        <div class="ac-answer {% if not a.answer %}empty{% endif %}">
+          {% if a.answer %}{{ a.answer }}{% else %}No answer provided{% endif %}
+        </div>
+        {% if a.feedback %}
+        <div class="ac-feedback">
+          <i class="bi bi-stars"></i>
+          <div class="ac-feedback-text">{{ a.feedback }}</div>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <a href="{{ url_for('interview.start_interview') }}" class="btn-again">
+        <i class="bi bi-arrow-repeat"></i> Try Again
+      </a>
+      <a href="{{ url_for('auth.dashboard') }}" class="btn-dash">
+        <i class="bi bi-grid-1x2"></i> Dashboard
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TOTAL_SCORE = {{ total_score | default(0) }};
+const C = 2 * Math.PI * 70; // circumference
+
+function getGrade(s) {
+  if (s >= 85) return { grade:'Excellent 🏆', msg:'Outstanding performance! You are well-prepared for real interviews.', color:'#0affed' };
+  if (s >= 70) return { grade:'Good 👍',      msg:'Strong performance! A little more practice and you will be interview-ready.', color:'#34d399' };
+  if (s >= 50) return { grade:'Average 📈',   msg:'Decent effort! Focus on the low-score questions and practice more.', color:'#fbbf24' };
+  if (s >= 30) return { grade:'Needs Work 💪', msg:'Keep practicing! Review the feedback and try again soon.', color:'#f97316' };
+  return         { grade:'Keep Trying 🌱',    msg:'Do not give up! Read the feedback carefully and give it another shot.', color:'#f87171' };
+}
+
+window.addEventListener('load', () => {
+  // Animate ring
+  const ring = document.getElementById('scoreRing');
+  const g = getGrade(TOTAL_SCORE);
+  ring.style.stroke = g.color;
+  setTimeout(() => {
+    const offset = C - (TOTAL_SCORE / 100) * C;
+    ring.style.strokeDashoffset = offset;
+  }, 300);
+
+  // Animate number count up
+  let cur = 0;
+  const target = TOTAL_SCORE;
+  const step = Math.max(1, Math.floor(target / 60));
+  const interval = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    document.getElementById('scoreNum').textContent = cur;
+    if (cur >= target) clearInterval(interval);
+  }, 20);
+
+  // Grade + message
+  document.getElementById('scoreGrade').textContent = g.grade;
+  document.getElementById('scoreGrade').style.color = g.color;
+  document.getElementById('scoreMsg').textContent   = g.msg;
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(b => {
+      b.style.width = b.dataset.score + '%';
+    });
+  }, 500);
+
+  // Confetti if score >= 70
+  if (TOTAL_SCORE >= 70) spawnConfetti();
+});
+
+function spawnConfetti() {
+  const colors = ['#0affed','#818cf8','#34d399','#fbbf24','#f87171','#a78bfa'];
+  const wrap = document.getElementById('confettiWrap');
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'c-piece';
+    c.style.left     = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration  = (2 + Math.random() * 3) + 's';
+    c.style.animationDelay     = (Math.random() * 2) + 's';
+    c.style.transform          = 'rotate(' + Math.random()*360 + 'deg)';
+    c.style.width  = (6 + Math.random() * 8) + 'px';
+    c.style.height = (6 + Math.random() * 8) + 'px';
+    wrap.appendChild(c);
+    setTimeout(() => c.remove(), 6000);
+  }
+}
+</script>
+
+{% endblock %}
