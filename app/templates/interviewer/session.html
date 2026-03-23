@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Session #{{ session_id }} — Smart Interview System{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;}
+
+.s-page{min-height:100vh;background:var(--bg);padding:48px 16px 80px;position:relative;overflow:hidden;}
+
+/* Soft background */
+.s-page::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 50% 40% at 10% 10%,rgba(30,96,145,.07) 0%,transparent 60%),radial-gradient(ellipse 40% 35% at 90% 85%,rgba(22,138,173,.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
+
+.orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.08;pointer-events:none;z-index:0;}
+.orb-1{width:400px;height:400px;background:#1e6091;top:-100px;left:-100px;}
+.orb-2{width:350px;height:350px;background:#168aad;bottom:-80px;right:-80px;}
+
+.s-wrap{position:relative;z-index:10;max-width:780px;margin:0 auto;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* Back link */
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem;text-decoration:none;margin-bottom:24px;transition:color .2s;padding:8px 14px;border-radius:10px;background:#fff;border:1px solid var(--border);}
+.back-link:hover{color:var(--primary);border-color:var(--primary-lt);text-decoration:none;background:var(--primary-bg);}
+
+/* Header */
+.s-header{background:#fff;border:1px solid var(--border);border-radius:20px;padding:24px 28px;margin-bottom:24px;box-shadow:0 2px 12px rgba(30,96,145,.06);animation:fadeUp .5s ease both;}
+.s-title{font-family:'Instrument Serif',serif;font-size:1.8rem;color:var(--dark);margin-bottom:4px;}
+.s-title em{font-style:italic;background:linear-gradient(135deg,#1e6091,#168aad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.s-sub{color:var(--muted);font-size:.88rem;margin-bottom:0;}
+
+/* Stats row */
+.s-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.s-stat{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--border);}
+.s-stat i{font-size:.9rem;}
+.s-stat-val{font-size:.85rem;font-weight:700;color:var(--dark);}
+.s-stat-lbl{font-size:.72rem;color:var(--muted);}
+
+/* Answer cards */
+.answer-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:14px;animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;box-shadow:0 2px 8px rgba(30,96,145,.04);transition:box-shadow .2s,transform .2s;}
+.answer-card:hover{box-shadow:0 6px 24px rgba(30,96,145,.1);transform:translateY(-2px);}
+
+/* Question label */
+.ans-q-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ans-q-num{width:22px;height:22px;border-radius:6px;background:var(--primary-bg);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;}
+
+/* Question text */
+.ans-question{font-family:'Instrument Serif',serif;font-size:1.05rem;color:var(--dark);margin-bottom:12px;line-height:1.5;}
+
+/* Divider */
+.ans-divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+
+/* Answer section */
+.ans-a-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.ans-answer{color:var(--dark);font-size:.9rem;line-height:1.7;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.ans-no-answer{color:var(--muted);font-size:.88rem;font-style:italic;}
+
+/* Score badge */
+.score-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;font-size:.8rem;font-weight:700;margin-top:12px;}
+.score-high{background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.2);color:#1a7a4a;}
+.score-mid{background:rgba(184,104,10,.08);border:1px solid rgba(184,104,10,.2);color:#b8680a;}
+.score-low{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);color:#c0392b;}
+
+/* Score bar */
+.score-bar-wrap{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.score-bar-track{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:99px;transition:width 1s ease;}
+
+/* Feedback box */
+.feedback-box{margin-top:12px;padding:14px 16px;border-radius:12px;background:rgba(30,96,145,.04);border:1px solid rgba(30,96,145,.12);color:var(--dark);font-size:.86rem;line-height:1.65;}
+.feedback-box .fb-label{font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--primary);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+
+/* Strengths / Weaknesses */
+.sw-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.sw-box{flex:1;min-width:160px;padding:10px 12px;border-radius:10px;font-size:.8rem;}
+.sw-green{background:rgba(26,122,74,.06);border:1px solid rgba(26,122,74,.15);}
+.sw-red{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.15);}
+.sw-label{font-size:.67rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px;}
+.sw-green .sw-label{color:#1a7a4a;}
+.sw-red .sw-label{color:#c0392b;}
+.sw-item{font-size:.78rem;color:var(--dark);padding:2px 0;display:flex;align-items:center;gap:5px;}
+.sw-item::before{content:'•';opacity:.5;}
+
+/* Empty state */
+.s-empty{text-align:center;padding:60px 24px;color:var(--muted);}
+.s-empty i{font-size:2.5rem;display:block;margin-bottom:12px;opacity:.3;}
+</style>
+
+<div class="s-page">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="s-wrap">
+
+    <a href="{{ url_for('interviewer.dashboard') }}" class="back-link">
+      <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <!-- Header -->
+    <div class="s-header">
+      <div class="s-title">Session <em>#{{ session_id }}</em></div>
+      {% if answers %}
+      <div class="s-sub">
+        <i class="bi bi-person-circle" style="color:var(--primary);"></i>
+        Candidate: <strong>{{ answers[0].candidate_name }}</strong>
+        &nbsp;·&nbsp;
+        <i class="bi bi-chat-dots" style="color:var(--primary);"></i>
+        {{ answers|length }} answer{{ 's' if answers|length != 1 }}
+      </div>
+
+      <!-- Quick stats -->
+      {% set total_score = answers | selectattr('score') | map(attribute='score') | list %}
+      {% set avg = (total_score | sum / total_score | length) | round(1) if total_score else 0 %}
+      <div class="s-stats">
+        <div class="s-stat">
+          <i class="bi bi-question-circle" style="color:var(--primary);"></i>
+          <div><div class="s-stat-val">{{ answers|length }}</div><div class="s-stat-lbl">Questions</div></div>
+        </div>
+        <div class="s-stat">
+          <i class="bi bi-graph-up" style="color:#1a7a4a;"></i>
+          <div><div class="s-stat-val" style="color:{% if avg >= 70 %}#1a7a4a{% elif avg >= 40 %}#b8680a{% else %}#c0392b{% endif %};">{{ avg }}%</div><div class="s-stat-lbl">Avg Score</div></div>
+        </div>
+        <div class="s-stat">
+          <i class="bi bi-trophy" style="color:#b8680a;"></i>
+          <div><div class="s-stat-val">{{ total_score | max if total_score else 0 }}%</div><div class="s-stat-lbl">Best Answer</div></div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Answer Cards -->
+    {% if answers %}
+      {% for item in answers %}
+      <div class="answer-card" style="animation-delay:{{ loop.index0 * 0.08 }}s;">
+
+        <!-- Question -->
+        <div class="ans-q-label">
+          <span class="ans-q-num">{{ loop.index }}</span>
+          <i class="bi bi-chat-square-quote"></i> Question {{ loop.index }}
+        </div>
+        <div class="ans-question">{{ item.question }}</div>
+
+        <hr class="ans-divider"/>
+
+        <!-- Answer -->
+        <div class="ans-a-label"><i class="bi bi-pencil"></i> Candidate Answer</div>
+        {% if item.answer %}
+        <div class="ans-answer">{{ item.answer }}</div>
+        {% else %}
+        <div class="ans-answer ans-no-answer">No answer provided</div>
+        {% endif %}
+
+        <!-- Score -->
+        {% if item.score %}
+        {% set sc = item.score %}
+        <div class="score-bar-wrap">
+          <div class="score-badge {% if sc >= 70 %}score-high{% elif sc >= 40 %}score-mid{% else %}score-low{% endif %}">
+            <i class="bi bi-star-fill"></i> {{ sc }}/100
+            &nbsp;·&nbsp;
+            {% if sc >= 80 %}Excellent{% elif sc >= 60 %}Good{% elif sc >= 40 %}Average{% else %}Needs Work{% endif %}
+          </div>
+          <div class="score-bar-track">
+            <div class="score-bar-fill" style="width:{{ sc }}%;background:{% if sc >= 70 %}linear-gradient(90deg,#1a7a4a,#34d399){% elif sc >= 40 %}linear-gradient(90deg,#b8680a,#f59e0b){% else %}linear-gradient(90deg,#c0392b,#ef4444){% endif %}"></div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Feedback -->
+        {% if item.feedback %}
+        <div class="feedback-box">
+          <div class="fb-label"><i class="bi bi-robot"></i> AI Feedback</div>
+          {{ item.feedback }}
+        </div>
+        {% endif %}
+
+        <!-- Strengths / Weaknesses -->
+        {% if item.strengths_list or item.weaknesses_list %}
+        <div class="sw-row">
+          {% if item.strengths_list %}
+          <div class="sw-box sw-green">
+            <div class="sw-label"><i class="bi bi-check-circle-fill"></i> Strengths</div>
+            {% for s in item.strengths_list[:3] %}
+            <div class="sw-item">{{ s }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% if item.weaknesses_list %}
+          <div class="sw-box sw-red">
+            <div class="sw-label"><i class="bi bi-exclamation-circle-fill"></i> Improve</div>
+            {% for w in item.weaknesses_list[:3] %}
+            <div class="sw-item">{{ w }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+
+    {% else %}
+    <div class="s-empty">
+      <i class="bi bi-chat-square-x"></i>
+      No answers found for this session.
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

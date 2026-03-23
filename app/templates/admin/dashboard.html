@@ -1,0 +1,879 @@
+{% extends "base.html" %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --primary:#2563EB;--primary-h:#1D4ED8;--primary-light:#EFF6FF;--primary-b:#BFDBFE;
+  --bg:#F8FAFC;--card:#fff;--border:#E2E8F0;
+  --text:#0F172A;--muted:#64748B;--faint:#94A3B8;
+  --green:#10B981;--amber:#F59E0B;--red:#EF4444;--info:#06B6D4;--purple:#8B5CF6;
+}
+*{box-sizing:border-box;}
+body{font-family:'Inter',sans-serif!important;background:var(--bg);color:var(--text);margin:0;}
+.aw{min-height:100vh;}
+
+/* Topbar */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.brand-ico{width:34px;height:34px;border-radius:9px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;}
+.brand-nm{font-size:.95rem;font-weight:700;color:var(--text);}
+.brand-nm b{color:var(--primary);}
+.t-right{display:flex;align-items:center;gap:8px;}
+.admin-pill{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;background:var(--primary-light);border:1px solid var(--primary-b);}
+.apill-av{width:26px;height:26px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.68rem;font-weight:700;}
+.apill-lbl{font-size:.8rem;font-weight:600;color:var(--primary);}
+.btn-lo{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;background:#FEF2F2;border:1px solid #FECACA;color:var(--red);font-size:.8rem;font-weight:600;text-decoration:none;transition:all .15s;}
+.btn-lo:hover{background:#FEE2E2;color:var(--red);}
+
+/* Main */
+.main{padding:24px 20px 60px;}
+.pg-ttl{font-size:1.35rem;font-weight:800;color:var(--text);letter-spacing:-.02em;}
+.pg-sub{font-size:.82rem;color:var(--muted);margin-top:2px;margin-bottom:20px;}
+
+/* Flash */
+.fl{border-radius:10px;padding:9px 14px;font-size:.82rem;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.fls{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;}
+.fld{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;}
+.flw{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.sw{position:relative;flex:1;min-width:180px;max-width:300px;}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:.82rem;}
+.sinp{width:100%;padding:8px 11px 8px 30px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;}
+.sinp:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.sinp::placeholder{color:var(--faint);}
+.bp{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--primary);color:#fff;font-size:.8rem;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-decoration:none;}
+.bp:hover{background:var(--primary-h);color:#fff;text-decoration:none;}
+.bs{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#F1F5F9;color:var(--text);font-size:.8rem;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;text-decoration:none;}
+.bs:hover{background:var(--border);color:var(--text);text-decoration:none;}
+
+/* Stats */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s;display:flex;align-items:center;gap:13px;}
+.sc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08);}
+.sico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.sv{font-size:1.65rem;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.02em;}
+.sl{font-size:.7rem;color:var(--muted);margin-top:2px;font-weight:500;}
+
+/* System Health */
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.hc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;align-items:center;gap:12px;}
+.hcico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.hcv{font-size:1.4rem;font-weight:800;color:var(--text);line-height:1;}
+.hcl{font-size:.69rem;color:var(--muted);margin-top:1px;font-weight:500;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#10B981;display:inline-block;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+
+/* Charts */
+.cgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+.cbox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.cbox.wide{grid-column:span 2;}
+.ctit{font-size:.86rem;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+/* Tabs */
+.tabs-w{display:flex;gap:2px;background:#F1F5F9;border-radius:10px;padding:3px;margin-bottom:16px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;}
+.tb{padding:6px 14px;border-radius:8px;border:none;background:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:.79rem;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.tb.on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08);font-weight:600;}
+.tp{display:none;}.tp.on{display:block;}
+
+/* Cards */
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:16px;}
+.thdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#FAFBFC;}
+.ttit{font-size:.86rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;}
+.cbdg{background:var(--primary-light);color:var(--primary);padding:2px 8px;border-radius:99px;font-size:.7rem;font-weight:600;}
+
+/* Tables */
+table.t{width:100%;border-collapse:collapse;}
+table.t th{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);background:#F8FAFC;}
+table.t td{padding:10px 14px;font-size:.81rem;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:middle;}
+table.t tr:last-child td{border-bottom:none;}
+table.t tr:hover td{background:#FAFBFC;}
+.un{font-weight:600;color:var(--text);font-size:.82rem;}
+.ue{font-size:.7rem;color:var(--faint);margin-top:1px;}
+
+/* Badges */
+.bdg{padding:3px 9px;border-radius:99px;font-size:.69rem;font-weight:600;display:inline-flex;align-items:center;gap:3px;}
+.bbl{background:#EFF6FF;color:var(--primary);}
+.bpu{background:#F5F3FF;color:var(--purple);}
+.bgr{background:#F0FDF4;color:var(--green);}
+.bre{background:#FEF2F2;color:var(--red);}
+.bam{background:#FFFBEB;color:var(--amber);}
+.bin{background:#F0FDFA;color:var(--info);}
+
+/* Score */
+.smini{display:flex;align-items:center;gap:7px;}
+.sbt{height:5px;background:#F1F5F9;border-radius:99px;overflow:hidden;}
+.sbf{height:100%;border-radius:99px;}
+
+/* Action btns */
+.ab{display:inline-flex;align-items:center;gap:3px;padding:4px 9px;border-radius:6px;font-size:.73rem;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;border:none;font-family:'Inter',sans-serif;}
+.ab-r{background:#FEF2F2;border:1px solid #FECACA;color:var(--red);}
+.ab-r:hover{background:#FEE2E2;}
+.ab-g{background:#F0FDF4;border:1px solid #BBF7D0;color:var(--green);}
+.ab-g:hover{background:#DCFCE7;}
+.ab-am{background:#FFFBEB;border:1px solid #FDE68A;color:var(--amber);}
+.ab-b{background:#EFF6FF;border:1px solid #BFDBFE;color:var(--primary);}
+.ab-b:hover{background:#DBEAFE;color:var(--primary);text-decoration:none;}
+
+/* Rank */
+.rnk{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:700;}
+.r1{background:#FEF3C7;color:#D97706;}
+.r2{background:#F1F5F9;color:#64748B;}
+.r3{background:#FEF9EB;color:#B45309;}
+.rn{background:#F8FAFC;color:#94A3B8;font-size:.75rem;}
+
+/* Activity feed */
+.act-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);}
+.act-item:last-child{border-bottom:none;}
+.act-ico{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.act-txt{font-size:.8rem;color:var(--text);font-weight:500;line-height:1.4;}
+.act-time{font-size:.7rem;color:var(--faint);margin-top:2px;}
+
+/* Empty */
+.empty{text-align:center;padding:32px 20px;}
+.empty i{font-size:2rem;color:#CBD5E1;display:block;margin-bottom:8px;}
+.empty p{color:var(--muted);font-size:.83rem;}
+
+/* Modal */
+.modal{visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;transition:all .2s;backdrop-filter:blur(4px);}
+.modal.open{visibility:visible;opacity:1;}
+.mbox{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.15);}
+.mtit{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:7px;}
+.mf{margin-bottom:12px;}
+.mf label{font-size:.69rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:block;margin-bottom:4px;}
+.mf input,.mf select{width:100%;padding:9px 11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.84rem;outline:none;transition:all .15s;}
+.mf input:focus,.mf select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.mfoot{display:flex;gap:8px;margin-top:18px;}
+.mb-c{flex:1;padding:9px;border-radius:8px;background:#F1F5F9;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;}
+.mb-c:hover{background:var(--border);}
+.mb-s{flex:2;padding:9px;border-radius:8px;background:var(--primary);color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:.84rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.mb-s:hover{background:var(--primary-h);}
+
+/* 2-col layout for bottom sections */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+
+/* Responsive */
+@media(max-width:1100px){.cgrid{grid-template-columns:1fr 1fr;}.cbox.wide{grid-column:span 2;}}
+@media(max-width:900px){.sg{grid-template-columns:repeat(2,1fr);}.health-grid{grid-template-columns:repeat(2,1fr);}.cgrid{grid-template-columns:1fr;}.cbox.wide{grid-column:span 1;}.two-col{grid-template-columns:1fr;}}
+@media(max-width:600px){
+  .sg{grid-template-columns:1fr 1fr;}.health-grid{grid-template-columns:1fr;}.topbar{padding:0 14px;}
+  .main{padding:16px 14px 60px;}.apill-lbl{display:none;}
+  .tabs-w{width:100%;}.tb{font-size:.74rem;padding:5px 9px;}
+  table.t thead{display:none;}
+  table.t td{display:block;padding:5px 14px;border-bottom:none;}
+  table.t td:first-child{padding-top:10px;}
+  table.t td:last-child{padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .two-col{grid-template-columns:1fr;}
+}
+@media(max-width:400px){.sg{grid-template-columns:1fr;}}
+
+/* ═══════════════════════════════════════════
+   UI IMPROVEMENTS
+═══════════════════════════════════════════ */
+
+/* ── Animated stat counters ── */
+.sv{font-size:1.65rem;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.02em;
+  transition:transform .3s;}
+.sc:hover .sv{transform:scale(1.08);}
+@keyframes countUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.sv.counting{animation:countUp .6s ease both;}
+
+/* ── Card hover animations ── */
+.sc{transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,background .15s;}
+.sc:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 14px 32px rgba(0,0,0,.1);}
+.hc{transition:transform .2s ease,box-shadow .2s ease;}
+.hc:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.08);}
+.tcard{transition:box-shadow .2s ease;}
+.tcard:hover{box-shadow:0 6px 24px rgba(0,0,0,.07);}
+.cbox{transition:box-shadow .2s ease,transform .2s ease;}
+.cbox:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);transform:translateY(-2px);}
+
+/* ── Skeleton Loaders ── */
+@keyframes shimmer{0%{background-position:-400px 0;}100%{background-position:400px 0;}}
+.skeleton{background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:800px 100%;animation:shimmer 1.4s ease-in-out infinite;border-radius:8px;}
+.skel-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.skel-line{height:12px;margin-bottom:8px;}
+.skel-line.w-30{width:30%;}
+.skel-line.w-50{width:50%;}
+.skel-line.w-70{width:70%;}
+.skel-line.w-100{width:100%;}
+.skel-circle{width:42px;height:42px;border-radius:12px;}
+.skel-title{height:18px;width:40%;margin-bottom:6px;}
+.skel-val{height:32px;width:55%;}
+.skeleton-overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(248,250,252,.7);backdrop-filter:blur(2px);align-items:center;justify-content:center;}
+.skeleton-overlay.show{display:flex;}
+.loader-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 36px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.1);}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top:3px solid var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loader-txt{font-size:.84rem;font-weight:600;color:var(--muted);}
+
+/* ── Tooltip ── */
+.tip{position:relative;display:inline-flex;}
+.tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;font-size:.7rem;font-weight:500;padding:5px 10px;border-radius:7px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;transform:translateX(-50%) translateY(4px);z-index:100;}
+.tip::before{content:'';position:absolute;bottom:calc(100% + 1px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#0F172A;pointer-events:none;opacity:0;transition:opacity .18s;z-index:100;}
+.tip:hover::after,.tip:hover::before{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Chart container with loading state ── */
+.chart-container{position:relative;}
+.chart-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);border-radius:10px;z-index:10;}
+.chart-loading.hidden{display:none;}
+.chart-spinner{width:28px;height:28px;border:2px solid var(--border);border-top:2px solid var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
+
+/* ── Row fade-in ── */
+@keyframes rowIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+table.t tbody tr{animation:rowIn .3s ease both;}
+table.t tbody tr:nth-child(1){animation-delay:.04s;}
+table.t tbody tr:nth-child(2){animation-delay:.08s;}
+table.t tbody tr:nth-child(3){animation-delay:.12s;}
+table.t tbody tr:nth-child(4){animation-delay:.16s;}
+table.t tbody tr:nth-child(5){animation-delay:.20s;}
+
+/* ── Stat card entrance ── */
+@keyframes cardIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.sc:nth-child(1){animation:cardIn .4s .05s ease both;}
+.sc:nth-child(2){animation:cardIn .4s .1s ease both;}
+.sc:nth-child(3){animation:cardIn .4s .15s ease both;}
+.sc:nth-child(4){animation:cardIn .4s .2s ease both;}
+.hc:nth-child(1){animation:cardIn .4s .25s ease both;}
+.hc:nth-child(2){animation:cardIn .4s .3s ease both;}
+.hc:nth-child(3){animation:cardIn .4s .35s ease both;}
+
+/* ── Mobile improvements ── */
+@media(max-width:768px){
+  .topbar{padding:0 12px;}
+  .brand-nm{display:none;}
+  .main{padding:14px 12px 60px;}
+  .pg-ttl{font-size:1.15rem;}
+  .sg{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .sico{width:36px;height:36px;border-radius:10px;font-size:1rem;}
+  .sv{font-size:1.35rem;}
+  .sl{font-size:.66rem;}
+  .health-grid{grid-template-columns:1fr;gap:10px;}
+  .hcv{font-size:1.2rem;}
+  .cgrid{grid-template-columns:1fr;gap:12px;}
+  .cbox.wide{grid-column:span 1;}
+  .two-col{grid-template-columns:1fr;gap:12px;}
+  .tabs-w{gap:2px;padding:3px;}
+  .tb{font-size:.72rem;padding:5px 8px;gap:3px;}
+  .tb i{font-size:.82rem;}
+  .toolbar{gap:6px;}
+  .sw{min-width:140px;}
+  .bp,.bs{padding:6px 10px;font-size:.76rem;}
+  table.t th{font-size:.62rem;padding:7px 10px;}
+  table.t td{padding:9px 10px;font-size:.78rem;}
+  .thdr{padding:12px 14px;}
+  .ttit{font-size:.82rem;}
+  .act-item{gap:8px;padding:9px 0;}
+  .act-ico{width:28px;height:28px;font-size:.78rem;border-radius:8px;}
+  .act-txt{font-size:.76rem;}
+  .act-time{font-size:.67rem;}
+}
+@media(max-width:480px){
+  .sg{grid-template-columns:1fr 1fr;}
+  .t-right{gap:6px;}
+  .apill-lbl{display:none;}
+  .admin-pill{padding:4px 8px;}
+  .chart-card,.cbox{padding:14px;}
+  .ctit{font-size:.8rem;}
+}
+@media(max-width:360px){
+  .sg{grid-template-columns:1fr;}
+  .tb span{display:none;}
+}
+
+/* ── Scroll fade for tables on mobile ── */
+.table-responsive{position:relative;}
+.table-responsive::after{content:'';position:absolute;right:0;top:0;bottom:0;width:24px;background:linear-gradient(to left,rgba(255,255,255,.9),transparent);pointer-events:none;}
+@media(min-width:769px){.table-responsive::after{display:none;}}
+
+/* ── Progress bar in stat cards ── */
+.stat-progress{height:3px;background:#F1F5F9;border-radius:99px;margin-top:8px;overflow:hidden;}
+.stat-progress-fill{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.22,1,.36,1);}
+
+/* ── Pulse on live badge ── */
+.live-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;background:#F0FDF4;border:1px solid #BBF7D0;font-size:.7rem;font-weight:600;color:#10B981;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#10B981;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(1.35);}}
+</style>
+
+<div class="aw">
+
+<!-- Page loading skeleton overlay -->
+<div class="skeleton-overlay" id="pageLoader">
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <div class="loader-txt">Loading dashboard...</div>
+  </div>
+</div>
+<!-- Topbar -->
+<!-- <nav class="topbar">
+  <a class="brand" href="#"><div class="brand-ico"><i class="bi bi-cpu-fill"></i></div><div class="brand-nm">Smart <b>Interview</b></div></a>
+  <div class="t-right">
+    <div class="admin-pill"><div class="apill-av"><i class="bi bi-shield-check" style="font-size:.62rem;"></i></div><span class="apill-lbl">Admin</span></div>
+    <a href="{{ url_for('auth.logout') }}" class="btn-lo"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+</nav> -->
+
+<div class="main">
+  <div class="pg-ttl">Dashboard Overview</div>
+  <div class="pg-sub">Welcome back! Here's your system at a glance.</div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}
+      <div class="fl fl{{ c[0] }}"><i class="bi bi-info-circle-fill"></i> {{ m }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <form method="GET" action="{{ url_for('admin.dashboard') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <div class="sw"><i class="bi bi-search si"></i><input type="text" name="search" class="sinp" placeholder="Search users..." value="{{ search or '' }}"/></div>
+      <button type="submit" class="bp"><i class="bi bi-search"></i> Search</button>
+      {% if search %}<a href="{{ url_for('admin.dashboard') }}" class="bs"><i class="bi bi-x"></i> Clear</a>{% endif %}
+    </form>
+    <div style="margin-left:auto;display:flex;gap:7px;flex-wrap:wrap;">
+      <button class="bp" onclick="openM('addIModal')"><i class="bi bi-person-plus"></i> Add Interviewer</button>
+      <a href="{{ url_for('admin.export_users') }}" class="bs"><i class="bi bi-download"></i> Export</a>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="sg">
+    <div class="sc tip" data-tip="Total registered users">
+      <div class="sico" style="background:#EFF6FF;color:#2563EB;"><i class="bi bi-people-fill"></i></div>
+      <div style="flex:1;">
+        <div class="sv" data-target="{{ stats.total_users or 0 }}">0</div>
+        <div class="sl">Total Users</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:0%;background:#2563EB;" data-w="100%"></div></div>
+      </div>
+    </div>
+    <div class="sc tip" data-tip="Resumes uploaded & scored">
+      <div class="sico" style="background:#FFFBEB;color:#F59E0B;"><i class="bi bi-file-earmark-person-fill"></i></div>
+      <div style="flex:1;">
+        <div class="sv" data-target="{{ stats.total_resumes or 0 }}">0</div>
+        <div class="sl">Total Resumes</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:0%;background:#F59E0B;" data-w="{{ [((stats.total_resumes or 0) / ([stats.total_users or 1, 1]|max) * 100)|round|int, 100]|min }}%"></div></div>
+      </div>
+    </div>
+    <div class="sc tip" data-tip="All interview sessions">
+      <div class="sico" style="background:#F5F3FF;color:#8B5CF6;"><i class="bi bi-mic-fill"></i></div>
+      <div style="flex:1;">
+        <div class="sv" data-target="{{ stats.total_interviews or 0 }}">0</div>
+        <div class="sl">Total Interviews</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:0%;background:#8B5CF6;" data-w="{{ [((stats.total_interviews or 0) / ([stats.total_users or 1, 1]|max) * 100)|round|int, 100]|min }}%"></div></div>
+      </div>
+    </div>
+    <div class="sc tip" data-tip="Fully completed interviews">
+      <div class="sico" style="background:#F0FDF4;color:#10B981;"><i class="bi bi-check-circle-fill"></i></div>
+      <div style="flex:1;">
+        <div class="sv" data-target="{{ stats.completed_interviews or 0 }}">0</div>
+        <div class="sl">Completed</div>
+        <div class="stat-progress"><div class="stat-progress-fill" style="width:0%;background:#10B981;" data-w="{{ [((stats.completed_interviews or 0) / ([stats.total_interviews or 1, 1]|max) * 100)|round|int, 100]|min }}%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── System Health ── -->
+  <div class="health-grid">
+    <div class="hc"><div class="hcico" style="background:#F0FDFA;color:#06B6D4;"><i class="bi bi-activity"></i></div><div><div class="hcv">{{ total_api_calls or 0 }}</div><div class="hcl">Total API Calls (Answers)</div></div></div>
+    <div class="hc"><div class="hcico" style="background:#F0FDF4;color:#10B981;"><i class="bi bi-graph-up-arrow"></i></div><div><div class="hcv">{{ avg_score_val or 0 }}%</div><div class="hcl">Avg Interview Score</div></div></div>
+    <div class="hc"><div class="hcico" style="background:#EFF6FF;color:#2563EB;"><i class="bi bi-server"></i></div><div><div class="hcv" style="display:flex;align-items:center;gap:7px;"><span class="live-dot"></span> Live</div><div class="hcl">{{ live_sessions|length }} Active Session{{ 's' if live_sessions|length != 1 }}</div></div></div>
+  </div>
+
+  <!-- ── Charts ── -->
+  <div class="cgrid">
+    <div class="cbox wide">
+      <div class="ctit"><i class="bi bi-bar-chart-fill" style="color:#2563EB;"></i> Interviews — Last 7 Days <span style="margin-left:auto;font-size:.7rem;color:var(--faint);font-weight:400;">Hover for details</span></div>
+      <div class="chart-container">
+        <div class="chart-loading" id="dl"><div class="chart-spinner"></div></div>
+        <canvas id="dailyChart" height="140"></canvas>
+      </div>
+    </div>
+    <div class="cbox">
+      <div class="ctit"><i class="bi bi-pie-chart-fill" style="color:#F59E0B;"></i> Score Distribution</div>
+      <div class="chart-container">
+        <div class="chart-loading" id="sl2"><div class="chart-spinner"></div></div>
+        <canvas id="scoreChart" height="140"></canvas>
+      </div>
+    </div>
+    <div class="cbox wide">
+      <div class="ctit"><i class="bi bi-tag-fill" style="color:#8B5CF6;"></i> Top Skills from Resumes <span style="margin-left:auto;font-size:.7rem;color:var(--faint);font-weight:400;">From all resumes</span></div>
+      <div class="chart-container">
+        <div class="chart-loading" id="skl"><div class="chart-spinner"></div></div>
+        <canvas id="skillsChart" height="130"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tabs ── -->
+  <div class="tabs-w">
+    <button class="tb on" onclick="showTab('users',this)"><i class="bi bi-people"></i> Users</button>
+    <button class="tb" onclick="showTab('interviewers',this)"><i class="bi bi-person-badge"></i> Interviewers</button>
+    <button class="tb" onclick="showTab('resumes',this)"><i class="bi bi-file-earmark-person"></i> Resumes</button>
+    <button class="tb" onclick="showTab('interviews',this)"><i class="bi bi-mic"></i> Interviews</button>
+    <button class="tb" onclick="showTab('leaderboard',this)"><i class="bi bi-trophy"></i> Leaderboard</button>
+    <button class="tb" onclick="showTab('live',this)"><i class="bi bi-broadcast"></i> Live <span class="live-dot" style="margin-left:3px;"></span></button>
+    <button class="tb" onclick="showTab('activity',this)"><i class="bi bi-clock-history"></i> Activity</button>
+    <button class="tb" onclick="showTab('schedules',this)"><i class="bi bi-calendar-check"></i> Schedules</button>
+  </div>
+
+  <!-- USERS -->
+  <div class="tp on" id="tp-users">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-people" style="color:#2563EB;"></i> All Users <span class="cbdg">{{ users|length }}</span></div></div>
+      {% if users %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>#</th><th>User</th><th>Role</th><th>Joined</th><th>Action</th></tr></thead><tbody>
+      {% for u in users %}
+      <tr>
+        <td style="color:#CBD5E1;font-weight:600;font-size:.76rem;">{{ loop.index }}</td>
+        <td><div class="un">{{ u.name }}</div><div class="ue">{{ u.email }}</div></td>
+        <td>{% if u.role=='admin' %}<span class="bdg bbl"><i class="bi bi-shield-check"></i> Admin</span>{% elif u.role=='interviewer' %}<span class="bdg bpu"><i class="bi bi-person-badge"></i> Interviewer</span>{% else %}<span class="bdg bgr"><i class="bi bi-person"></i> Candidate</span>{% endif %}</td>
+        <td style="font-size:.76rem;color:var(--muted);">{{ u.created_at.strftime('%d %b %Y') if u.created_at else '—' }}</td>
+        <td>{% if u.id != session.user_id %}<form method="POST" action="{{ url_for('admin.remove_user', user_id=u.id) }}" onsubmit="return confirm('Delete?')" style="display:inline;"><button type="submit" class="ab ab-r"><i class="bi bi-trash"></i> Delete</button></form>{% else %}<span class="bdg bbl">You</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-people"></i><p>No users found</p></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- INTERVIEWERS -->
+  <div class="tp" id="tp-interviewers">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-person-badge" style="color:#8B5CF6;"></i> Interviewers <span class="cbdg">{{ interviewers|length }}</span></div><button class="bp" onclick="openM('addIModal')"><i class="bi bi-plus"></i> Add New</button></div>
+      {% if interviewers %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>Name</th><th>Email</th><th>Sessions</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody>
+      {% for iv in interviewers %}
+      <tr>
+        <td><div class="un">{{ iv.name }}</div></td>
+        <td style="font-size:.78rem;color:var(--muted);">{{ iv.email }}</td>
+        <td><span class="bdg bbl">{{ iv.session_count }}</span></td>
+        <td>{% if iv.is_active %}<span class="bdg bgr"><i class="bi bi-circle-fill" style="font-size:.38rem;"></i> Active</span>{% else %}<span class="bdg bre"><i class="bi bi-circle-fill" style="font-size:.38rem;"></i> Inactive</span>{% endif %}</td>
+        <td style="font-size:.76rem;color:var(--muted);">{{ iv.created_at.strftime('%d %b %Y') if iv.created_at else '—' }}</td>
+        <td style="display:flex;gap:4px;flex-wrap:wrap;">
+          <form method="POST" action="{{ url_for('admin.toggle_interviewer', user_id=iv.id) }}" style="display:inline;"><button type="submit" class="ab {% if iv.is_active %}ab-am{% else %}ab-g{% endif %}"><i class="bi bi-{% if iv.is_active %}pause{% else %}play{% endif %}-circle"></i> {{ 'Deactivate' if iv.is_active else 'Activate' }}</button></form>
+          <form method="POST" action="{{ url_for('admin.remove_user', user_id=iv.id) }}" onsubmit="return confirm('Delete?')" style="display:inline;"><button type="submit" class="ab ab-r"><i class="bi bi-trash"></i></button></form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-person-badge"></i><p>No interviewers yet</p><button class="bp" style="margin-top:8px;" onclick="openM('addIModal')"><i class="bi bi-plus"></i> Add First</button></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- RESUMES -->
+  <div class="tp" id="tp-resumes">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-file-earmark-person" style="color:#F59E0B;"></i> All Resumes <span class="cbdg">{{ resumes|length }}</span></div></div>
+      {% if resumes %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>User</th><th>File</th><th>Overall</th><th>Technical</th><th>Experience</th><th>Uploaded</th><th>View</th></tr></thead><tbody>
+      {% for r in resumes %}
+      <tr>
+        <td><div class="un">{{ r.user_name }}</div><div class="ue">{{ r.user_email }}</div></td>
+        <td style="font-size:.76rem;color:var(--muted);">{{ r.original_filename[:22] }}{% if r.original_filename|length>22 %}…{% endif %}<br><span style="color:#CBD5E1;">{{ r.size_display }}</span></td>
+        <td>{% if r.overall_score %}<div class="smini"><div class="sbt" style="width:50px;"><div class="sbf" style="width:{{ r.overall_score }}%;background:{% if r.overall_score>=70 %}#10B981{% elif r.overall_score>=40 %}#F97316{% else %}#EF4444{% endif %}"></div></div><span style="font-weight:600;font-size:.8rem;color:{% if r.overall_score>=70 %}#10B981{% elif r.overall_score>=40 %}#F97316{% else %}#EF4444{% endif %}">{{ r.overall_score }}%</span></div>{% else %}<span style="color:#CBD5E1;">—</span>{% endif %}</td>
+        <td><span style="color:#8B5CF6;font-weight:600;">{{ r.technical_score or '—' }}</span></td>
+        <td><span style="color:#F59E0B;font-weight:600;">{{ r.experience_score or '—' }}</span></td>
+        <td style="font-size:.74rem;color:var(--muted);">{{ r.uploaded_at.strftime('%d %b %Y') if r.uploaded_at else '—' }}</td>
+        <td><a href="{{ url_for('static', filename=r.file_path) }}" target="_blank" class="ab ab-b"><i class="bi bi-eye"></i></a></td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-file-earmark-x"></i><p>No resumes yet</p></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- INTERVIEWS -->
+  <div class="tp" id="tp-interviews">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-mic" style="color:#8B5CF6;"></i> All Interviews <span class="cbdg">{{ interviews|length }}</span></div></div>
+      {% if interviews %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>Candidate</th><th>Started</th><th>Score</th><th>Answers</th><th>Status</th></tr></thead><tbody>
+      {% for i in interviews %}
+      <tr>
+        <td><div class="un">{{ i.user_name }}</div><div class="ue">{{ i.user_email }}</div></td>
+        <td style="font-size:.76rem;color:var(--muted);">{{ i.started_at.strftime('%d %b %Y, %I:%M %p') if i.started_at else '—' }}</td>
+        <td>{% if i.total_score %}<div class="smini"><div class="sbt" style="width:50px;"><div class="sbf" style="width:{{ i.total_score }}%;background:{% if i.total_score>=70 %}#10B981{% elif i.total_score>=40 %}#F97316{% else %}#EF4444{% endif %}"></div></div><span style="font-weight:600;font-size:.8rem;color:{% if i.total_score>=70 %}#10B981{% elif i.total_score>=40 %}#F97316{% else %}#EF4444{% endif %}">{{ i.total_score }}%</span></div>{% else %}<span style="color:#CBD5E1;">—</span>{% endif %}</td>
+        <td><span class="bdg bpu">{{ i.answer_count or 0 }}</span></td>
+        <td>{% if i.completed_at %}<span class="bdg bgr"><i class="bi bi-check-circle"></i> Done</span>{% else %}<span class="bdg bam"><i class="bi bi-hourglass-split"></i> In Progress</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-mic-mute"></i><p>No interviews yet</p></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="tp" id="tp-leaderboard">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-trophy" style="color:#F59E0B;"></i> Top Performers</div></div>
+      {% if leaderboard %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>Rank</th><th>Candidate</th><th>Interviews</th><th>Best Score</th><th>Avg Score</th></tr></thead><tbody>
+      {% for l in leaderboard %}
+      <tr>
+        <td>{% if loop.index==1 %}<span class="rnk r1">🥇</span>{% elif loop.index==2 %}<span class="rnk r2">🥈</span>{% elif loop.index==3 %}<span class="rnk r3">🥉</span>{% else %}<span class="rnk rn">{{ loop.index }}</span>{% endif %}</td>
+        <td><div class="un">{{ l.name }}</div><div class="ue">{{ l.email }}</div></td>
+        <td><span class="bdg bbl">{{ l.total_interviews }}</span></td>
+        <td><span style="color:#10B981;font-weight:700;">{{ l.best_score or 0 }}%</span></td>
+        <td><div class="smini"><div class="sbt" style="width:65px;"><div class="sbf" style="width:{{ l.avg_score|round|int }}%;background:{% if l.avg_score>=70 %}#10B981{% elif l.avg_score>=40 %}#F97316{% else %}#EF4444{% endif %}"></div></div><span style="font-weight:600;font-size:.8rem;color:{% if l.avg_score>=70 %}#10B981{% elif l.avg_score>=40 %}#F97316{% else %}#EF4444{% endif %}">{{ l.avg_score|round(1) }}%</span></div></td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-trophy"></i><p>No completed interviews yet</p></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- LIVE MONITOR -->
+  <div class="tp" id="tp-live">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-broadcast" style="color:#10B981;"></i> Live Interview Monitor <span class="live-dot" style="margin-left:5px;"></span></div><span class="cbdg">{{ live_sessions|length }} Active</span></div>
+      {% if live_sessions %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>Candidate</th><th>Email</th><th>Started</th><th>Questions Answered</th><th>Status</th></tr></thead><tbody>
+      {% for s in live_sessions %}
+      <tr>
+        <td><div class="un">{{ s.name }}</div></td>
+        <td style="font-size:.76rem;color:var(--muted);">{{ s.email }}</td>
+        <td style="font-size:.76rem;color:var(--muted);">{{ s.started_at.strftime('%I:%M %p') if s.started_at else '—' }}</td>
+        <td><span class="bdg bpu">Q{{ s.answer_count }} / 5</span></td>
+        <td><span class="bdg bgr" style="display:inline-flex;align-items:center;gap:5px;"><span class="live-dot" style="width:6px;height:6px;"></span> In Progress</span></td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-broadcast"></i><p>No active sessions right now</p></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- ACTIVITY FEED -->
+  <div class="tp" id="tp-activity">
+    <div class="two-col">
+      <!-- New Users -->
+      <div class="tcard">
+        <div class="thdr"><div class="ttit"><i class="bi bi-person-plus" style="color:#2563EB;"></i> New Users</div></div>
+        <div style="padding:0 16px;">
+          {% if recent_users %}{% for u in recent_users %}
+          <div class="act-item">
+            <div class="act-ico" style="background:{% if u.role=='interviewer' %}#F5F3FF{% else %}#F0FDF4{% endif %};color:{% if u.role=='interviewer' %}#8B5CF6{% else %}#10B981{% endif %};">
+              <i class="bi bi-person{% if u.role=='interviewer' %}-badge{% endif %}"></i>
+            </div>
+            <div>
+              <div class="act-txt">{{ u.name }} <span class="bdg {% if u.role=='interviewer' %}bpu{% else %}bgr{% endif %}" style="font-size:.64rem;">{{ u.role|title }}</span></div>
+              <div class="act-time">{{ u.email }} · {{ u.created_at.strftime('%d %b, %I:%M %p') if u.created_at else '' }}</div>
+            </div>
+          </div>
+          {% endfor %}{% else %}<div class="empty" style="padding:20px;"><i class="bi bi-people" style="font-size:1.5rem;"></i><p>No new users</p></div>{% endif %}
+        </div>
+      </div>
+      <!-- Resume Uploads -->
+      <div class="tcard">
+        <div class="thdr"><div class="ttit"><i class="bi bi-file-earmark-arrow-up" style="color:#F59E0B;"></i> Recent Uploads</div></div>
+        <div style="padding:0 16px;">
+          {% if recent_resumes %}{% for r in recent_resumes %}
+          <div class="act-item">
+            <div class="act-ico" style="background:#FEF2F2;color:#EF4444;"><i class="bi bi-file-earmark-pdf"></i></div>
+            <div>
+              <div class="act-txt">{{ r.name }} uploaded a resume</div>
+              <div class="act-time">{{ r.original_filename[:25] }}{% if r.original_filename|length>25 %}…{% endif %} · {% if r.overall_score %}<span style="color:#10B981;font-weight:600;">{{ r.overall_score }}%</span>{% else %}Pending{% endif %}</div>
+            </div>
+          </div>
+          {% endfor %}{% else %}<div class="empty" style="padding:20px;"><i class="bi bi-file-earmark-x" style="font-size:1.5rem;"></i><p>No uploads yet</p></div>{% endif %}
+        </div>
+      </div>
+    </div>
+    <!-- Completed Interviews -->
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-check-circle" style="color:#10B981;"></i> Recently Completed Interviews</div></div>
+      <div style="padding:0 16px;">
+        {% if recent_interviews_done %}{% for i in recent_interviews_done %}
+        <div class="act-item">
+          <div class="act-ico" style="background:#F0FDF4;color:#10B981;"><i class="bi bi-mic-fill"></i></div>
+          <div>
+            <div class="act-txt">{{ i.name }} completed an interview — <span style="font-weight:700;color:{% if i.total_score and i.total_score>=70 %}#10B981{% elif i.total_score %}#F97316{% else %}var(--muted){% endif %}">{% if i.total_score %}{{ i.total_score }}%{% else %}No score{% endif %}</span></div>
+            <div class="act-time">{{ i.completed_at.strftime('%d %b %Y, %I:%M %p') if i.completed_at else '' }}</div>
+          </div>
+        </div>
+        {% endfor %}{% else %}<div class="empty" style="padding:20px;"><i class="bi bi-mic-mute" style="font-size:1.5rem;"></i><p>No completed interviews</p></div>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDULES -->
+  <div class="tp" id="tp-schedules">
+    <div class="tcard">
+      <div class="thdr"><div class="ttit"><i class="bi bi-calendar-check" style="color:#06B6D4;"></i> Schedules <span class="cbdg">{{ schedules|length }}</span></div><button class="bp" onclick="openM('schedModal')"><i class="bi bi-plus"></i> Schedule</button></div>
+      {% if schedules %}
+      <div class="table-responsive">
+      <table class="t"><thead><tr><th>Candidate</th><th>Interviewer</th><th>Title</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      {% for sc in schedules %}
+      <tr>
+        <td><div class="un">{{ sc.candidate_name }}</div><div class="ue">{{ sc.candidate_email }}</div></td>
+        <td style="font-size:.78rem;color:var(--muted);">{{ sc.interviewer_name or '—' }}</td>
+        <td style="font-size:.8rem;color:var(--text);font-weight:500;">{{ sc.title }}</td>
+        <td style="font-size:.74rem;color:var(--muted);">{{ sc.scheduled_at.strftime('%d %b %Y, %I:%M %p') if sc.scheduled_at else '—' }}</td>
+        <td>{% if sc.status=='approved' %}<span class="bdg bgr">✅ Approved</span>{% elif sc.status=='rejected' %}<span class="bdg bre">❌ Rejected</span>{% elif sc.status=='completed' %}<span class="bdg bin">✔ Done</span>{% else %}<span class="bdg bam">⏳ Pending</span>{% endif %}</td>
+        <td style="display:flex;gap:4px;flex-wrap:wrap;">
+          {% if sc.status=='pending' %}
+          <form method="POST" action="{{ url_for('admin.update_schedule', schedule_id=sc.id, action='approve') }}" style="display:inline;"><button type="submit" class="ab ab-g"><i class="bi bi-check"></i> Approve</button></form>
+          <form method="POST" action="{{ url_for('admin.update_schedule', schedule_id=sc.id, action='reject') }}" style="display:inline;"><button type="submit" class="ab ab-r"><i class="bi bi-x"></i> Reject</button></form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}<div class="empty"><i class="bi bi-calendar-x"></i><p>No schedules yet</p></div>{% endif %}
+    </div>
+  </div>
+
+</div><!-- end main -->
+</div><!-- end aw -->
+
+<!-- Add Interviewer Modal -->
+<div class="modal" id="addIModal">
+  <div class="mbox">
+    <div class="mtit"><i class="bi bi-person-plus" style="color:var(--primary);"></i> Add Interviewer</div>
+    <form method="POST" action="{{ url_for('admin.add_interviewer') }}">
+      <div class="mf"><label>Full Name</label><input type="text" name="name" placeholder="Full name" required/></div>
+      <div class="mf"><label>Email</label><input type="email" name="email" placeholder="email@example.com" required/></div>
+      <div class="mf"><label>Password</label><input type="password" name="password" placeholder="Min. 8 characters" required/></div>
+      <div class="mfoot"><button type="button" class="mb-c" onclick="closeM('addIModal')">Cancel</button><button type="submit" class="mb-s"><i class="bi bi-person-plus"></i> Add Interviewer</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="modal" id="schedModal">
+  <div class="mbox">
+    <div class="mtit"><i class="bi bi-calendar-plus" style="color:#06B6D4;"></i> Schedule Interview</div>
+    <form method="POST" action="{{ url_for('admin.schedule_interview') }}">
+      <div class="mf"><label>Candidate</label><select name="candidate_id" required><option value="">Select candidate...</option>{% for c in candidates %}<option value="{{ c.id }}">{{ c.name }} — {{ c.email }}</option>{% endfor %}</select></div>
+      <div class="mf"><label>Interviewer (Optional)</label><select name="interviewer_id"><option value="">Select interviewer...</option>{% for iv in interviewers %}<option value="{{ iv.id }}">{{ iv.name }}</option>{% endfor %}</select></div>
+      <div class="mf"><label>Title</label><input type="text" name="title" placeholder="e.g. Frontend Developer Interview" required/></div>
+      <div class="mf"><label>Date & Time</label><input type="datetime-local" name="scheduled_at" required/></div>
+      <div class="mf"><label>Duration (min)</label><input type="number" name="duration_minutes" value="60" min="15" max="180"/></div>
+      <div class="mfoot"><button type="button" class="mb-c" onclick="closeM('schedModal')">Cancel</button><button type="submit" class="mb-s"><i class="bi bi-calendar-check"></i> Schedule</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ── Tab switching ──
+function showTab(n,el){
+  document.querySelectorAll('.tp').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tp-'+n).classList.add('on');
+  el.classList.add('on');
+}
+
+// ── Modal ──
+function openM(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeM(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeM(m.id);}));
+document.querySelectorAll('.mbox').forEach(b=>b.addEventListener('click',e=>e.stopPropagation()));
+
+// ── Loading skeleton ──
+window.addEventListener('load', () => {
+  document.getElementById('pageLoader').classList.remove('show');
+});
+
+// ── Animated counter ──
+function animateCounter(el, target, duration = 1200) {
+  const start = performance.now();
+  el.classList.add('counting');
+  const update = (now) => {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // easeOutExpo
+    const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    el.textContent = Math.floor(eased * target).toLocaleString();
+    if (progress < 1) requestAnimationFrame(update);
+    else { el.textContent = target.toLocaleString(); el.classList.remove('counting'); }
+  };
+  requestAnimationFrame(update);
+}
+
+// ── Progress bar animation ──
+function animateProgressBars() {
+  document.querySelectorAll('.stat-progress-fill').forEach(bar => {
+    const target = bar.getAttribute('data-w');
+    setTimeout(() => { bar.style.width = target; }, 300);
+  });
+}
+
+// ── Intersection observer for counters ──
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.getAttribute('data-target') || '0');
+      animateCounter(el, target);
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.sv[data-target]').forEach(el => counterObserver.observe(el));
+animateProgressBars();
+
+// ── Charts ──
+const chartFont = { family: 'Inter', size: 11 };
+const gridColor = '#F1F5F9', tickColor = '#94A3B8';
+
+const tooltipStyle = {
+  backgroundColor: '#0F172A',
+  titleColor: '#fff',
+  bodyColor: '#94A3B8',
+  padding: 10,
+  cornerRadius: 8,
+  titleFont: { family: 'Inter', size: 12, weight: '600' },
+  bodyFont: { family: 'Inter', size: 11 },
+  displayColors: true,
+  borderColor: 'rgba(255,255,255,.1)',
+  borderWidth: 1,
+};
+
+var dd = {{ daily_interviews | tojson }};
+var sd = {{ score_dist | tojson }};
+var days = dd.map(d => d.day ? d.day.toString().slice(5) : '');
+var cnts = dd.map(d => d.count);
+if (!days.length) { days = ['No data']; cnts = [0]; }
+
+// Daily bar chart
+setTimeout(() => {
+  document.getElementById('dl').classList.add('hidden');
+  new Chart(document.getElementById('dailyChart'), {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [{
+        label: 'Interviews',
+        data: cnts,
+        backgroundColor: cnts.map(v => v > 0 ? 'rgba(37,99,235,.18)' : 'rgba(37,99,235,.06)'),
+        borderColor: '#2563EB',
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+        hoverBackgroundColor: 'rgba(37,99,235,.32)',
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 900, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...tooltipStyle,
+          callbacks: {
+            title: (items) => `📅 ${items[0].label}`,
+            label: (item) => ` ${item.raw} interview${item.raw !== 1 ? 's' : ''}`,
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: tickColor, font: chartFont }, grid: { color: gridColor, drawBorder: false } },
+        y: { beginAtZero: true, ticks: { color: tickColor, font: chartFont, stepSize: 1 }, grid: { color: gridColor, drawBorder: false } }
+      }
+    }
+  });
+}, 400);
+
+// Score doughnut
+setTimeout(() => {
+  document.getElementById('sl2').classList.add('hidden');
+  new Chart(document.getElementById('scoreChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Excellent (80+)', 'Good (60–79)', 'Average (40–59)', 'Poor (<40)'],
+      datasets: [{
+        data: [sd.excellent || 0, sd.good || 0, sd.average || 0, sd.poor || 0],
+        backgroundColor: ['#10B981', '#3B82F6', '#F97316', '#EF4444'],
+        borderWidth: 3,
+        borderColor: '#fff',
+        hoverOffset: 10,
+        hoverBorderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '66%',
+      animation: { animateScale: true, duration: 900 },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#64748B', padding: 12, font: { size: 11, family: 'Inter' } } },
+        tooltip: {
+          ...tooltipStyle,
+          callbacks: {
+            label: (item) => ` ${item.label}: ${item.raw} session${item.raw !== 1 ? 's' : ''}`,
+          }
+        }
+      }
+    }
+  });
+}, 600);
+
+// Skills horizontal bar
+var skills = {{ top_skills | tojson }};
+var skLabels = skills.map(s => s[0]);
+var skVals = skills.map(s => s[1]);
+if (!skLabels.length) { skLabels = ['No data']; skVals = [0]; }
+const skColors = ['#3B82F6','#10B981','#F97316','#8B5CF6','#EC4899','#06B6D4','#F59E0B','#EF4444','#14B8A6','#6366F1'];
+
+setTimeout(() => {
+  document.getElementById('skl').classList.add('hidden');
+  new Chart(document.getElementById('skillsChart'), {
+    type: 'bar',
+    data: {
+      labels: skLabels,
+      datasets: [{
+        label: 'Resumes',
+        data: skVals,
+        backgroundColor: skColors.slice(0, skLabels.length).map(c => c + '33'),
+        borderColor: skColors.slice(0, skLabels.length),
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      animation: { duration: 900, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...tooltipStyle,
+          callbacks: {
+            title: (items) => `🏷️ ${items[0].label}`,
+            label: (item) => ` Found in ${item.raw} resume${item.raw !== 1 ? 's' : ''}`,
+          }
+        }
+      },
+      scales: {
+        x: { beginAtZero: true, ticks: { color: tickColor, font: chartFont, stepSize: 1 }, grid: { color: gridColor, drawBorder: false } },
+        y: { ticks: { color: tickColor, font: chartFont }, grid: { color: 'transparent' } }
+      }
+    }
+  });
+}, 800);
+
+// ── Form submit loader ──
+document.querySelectorAll('form').forEach(form => {
+  form.addEventListener('submit', () => {
+    document.getElementById('pageLoader').classList.add('show');
+  });
+});
+
+// ── Mobile: swipe hint for tables ──
+if (window.innerWidth < 640) {
+  document.querySelectorAll('.table-responsive').forEach(el => {
+    el.setAttribute('title', 'Scroll horizontally to see more');
+  });
+}
+</script>
+{% endblock %}

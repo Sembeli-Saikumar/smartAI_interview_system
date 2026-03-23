@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Resume — InterviewIQ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <style>
+    body { min-height:100vh; padding-top:80px; padding-bottom:60px; }
+
+    /* ── Drop Zone ── */
+    .drop-zone {
+      border: 2px dashed rgba(10,255,237,.3);
+      border-radius: 20px;
+      padding: 48px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .25s, background .25s;
+      background: rgba(10,255,237,.03);
+      position: relative;
+    }
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--teal);
+      background: rgba(10,255,237,.07);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .drop-icon {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      background: rgba(10,255,237,.1);
+      color: var(--teal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 30px rgba(10,255,237,.2);
+      transition: transform .2s;
+    }
+    .drop-zone:hover .drop-icon { transform: translateY(-4px); }
+    .drop-title  { font-family:'Syne',sans-serif; font-weight:700; font-size:1.15rem; color:#fff; margin-bottom:6px; }
+    .drop-sub    { color:rgba(255,255,255,.4); font-size:.88rem; }
+    .drop-badges { display:flex; gap:8px; justify-content:center; margin-top:16px; }
+    .drop-badge  {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .badge-pdf  { background:rgba(239,68,68,.12);  color:#f87171; border:1px solid rgba(239,68,68,.2); }
+    .badge-docx { background:rgba(59,130,246,.12); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
+    .badge-size { background:rgba(255,255,255,.06); color:rgba(255,255,255,.4); border:1px solid rgba(255,255,255,.08); }
+
+    /* selected file preview */
+    .file-preview {
+      display: none;
+      align-items: center;
+      gap: 14px;
+      background: rgba(10,255,237,.06);
+      border: 1px solid rgba(10,255,237,.2);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-top: 16px;
+    }
+    .file-preview.show { display:flex; }
+    .file-preview-icon { font-size:1.6rem; color:var(--teal); }
+    .file-preview-name { font-size:.9rem; color:#fff; font-weight:500; flex:1; word-break:break-all; }
+    .file-preview-size { font-size:.8rem; color:rgba(255,255,255,.4); }
+
+    /* upload btn */
+    .btn-upload {
+      width:100%; padding:13px;
+      border:none; border-radius:12px;
+      background: linear-gradient(135deg,#0affed,#5c6bc0);
+      color:#0d0f1a;
+      font-family:'Syne',sans-serif; font-weight:700; font-size:1rem;
+      cursor:pointer;
+      transition:transform .2s, box-shadow .2s, opacity .2s;
+      box-shadow:0 6px 28px rgba(10,255,237,.3);
+      margin-top:20px;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn-upload:disabled { opacity:.5; cursor:not-allowed; transform:none !important; }
+    .btn-upload:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(10,255,237,.4); }
+
+    /* page card */
+    .page-card {
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 24px;
+      padding: 40px 40px;
+      backdrop-filter: blur(20px);
+      max-width: 580px;
+      margin: 0 auto;
+      animation: cardIn .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    .page-title {
+      font-family:'Syne',sans-serif; font-weight:800; font-size:1.7rem;
+      color:#fff; letter-spacing:-.4px; margin-bottom:6px;
+    }
+    .page-title span { color:var(--teal); }
+    .page-sub { color:rgba(255,255,255,.4); font-size:.9rem; margin-bottom:32px; }
+
+    /* flash messages */
+    .flash-msg {
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: .88rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .flash-success { background:rgba(34,197,94,.1);  border:1px solid rgba(34,197,94,.25);  color:#4ade80; }
+    .flash-danger  { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.25);  color:#f87171; }
+    .flash-warning { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:#fbbf24; }
+
+    .back-link {
+      display:inline-flex; align-items:center; gap:6px;
+      color:rgba(255,255,255,.4); font-size:.85rem; text-decoration:none;
+      margin-bottom:28px;
+      transition:color .2s;
+    }
+    .back-link:hover { color:var(--teal); }
+
+    @media(max-width:480px){ .page-card{padding:28px 18px;} }
+  </style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="container">
+<a href="{{ url_for('auth.dashboard') }}" class="back-link">
+    <i class="bi bi-arrow-left"></i> Back to Dashboard
+  </a>
+
+  <div class="page-card">
+
+    <div class="page-title">Upload <span>Resume</span></div>
+    <p class="page-sub">Upload your PDF or DOCX resume — max 5 MB</p>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">
+            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}x-circle{% else %}exclamation-triangle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Upload Form -->
+    <form action="{{ url_for('resume.upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+
+      <!-- Drag & Drop Zone -->
+      <div class="drop-zone" id="dropZone">
+        <input type="file" name="resume" id="resumeInput" accept=".pdf,.docx" onchange="previewFile(this)"/>
+        <div class="drop-icon"><i class="bi bi-cloud-upload"></i></div>
+        <div class="drop-title">Drag & drop your resume here</div>
+        <div class="drop-sub">or click to browse files</div>
+        <div class="drop-badges">
+          <span class="drop-badge badge-pdf">PDF</span>
+          <span class="drop-badge badge-docx">DOCX</span>
+          <span class="drop-badge badge-size">Max 5 MB</span>
+        </div>
+      </div>
+
+      <!-- File Preview -->
+      <div class="file-preview" id="filePreview">
+        <i class="bi bi-file-earmark-text file-preview-icon" id="previewIcon"></i>
+        <span class="file-preview-name" id="previewName">—</span>
+        <span class="file-preview-size" id="previewSize">—</span>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-upload" id="uploadBtn" disabled>
+        <i class="bi bi-upload"></i> Upload Resume
+      </button>
+
+    </form>
+
+    <!-- View My Resumes link -->
+    <p style="text-align:center;margin-top:22px;font-size:.88rem;color:rgba(255,255,255,.35);">
+      <a href="{{ url_for('resume.list_resumes') }}" style="color:var(--teal);text-decoration:none;">
+        <i class="bi bi-collection"></i> View my uploaded resumes
+      </a>
+    </p>
+
+  </div>
+</div>
+
+<script>
+  const dropZone   = document.getElementById('dropZone');
+  const uploadBtn  = document.getElementById('uploadBtn');
+  const filePreview = document.getElementById('filePreview');
+
+  /* drag over / leave styling */
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop',      e  => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const input = document.getElementById('resumeInput');
+    input.files = e.dataTransfer.files;
+    previewFile(input);
+  });
+
+  function previewFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const ext  = file.name.split('.').pop().toLowerCase();
+    const icon = document.getElementById('previewIcon');
+    icon.className = ext === 'pdf'
+      ? 'bi bi-file-earmark-pdf file-preview-icon'
+      : 'bi bi-file-earmark-word file-preview-icon';
+    icon.style.color = ext === 'pdf' ? '#f87171' : '#60a5fa';
+
+    document.getElementById('previewName').textContent = file.name;
+    document.getElementById('previewSize').textContent = formatSize(file.size);
+
+    filePreview.classList.add('show');
+    uploadBtn.disabled = false;
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024)        return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+</script>
+</body>
+</html>

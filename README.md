@@ -1,2 +1,13 @@
-# smartAI_interview_system
-AI-powered mock interview system built with Flask, MySQL, and Groq AI. Features camera + voice interview, resume scoring, role-based access (Admin/Interviewer/Candidate), and real-time AI feedback.
+# Smart AI Interview System
+
+This project helps users practice interviews using AI.
+
+## Features
+- AI-based questions
+- Real-time feedback
+- Dashboard
+
+## Tech Stack
+- React
+- Node.js
+- Supabase

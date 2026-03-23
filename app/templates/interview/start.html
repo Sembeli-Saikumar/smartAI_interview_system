@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Start Interview - Smart Interview System{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+.interview-bg{min-height:100vh;background:var(--bg);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:40px 16px;}
+.interview-bg::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 65% 50% at 10% 15%,rgba(30,96,145,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 90% 80%,rgba(22,138,173,.07) 0%,transparent 55%);pointer-events:none;z-index:0;}
+.grid-lines{position:fixed;inset:0;background-image:linear-gradient(rgba(30,96,145,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,96,145,.04) 1px,transparent 1px);background-size:64px 64px;z-index:0;pointer-events:none;}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.1;pointer-events:none;z-index:0;animation:driftOrb 20s ease-in-out infinite alternate;}
+.orb-a{width:500px;height:500px;background:#1e6091;top:-150px;left:-150px;}
+.orb-b{width:400px;height:400px;background:#168aad;bottom:-100px;right:-100px;animation-delay:-8s;}
+.orb-c{width:250px;height:250px;background:#a5ccd1;top:50%;left:55%;animation-delay:-4s;}
+@keyframes driftOrb{0%{transform:translate(0,0) scale(1);}100%{transform:translate(30px,25px) scale(1.06);}}
+.glass-panel{position:relative;z-index:10;width:100%;max-width:620px;background:#fff;border:1px solid var(--border);border-radius:28px;padding:52px;box-shadow:0 8px 48px rgba(30,96,145,.1);animation:panelIn .8s cubic-bezier(.22,1,.36,1) both;}
+@keyframes panelIn{from{opacity:0;transform:translateY(36px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+.status-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(30,96,145,.08);border:1px solid rgba(30,96,145,.2);border-radius:99px;padding:5px 14px;font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--primary);margin-bottom:24px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--primary-lt);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+.interview-title{font-family:'Instrument Serif',serif;font-size:clamp(2.2rem,5vw,3rem);line-height:1.1;color:var(--dark);margin-bottom:6px;}
+.interview-title em{font-style:italic;background:linear-gradient(135deg,#1e6091,#168aad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.interview-desc{color:var(--muted);font-size:.95rem;line-height:1.75;margin-bottom:36px;}
+.steps-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:36px;}
+.step-item{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:16px 14px;text-align:center;transition:all .2s;}
+.step-item:hover{background:var(--primary-bg);border-color:var(--primary-lt);box-shadow:0 4px 14px rgba(30,96,145,.1);}
+.step-num{font-family:'Instrument Serif',serif;font-size:1.5rem;line-height:1;background:linear-gradient(135deg,#1e6091,#168aad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.step-label{font-size:.75rem;color:var(--muted);line-height:1.4;}
+.info-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--primary-bg);border:1px solid var(--border);border-radius:99px;padding:7px 14px;font-size:.82rem;color:var(--muted);transition:all .2s;}
+.chip:hover{background:var(--border);color:var(--dark);}
+.chip i{font-size:.9rem;color:var(--primary);}
+.btn-start{width:100%;padding:16px 24px;border:none;border-radius:16px;background:linear-gradient(135deg,#1e6091 0%,#168aad 100%);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.05rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 32px rgba(30,96,145,.25);display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(30,96,145,.35);color:#fff;text-decoration:none;}
+.btn-arrow{display:inline-flex;transition:transform .2s;}
+.btn-start:hover .btn-arrow{transform:translateX(5px);}
+.disclaimer{text-align:center;margin-top:18px;font-size:.78rem;color:var(--muted);}
+.card-divider{border:none;border-top:1px solid var(--border);margin:28px 0;}
+@media(max-width:520px){.glass-panel{padding:36px 22px;}.steps-row{grid-template-columns:1fr;gap:8px;}}
+</style>
+
+<div class="interview-bg">
+<div class="grid-lines"></div>
+<div class="orb orb-a"></div>
+<div class="orb orb-b"></div>
+<div class="orb orb-c"></div>
+
+<div class="glass-panel">
+
+  <div class="status-pill">
+    <span class="status-dot"></span>
+    AI Interviewer Ready
+  </div>
+
+  <h1 class="interview-title">
+    Your <em>AI Interview</em><br/>starts here
+  </h1>
+
+  <p class="interview-desc">
+    Our AI will conduct a personalised mock interview based on your uploaded resume.
+    Answer each question thoughtfully — you'll receive detailed feedback and a
+    performance score at the end.
+  </p>
+
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-num">01</div>
+      <div class="step-label">AI reads<br/>your resume</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">02</div>
+      <div class="step-label">Answer<br/>questions</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">03</div>
+      <div class="step-label">Get instant<br/>feedback</div>
+    </div>
+  </div>
+
+  <hr class="card-divider"/>
+
+  <div class="info-chips">
+    <span class="chip"><i class="bi bi-clock"></i> ~15–20 minutes</span>
+    <span class="chip"><i class="bi bi-chat-dots"></i> 8–10 questions</span>
+    <span class="chip"><i class="bi bi-shield-check"></i> Private & secure</span>
+    <span class="chip"><i class="bi bi-bar-chart-line"></i> Scored results</span>
+  </div>
+
+  <a href="{{ url_for('interview.question') }}" class="btn-start">
+    <i class="bi bi-play-circle-fill"></i>
+    Start Interview
+    <span class="btn-arrow"><i class="bi bi-arrow-right"></i></span>
+  </a>
+<!-- 
+  <p class="disclaimer">
+    Make sure your resume is uploaded before starting &nbsp;·&nbsp;
+    <a href="{{ url_for('resume.upload') }}" style="color:var(--primary-lt);text-decoration:none;">Upload Resume</a>
+  </p> -->
+
+</div>
+</div>
+{% endblock %}

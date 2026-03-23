@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#07090f;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(245,158,11,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 80% 80%,rgba(99,102,241,.08) 0%,transparent 60%) #07090f;}
+.box{width:100%;max-width:480px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:36px;}
+.back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,.4);font-size:.82rem;text-decoration:none;margin-bottom:22px;transition:color .2s;}
+.back:hover{color:#0affed;text-decoration:none;}
+.ttl{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:5px;}
+.sub{font-size:.83rem;color:rgba(255,255,255,.4);margin-bottom:28px;}
+.fl{border-radius:12px;padding:11px 16px;font-size:.84rem;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.fls{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#4ade80;}
+.fld{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171;}
+.flw{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;}
+.dz{border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:18px;}
+.dz:hover{border-color:rgba(10,255,237,.4);background:rgba(10,255,237,.04);}
+.dz.picked{border-color:rgba(10,255,237,.5);background:rgba(10,255,237,.05);}
+.dz i{font-size:2.6rem;color:rgba(255,255,255,.2);display:block;margin-bottom:12px;}
+.dz p{color:rgba(255,255,255,.4);font-size:.88rem;line-height:1.7;}
+.dz strong{color:#0affed;}
+.fi{display:none;padding:12px 16px;background:rgba(10,255,237,.06);border:1px solid rgba(10,255,237,.15);border-radius:12px;color:#0affed;font-size:.84rem;margin-bottom:18px;align-items:center;gap:10px;}
+.fi i{font-size:1.1rem;flex-shrink:0;}
+.sub-btn{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#07090f;font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;box-shadow:0 4px 20px rgba(245,158,11,.25);}
+.sub-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+.sub-btn:not(:disabled):hover{box-shadow:0 8px 28px rgba(245,158,11,.35);transform:translateY(-1px);}
+.note{text-align:center;font-size:.73rem;color:rgba(255,255,255,.22);margin-top:12px;}
+</style>
+
+<div class="box">
+  <a href="{{ url_for('interviewer.dashboard') }}" class="back"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}
+      <div class="fl fl{{ c[0] }}"><i class="bi bi-info-circle"></i> {{ m }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="ttl">📄 Upload Resume</div>
+  <div class="sub">Upload your PDF — AI will score it in seconds</div>
+
+  <form method="POST" action="{{ url_for('interviewer.upload_resume') }}" enctype="multipart/form-data" id="upf">
+    <div class="dz" id="dz" onclick="document.getElementById('rf').click()">
+      <i class="bi bi-cloud-upload"></i>
+      <p>Click here to select your resume<br><strong>PDF files only</strong></p>
+    </div>
+    <input type="file" id="rf" name="resume" accept=".pdf" style="display:none;" onchange="onPick(this)"/>
+    <div class="fi" id="fi"><i class="bi bi-file-earmark-check"></i><span id="fn"></span></div>
+    <button type="submit" class="sub-btn" id="sb" disabled>
+      <i class="bi bi-upload"></i> Upload & Get AI Score
+    </button>
+    <div class="note">PDF only · Max 10MB · AI scoring takes ~10 seconds</div>
+  </form>
+</div>
+
+<script>
+function onPick(inp) {
+  if(inp.files && inp.files[0]) {
+    var f = inp.files[0];
+    document.getElementById('fn').textContent = f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)';
+    var fi = document.getElementById('fi'); fi.style.display='flex';
+    var dz = document.getElementById('dz'); dz.classList.add('picked');
+    var sb = document.getElementById('sb'); sb.disabled=false;
+  }
+}
+document.getElementById('upf').addEventListener('submit',function(){
+  var sb=document.getElementById('sb');
+  sb.innerHTML='<i class="bi bi-hourglass-split"></i> Uploading & Scoring...';
+  sb.disabled=true;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --p:#2563EB;--s:#6366F1;--ok:#10B981;--warn:#F59E0B;--err:#EF4444;
+  --bg:#F8FAFC;--card:#fff;--border:#E2E8F0;--text:#0F172A;--muted:#64748B;--faint:#94A3B8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);}
+
+/* Page */
+.page{min-height:100vh;padding:32px 20px 80px;background:linear-gradient(160deg,#EFF6FF 0%,#F8FAFC 40%);}
+.wrap{max-width:980px;margin:0 auto;}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes scoreIn{from{stroke-dashoffset:440}to{stroke-dashoffset:var(--offset)}}
+@keyframes confDrop{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.a1{animation:fadeUp .4s .04s ease both}
+.a2{animation:fadeUp .4s .10s ease both}
+.a3{animation:fadeUp .4s .18s ease both}
+.a4{animation:fadeUp .4s .26s ease both}
+
+/* Back nav */
+.back-nav{margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:.81rem;font-weight:600;text-decoration:none;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.back-btn:hover{background:var(--bg);color:var(--text);text-decoration:none;}
+.session-id{font-size:.76rem;color:var(--faint);}
+
+/* ── HERO SCORE CARD ── */
+.hero{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;box-shadow:0 4px 24px rgba(37,99,235,.08);margin-bottom:20px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--p),var(--s));}
+.hero-inner{display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:space-between;}
+.hero-left{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+
+/* Score ring */
+.ring{position:relative;width:140px;height:140px;flex-shrink:0;}
+.ring svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#F1F5F9;stroke-width:11;}
+.ring-fill{fill:none;stroke-width:11;stroke-linecap:round;stroke-dasharray:440;stroke-dashoffset:440;animation:scoreIn 1.4s cubic-bezier(.22,1,.36,1) .4s forwards;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-num{font-size:1.9rem;font-weight:900;letter-spacing:-.04em;line-height:1;}
+.ring-lbl{font-size:.62rem;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+
+/* Hero info */
+.hero-grade{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-size:1.45rem;font-weight:800;letter-spacing:-.025em;margin-bottom:6px;}
+.hero-msg{font-size:.84rem;color:var(--muted);margin-bottom:14px;line-height:1.6;}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.hchip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:99px;font-size:.73rem;font-weight:600;}
+
+/* Hero mini stats */
+.mini-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.mstat{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:13px 16px;text-align:center;min-width:78px;}
+.mstat-val{font-size:1.25rem;font-weight:800;line-height:1;}
+.mstat-lbl{font-size:.62rem;color:var(--faint);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+
+/* Action row */
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+.abtn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:11px;font-size:.82rem;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;border:none;cursor:pointer;text-decoration:none;transition:all .15s;}
+.abtn-primary{background:linear-gradient(135deg,var(--p),var(--s));color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.25);}
+.abtn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.35);color:#fff;text-decoration:none;}
+.abtn-ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#16A34A;}
+.abtn-ok:hover{background:#DCFCE7;text-decoration:none;color:#16A34A;}
+.abtn-ghost{background:var(--bg);border:1px solid var(--border);color:var(--muted);}
+.abtn-ghost:hover{background:var(--border);color:var(--text);text-decoration:none;}
+
+/* ── CHARTS SECTION ── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:box-shadow .2s,transform .2s;}
+.chart-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.07);transform:translateY(-2px);}
+.chart-card.wide{grid-column:span 2;}
+.ctit{font-size:.86rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.ctit i{color:var(--p);}
+
+/* ── Q&A CARDS ── */
+.qa-section-title{font-size:.9rem;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.qa-section-title i{color:var(--p);}
+
+.qa-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:box-shadow .2s;}
+.qa-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.07);}
+.qa-head{padding:16px 20px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;user-select:none;}
+.qa-num{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff;flex-shrink:0;}
+.qa-q{font-size:.87rem;font-weight:700;color:var(--text);flex:1;line-height:1.45;padding-top:5px;}
+.qa-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.mini-ring{width:42px;height:42px;position:relative;flex-shrink:0;}
+.mini-ring svg{transform:rotate(-90deg);}
+.mini-ring-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;}
+.grade-pill{padding:3px 9px;border-radius:99px;font-size:.68rem;font-weight:800;}
+.qa-chevron{color:var(--faint);font-size:.78rem;transition:transform .25s;margin-top:6px;}
+.qa-card.open .qa-chevron{transform:rotate(180deg);}
+
+.qa-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.qa-card.open .qa-body{max-height:900px;}
+.qa-body-inner{padding:0 20px 18px;}
+
+.qa-lbl{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:6px;}
+.ans-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:13px;}
+.feed-box{background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:12px 14px;font-size:.83rem;color:#0369A1;line-height:1.6;margin-bottom:13px;}
+.feed-box i{color:#0EA5E9;margin-right:4px;}
+
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px;}
+.sw-box{border-radius:10px;padding:12px 14px;}
+.sw-green{background:#F0FDF4;border:1px solid #BBF7D0;}
+.sw-red{background:#FEF2F2;border:1px solid #FECACA;}
+.sw-title{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.sw-green .sw-title{color:#16A34A;}
+.sw-red .sw-title{color:#DC2626;}
+.sw-item{display:flex;align-items:flex-start;gap:5px;font-size:.79rem;line-height:1.5;margin-bottom:3px;}
+.sw-green .sw-item{color:#15803D;}
+.sw-red .sw-item{color:#B91C1C;}
+
+.suggest-box{background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border:1px solid #DDD6FE;border-radius:10px;padding:12px 14px;}
+.suggest-box .qa-lbl{color:#7C3AED;}
+.suggest-txt{font-size:.82rem;color:#5B21B6;line-height:1.6;font-style:italic;}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{display:flex;align-items:center;gap:9px;padding:12px 16px;border-radius:12px;font-size:.82rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.12);animation:toastIn .3s ease both;min-width:240px;}
+.toast-ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#16A34A;}
+.toast-err{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;}
+.toast-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8;}
+
+/* Confetti */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:999;}
+
+/* Responsive */
+@media(max-width:900px){.charts-grid{grid-template-columns:1fr;}.chart-card.wide{grid-column:span 1;}}
+@media(max-width:640px){.hero-inner{gap:16px;}.sw-grid{grid-template-columns:1fr;}.mini-stats{gap:7px;}.actions{flex-direction:column;}.abtn{justify-content:center;}}
+</style>
+
+<!-- Confetti canvas -->
+<canvas id="confetti"></canvas>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="page">
+<div class="wrap">
+
+  <!-- Back nav -->
+  <div class="back-nav a1">
+    <a href="{{ url_for('interviewer.dashboard') }}" class="back-btn"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    <span class="session-id">Session #{{ session_id }}</span>
+  </div>
+
+  <!-- ── HERO ── -->
+  {% set sc = total_score|int %}
+  {% set offset = 440 - (440 * sc / 100) %}
+  {% set sc_clr = '#10B981' if sc>=70 else '#F59E0B' if sc>=40 else '#EF4444' %}
+  {% set bg_clr = '#F0FDF4' if sc>=70 else '#FFFBEB' if sc>=40 else '#FEF2F2' %}
+  {% set bd_clr = '#BBF7D0' if sc>=70 else '#FDE68A' if sc>=40 else '#FECACA' %}
+
+  <div class="hero a2">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <!-- Ring -->
+        <div class="ring">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle class="ring-bg" cx="70" cy="70" r="60"/>
+            <circle class="ring-fill" style="--offset:{{ offset }};stroke:{{ sc_clr }};" cx="70" cy="70" r="60"/>
+          </svg>
+          <div class="ring-center">
+            <span class="ring-num" style="color:{{ sc_clr }};">{{ sc }}</span>
+            <span class="ring-lbl">/ 100</span>
+          </div>
+        </div>
+        <!-- Info -->
+        <div>
+          <div class="hero-grade" style="background:{{ bg_clr }};border:1px solid {{ bd_clr }};color:{{ sc_clr }};">
+            <i class="bi bi-shield-check"></i> Grade {{ overall_grade }}
+          </div>
+          <div class="hero-title">Interview Complete!</div>
+          <div class="hero-msg">
+            {% if sc>=80 %}🎉 Outstanding! You're fully interview-ready.
+            {% elif sc>=70 %}✅ Great job! You passed with a solid score.
+            {% elif sc>=55 %}💪 Good effort. Review the feedback to improve.
+            {% elif sc>=40 %}📚 Keep practicing — focus on weak areas.
+            {% else %}🔄 Don't give up — every attempt builds your skills!{% endif %}
+          </div>
+          <div class="hero-chips">
+            <span class="hchip" style="background:#EFF6FF;border:1px solid #BFDBFE;color:#2563EB;"><i class="bi bi-mic-fill"></i> {{ answers|length }} Questions</span>
+            {% set passed = answers|selectattr('score')|list|selectattr('score','ge',70)|list|length %}
+            <span class="hchip" style="background:#F0FDF4;border:1px solid #BBF7D0;color:#16A34A;"><i class="bi bi-check-circle-fill"></i> {{ passed }} Passed</span>
+            {% set needs = answers|selectattr('score')|list|selectattr('score','lt',40)|list|length %}
+            <span class="hchip" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;"><i class="bi bi-x-circle-fill"></i> {{ needs }} Needs Work</span>
+          </div>
+        </div>
+      </div>
+      <!-- Mini stats -->
+      <div class="mini-stats">
+        {% set scored = answers|selectattr('score')|list %}
+        <div class="mstat">
+          <div class="mstat-val" style="color:#10B981;">{{ (scored|map(attribute='score')|list|max)|round|int if scored else 0 }}</div>
+          <div class="mstat-lbl">Best Q</div>
+        </div>
+        <div class="mstat">
+          <div class="mstat-val" style="color:#EF4444;">{{ (scored|map(attribute='score')|list|min)|round|int if scored else 0 }}</div>
+          <div class="mstat-lbl">Worst Q</div>
+        </div>
+        <div class="mstat">
+          <div class="mstat-val" style="color:#6366F1;">{{ overall_grade }}</div>
+          <div class="mstat-lbl">Grade</div>
+        </div>
+        <div class="mstat">
+          <div class="mstat-val" style="color:#F59E0B;">{{ total_strengths }}</div>
+          <div class="mstat-lbl">Strengths</div>
+        </div>
+      </div>
+    </div>
+    <!-- Actions -->
+    <div class="actions">
+      <button class="abtn abtn-primary" id="pdfBtn" onclick="downloadPDF()">
+        <i class="bi bi-file-earmark-pdf-fill"></i>
+        <span id="pdfBtnTxt">Download PDF Report</span>
+      </button>
+      <a href="{{ url_for('interview.leaderboard') }}" class="abtn abtn-ok">
+        <i class="bi bi-trophy-fill"></i> Leaderboard
+      </a>
+      <a href="{{ url_for('interview.start_interview') }}" class="abtn abtn-ghost">
+        <i class="bi bi-arrow-repeat"></i> Retake
+      </a>
+      <a href="{{ url_for('interviewer.dashboard') }}" class="abtn abtn-ghost">
+        <i class="bi bi-grid"></i> Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- ── CHARTS ── -->
+  <div class="charts-grid a3">
+    <!-- Bar chart -->
+    <div class="chart-card wide">
+      <div class="ctit"><i class="bi bi-bar-chart-line-fill"></i> Score Per Question</div>
+      <canvas id="barChart" height="120"></canvas>
+    </div>
+    <!-- Donut -->
+    <div class="chart-card">
+      <div class="ctit"><i class="bi bi-pie-chart-fill"></i> Performance</div>
+      <canvas id="donutChart" height="180"></canvas>
+    </div>
+    <!-- Strength chart (full width) -->
+    <div class="chart-card" style="grid-column:span 3 !important;">
+      <div class="ctit"><i class="bi bi-activity"></i> Strength vs Weakness Breakdown</div>
+      <canvas id="swChart" height="80"></canvas>
+    </div>
+  </div>
+
+  <!-- ── Q&A BREAKDOWN ── -->
+  <div class="a4">
+    <div class="qa-section-title"><i class="bi bi-chat-left-text-fill"></i> Detailed AI Feedback</div>
+    {% for a in answers %}
+    {% set asc = a.score or 0 %}
+    {% set ac = '#10B981' if asc>=70 else '#F59E0B' if asc>=40 else '#EF4444' %}
+    {% set abg = '#F0FDF4' if asc>=70 else '#FFFBEB' if asc>=40 else '#FEF2F2' %}
+    {% set ag = a.grade or ('A' if asc>=85 else 'B' if asc>=70 else 'C' if asc>=55 else 'D' if asc>=40 else 'F') %}
+    {% set ring_off = 113 - (113 * asc / 100) %}
+
+    <div class="qa-card" id="qac-{{ loop.index }}">
+      <div class="qa-head" onclick="toggleQA({{ loop.index }})">
+        <div class="qa-num" style="background:{{ ac }};">{{ loop.index }}</div>
+        <div class="qa-q">{{ a.question }}</div>
+        <div class="qa-right">
+          <div class="mini-ring">
+            <svg width="42" height="42" viewBox="0 0 42 42">
+              <circle fill="none" stroke="#F1F5F9" stroke-width="4" cx="21" cy="21" r="17"/>
+              <circle fill="none" stroke="{{ ac }}" stroke-width="4" stroke-linecap="round"
+                stroke-dasharray="107" stroke-dashoffset="{{ 107 - (107 * asc / 100) }}"
+                cx="21" cy="21" r="17" transform="rotate(-90 21 21)"/>
+            </svg>
+            <div class="mini-ring-center" style="color:{{ ac }};">{{ asc|round|int }}</div>
+          </div>
+          <span class="grade-pill" style="background:{{ abg }};border:1px solid {{ ac }}33;color:{{ ac }};">{{ ag }}</span>
+          <i class="bi bi-chevron-down qa-chevron"></i>
+        </div>
+      </div>
+      <div class="qa-body">
+        <div class="qa-body-inner">
+          <div class="qa-lbl">Your Answer</div>
+          <div class="ans-box">{{ a.answer or 'No answer provided' }}</div>
+
+          {% if a.feedback %}
+          <div class="qa-lbl">AI Feedback</div>
+          <div class="feed-box"><i class="bi bi-robot"></i>{{ a.feedback }}</div>
+          {% endif %}
+
+          {% if a.strengths_list or a.weaknesses_list %}
+          <div class="sw-grid">
+            {% if a.strengths_list %}
+            <div class="sw-box sw-green">
+              <div class="sw-title">✅ Strengths</div>
+              {% for s in a.strengths_list %}
+              <div class="sw-item"><i class="bi bi-check-circle-fill" style="color:#16A34A;font-size:.68rem;flex-shrink:0;margin-top:3px;"></i>{{ s }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% if a.weaknesses_list %}
+            <div class="sw-box sw-red">
+              <div class="sw-title">⚠️ Improve</div>
+              {% for w in a.weaknesses_list %}
+              <div class="sw-item"><i class="bi bi-arrow-up-circle-fill" style="color:#DC2626;font-size:.68rem;flex-shrink:0;margin-top:3px;"></i>{{ w }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if a.suggested_answer %}
+          <div class="suggest-box">
+            <div class="qa-lbl" style="color:#7C3AED;">💡 Suggested Answer</div>
+            <div class="suggest-txt">{{ a.suggested_answer }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+</div>
+
+<script>
+/* ── Q&A Toggle ── */
+function toggleQA(n) {
+  document.getElementById('qac-'+n).classList.toggle('open');
+}
+
+/* ── Toast ── */
+function showToast(msg, type) {
+  var wrap = document.getElementById('toastWrap');
+  var t    = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  var icon = type==='ok'?'bi-check-circle-fill':type==='err'?'bi-x-circle-fill':'bi-info-circle-fill';
+  t.innerHTML = `<i class="bi ${icon}"></i>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(20px)'; t.style.transition='all .3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+/* ── PDF Download — blob method, no page redirect ── */
+function downloadPDF() {
+  var btn    = document.getElementById('pdfBtn');
+  var btnTxt = document.getElementById('pdfBtnTxt');
+
+  // Loading state
+  btn.disabled = true;
+  btnTxt.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:pdfSpin .6s linear infinite;display:inline-block;"></span> Generating...</span>';
+
+  fetch('/interview/result/{{ session_id }}/pdf', { method: 'GET' })
+    .then(response => {
+      if (!response.ok) throw new Error('PDF generation failed');
+      return response.blob();
+    })
+    .then(blob => {
+      // Create blob URL and trigger download
+      var url  = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href     = url;
+      link.download = 'interview_report_{{ session_id }}.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      // Reset button
+      btn.disabled = false;
+      btnTxt.innerHTML = '<i class="bi bi-file-earmark-pdf-fill"></i> Download PDF Report';
+      showToast('PDF downloaded successfully!', 'ok');
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btnTxt.innerHTML = '<i class="bi bi-file-earmark-pdf-fill"></i> Download PDF Report';
+      showToast('PDF generation failed. Try again.', 'err');
+      console.error('[PDF]', err);
+    });
+}
+
+/* ── Chart data from Jinja ── */
+var qLabels  = [{% for a in answers %}'Q{{ loop.index }}',{% endfor %}];
+var qScores  = [{% for a in answers %}{{ a.score or 0 }},{% endfor %}];
+var qColors  = qScores.map(s => s>=70?'#10B981':s>=40?'#F59E0B':'#EF4444');
+var totalStr = {{ total_strengths }};
+var totalWeak= {{ total_weaknesses }};
+var completed= {{ (answers|selectattr('score')|list|selectattr('score','ge',70)|list|length) }};
+var inProg   = {{ answers|length }} - completed;
+
+var CF = { family:'Plus Jakarta Sans', size:11 };
+var GC = '#F1F5F9', TC = '#94A3B8';
+var TT = {
+  backgroundColor:'#0F172A',titleColor:'#fff',bodyColor:'#94A3B8',
+  padding:10,cornerRadius:8,
+  titleFont:{family:'Plus Jakarta Sans',size:12,weight:'700'},
+  bodyFont:{family:'Plus Jakarta Sans',size:11},
+  borderColor:'rgba(255,255,255,.08)',borderWidth:1
+};
+
+/* Bar chart — score per question */
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: qLabels,
+    datasets: [{
+      label: 'Score',
+      data: qScores,
+      backgroundColor: qColors.map(c=>c+'28'),
+      borderColor: qColors,
+      borderWidth: 2,
+      borderRadius: 9,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    animation: { duration: 900, easing: 'easeOutQuart' },
+    plugins: {
+      legend: { display: false },
+      tooltip: { ...TT, callbacks: {
+        title: i => `Question ${i[0].label.replace('Q','')}`,
+        label: i => ` Score: ${i.raw}/100`,
+        afterLabel: i => {
+          var v=i.raw; return v>=80?' Grade A':v>=70?' Grade B':v>=55?' Grade C':v>=40?' Grade D':' Grade F';
+        }
+      }}
+    },
+    scales: {
+      x: { ticks:{color:TC,font:CF}, grid:{color:GC,drawBorder:false}, border:{display:false} },
+      y: { min:0, max:100, ticks:{color:TC,font:CF,callback:v=>v+'%'}, grid:{color:GC,drawBorder:false}, border:{display:false} }
+    }
+  }
+});
+
+/* Donut chart — performance */
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Passed (≥70)', 'Needs Work (<70)'],
+    datasets: [{
+      data: [completed, inProg],
+      backgroundColor: ['#10B981','#EF4444'],
+      borderWidth: 3, borderColor: '#fff', hoverOffset: 10
+    }]
+  },
+  options: {
+    responsive: true, cutout: '70%',
+    animation: { animateScale: true, duration: 900 },
+    plugins: {
+      legend: { position:'bottom', labels:{ color:'#64748B', padding:14, font:{size:11,family:'Plus Jakarta Sans'}, usePointStyle:true } },
+      tooltip: { ...TT, callbacks:{ label: i=>` ${i.label}: ${i.raw} questions` } }
+    }
+  },
+  plugins: [{
+    id:'centerTxt',
+    afterDraw(chart){
+      var {ctx,chartArea:{width,height,left,top}}=chart;
+      ctx.save();
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      var cx=left+width/2, cy=top+height/2;
+      ctx.font='800 1.5rem Plus Jakarta Sans,sans-serif';
+      ctx.fillStyle='#0F172A';
+      ctx.fillText(qLabels.length, cx, cy-7);
+      ctx.font='600 .65rem Plus Jakarta Sans,sans-serif';
+      ctx.fillStyle='#94A3B8';
+      ctx.fillText('QUESTIONS', cx, cy+10);
+      ctx.restore();
+    }
+  }]
+});
+
+/* Strength vs Weakness horizontal bar */
+new Chart(document.getElementById('swChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Strengths','Weaknesses'],
+    datasets: [{
+      data: [totalStr, totalWeak],
+      backgroundColor: ['rgba(16,185,129,.2)','rgba(239,68,68,.2)'],
+      borderColor: ['#10B981','#EF4444'],
+      borderWidth: 2, borderRadius: 8
+    }]
+  },
+  options: {
+    responsive: true, indexAxis: 'y',
+    animation: { duration: 900 },
+    plugins: { legend:{display:false}, tooltip:{...TT,callbacks:{label:i=>` Count: ${i.raw}`}} },
+    scales: {
+      x: { beginAtZero:true, ticks:{color:TC,font:CF,stepSize:1}, grid:{color:GC,drawBorder:false}, border:{display:false} },
+      y: { ticks:{color:TC,font:{...CF,weight:'700'}}, grid:{color:'transparent'}, border:{display:false} }
+    }
+  }
+});
+
+/* ── Confetti if score ≥ 70 ── */
+{% if total_score >= 70 %}
+(function(){
+  var c=document.getElementById('confetti'),ctx=c.getContext('2d');
+  c.width=innerWidth; c.height=innerHeight;
+  var cols=['#2563EB','#10B981','#F59E0B','#6366F1','#EF4444','#06B6D4'];
+  var pieces=[];
+  for(var i=0;i<110;i++) pieces.push({x:Math.random()*c.width,y:-20-Math.random()*180,r:4+Math.random()*5,d:1.6+Math.random()*2.2,color:cols[~~(Math.random()*cols.length)],t:Math.random()*12-4,sp:Math.random()*.18-.09});
+  var frame=0;
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pieces.forEach(p=>{
+      ctx.save(); ctx.fillStyle=p.color;
+      ctx.translate(p.x,p.y); ctx.rotate(p.t*Math.PI/180);
+      ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);
+      ctx.restore();
+      p.y+=p.d; p.t+=p.sp;
+    });
+    pieces=pieces.filter(p=>p.y<c.height+20);
+    frame++;
+    if(frame<200&&pieces.length) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,c.width,c.height);
+  })();
+  setTimeout(()=>ctx.clearRect(0,0,c.width,c.height),6000);
+})();
+{% endif %}
+</script>
+
+<style>
+@keyframes pdfSpin{to{transform:rotate(360deg)}}
+@media(max-width:900px){
+  .charts-grid{grid-template-columns:1fr!important;}
+  .chart-card.wide,.chart-card{grid-column:span 1!important;}
+}
+</style>
+{% endblock %}

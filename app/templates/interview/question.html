@@ -1,0 +1,818 @@
+{% extends "base.html" %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════
+   CSS VARIABLES & RESET
+═══════════════════════════════════════ */
+:root {
+  --p: #2563EB; --s: #6366F1;
+  --ok: #10B981; --warn: #F59E0B; --err: #EF4444;
+  --bg: #F8FAFC; --card: #fff; --border: #E2E8F0;
+  --text: #0F172A; --muted: #64748B; --faint: #94A3B8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: linear-gradient(160deg, #EFF6FF 0%, #F8FAFC 50%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════
+   PAGE LAYOUT
+═══════════════════════════════════════ */
+.iq-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px 80px;
+}
+.iq-wrap { width: 100%; max-width: 700px; }
+
+/* ═══════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════ */
+.prog-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  animation: fadeUp .4s ease both;
+}
+.prog-steps { display: flex; gap: 5px; flex: 1; }
+.prog-step {
+  height: 6px;
+  border-radius: 99px;
+  flex: 1;
+  background: #E2E8F0;
+  transition: background .4s ease;
+}
+.prog-step.done   { background: var(--p); }
+.prog-step.active { background: linear-gradient(90deg, var(--p), var(--s)); animation: stepPulse 1.5s ease-in-out infinite; }
+.prog-label { font-size: .78rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+/* ═══════════════════════════════════════
+   QUESTION CARD
+═══════════════════════════════════════ */
+.iq-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(37,99,235,.08), 0 2px 8px rgba(0,0,0,.04);
+  animation: fadeUp .45s .05s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.iq-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--p), var(--s));
+}
+
+/* Card header */
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.q-num {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: .82rem; font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(37,99,235,.3);
+}
+.q-meta { flex: 1; }
+.q-meta-top { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); }
+.q-meta-bot { font-size: .78rem; font-weight: 600; color: var(--muted); margin-top: 1px; }
+
+/* Timer */
+.timer-pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: #FEF2F2; border: 1px solid #FECACA;
+  font-size: .76rem; font-weight: 700; color: #DC2626;
+  transition: all .3s;
+}
+.timer-pill.warning { background: #FEF2F2; border-color: #FECACA; animation: timerPulse .8s ease-in-out infinite; }
+
+/* Question box */
+.q-text {
+  background: linear-gradient(135deg, #EFF6FF, #F5F3FF);
+  border: 1px solid #BFDBFE;
+  border-radius: 14px;
+  padding: 18px 20px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.55;
+  letter-spacing: -.01em;
+  margin-bottom: 16px;
+}
+
+/* Speak button */
+.speak-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  background: #EFF6FF; border: 1px solid #BFDBFE;
+  color: var(--p);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .76rem; font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 18px;
+}
+.speak-btn:hover { background: #DBEAFE; }
+.speak-btn.speaking { background: #DCFCE7; border-color: #BBF7D0; color: var(--ok); }
+
+/* Voice input */
+.voice-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: #F5F3FF; border: 1px solid #DDD6FE;
+  color: var(--s);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .8rem; font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 14px;
+  width: fit-content;
+}
+.voice-btn:hover { background: #EDE9FE; }
+.voice-btn.recording { background: #FEF2F2; border-color: #FECACA; color: var(--err); animation: recPulse .9s ease-in-out infinite; }
+
+/* Answer textarea */
+.ans-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
+.ans-textarea {
+  width: 100%; min-height: 150px;
+  padding: 14px 16px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .87rem; color: var(--text); line-height: 1.6;
+  outline: none; resize: vertical;
+  transition: all .15s;
+}
+.ans-textarea:focus { border-color: var(--p); background: var(--card); box-shadow: 0 0 0 4px rgba(37,99,235,.1); }
+.ans-textarea::placeholder { color: var(--faint); }
+.char-count { text-align: right; font-size: .7rem; color: var(--faint); margin-top: 5px; }
+
+/* Footer buttons */
+.form-footer {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 10px; margin-top: 18px;
+  flex-wrap: wrap;
+}
+.btn-submit {
+  flex: 1; min-width: 160px;
+  padding: 13px 24px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .9rem; font-weight: 800;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37,99,235,.3);
+  transition: all .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(37,99,235,.4); }
+.btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.btn-skip {
+  padding: 11px 18px;
+  border-radius: 11px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-skip:hover { background: var(--border); color: var(--text); }
+
+/* Tip box */
+.tip-box {
+  background: #FFFBEB; border: 1px solid #FDE68A;
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; gap: 9px; align-items: flex-start;
+  margin-top: 16px;
+}
+.tip-box i { color: var(--warn); font-size: .9rem; flex-shrink: 0; margin-top: 1px; }
+.tip-txt { font-size: .79rem; color: #92400E; line-height: 1.5; }
+.tip-txt strong { color: #B45309; }
+
+/* ═══════════════════════════════════════
+   FLOATING CAMERA BOX
+═══════════════════════════════════════ */
+#cameraBox {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  width: 200px;
+  background: #0F172A;
+  border: 2px solid #1E293B;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  animation: camSlideIn .5s .3s ease both;
+}
+#cameraBox.minimized { width: 56px; height: 56px; border-radius: 50%; }
+#cameraBox.minimized #camVideo { display: none; }
+#cameraBox.minimized #camFooter { display: none; }
+#cameraBox.minimized #camHeader { border-radius: 50%; padding: 0; justify-content: center; height: 100%; }
+#cameraBox.minimized #camHeaderTxt { display: none; }
+#cameraBox.minimized #camMinBtn { display: none; }
+
+/* Camera header */
+#camHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+#camHeaderTxt { display: flex; align-items: center; gap: 6px; }
+.cam-live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--err); flex-shrink: 0; }
+.cam-live-dot.live { background: var(--ok); animation: camPulse 1.2s ease-in-out infinite; }
+.cam-live-lbl { font-size: .65rem; font-weight: 700; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .05em; }
+.cam-head-btns { display: flex; gap: 4px; }
+.cam-hbtn {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.08);
+  border: none; cursor: pointer;
+  color: rgba(255,255,255,.5);
+  font-size: .65rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.cam-hbtn:hover { background: rgba(255,255,255,.16); color: #fff; }
+
+/* Video element */
+#camVideo {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  display: block;
+  background: #0F172A;
+}
+
+/* Camera footer */
+#camFooter {
+  padding: 6px 10px;
+  background: rgba(255,255,255,.03);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cam-snap-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(37,99,235,.3);
+  border: 1px solid rgba(37,99,235,.4);
+  color: #93C5FD;
+  font-size: .62rem; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.cam-snap-btn:hover { background: rgba(37,99,235,.5); color: #fff; }
+.cam-snap-lbl { font-size: .6rem; color: rgba(255,255,255,.25); }
+
+/* Camera error / permission state */
+#camError {
+  display: none;
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 1000;
+  background: #FEF2F2; border: 1px solid #FECACA;
+  border-radius: 14px; padding: 12px 14px;
+  font-size: .76rem; font-weight: 600; color: #DC2626;
+  display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 4px 16px rgba(239,68,68,.15);
+  animation: camSlideIn .5s ease both;
+  max-width: 220px;
+}
+
+/* Snapshot flash */
+.snap-flash {
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,.6);
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .1s;
+}
+.snap-flash.flash { opacity: 1; transition: opacity 0s; }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp    { from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none} }
+@keyframes stepPulse { 0%,100%{opacity:1}50%{opacity:.5} }
+@keyframes timerPulse{ 0%,100%{transform:scale(1)}50%{transform:scale(1.04)} }
+@keyframes recPulse  { 0%,100%{opacity:1}50%{opacity:.5} }
+@keyframes camPulse  { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)} }
+@keyframes camSlideIn{ from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:none} }
+@keyframes spinAnim  { to{transform:rotate(360deg)} }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 576px) {
+  .iq-card { padding: 20px 16px; }
+  #cameraBox { width: 150px; bottom: 16px; right: 16px; }
+  .form-footer { flex-direction: column; }
+  .btn-submit { min-width: 100%; }
+}
+</style>
+
+<!-- ── Snapshot flash effect ── -->
+<div class="snap-flash" id="snapFlash"></div>
+
+<!-- ═══════════════════════════════════════
+     FLOATING CAMERA BOX
+═══════════════════════════════════════ -->
+<div id="cameraBox" style="display:none;">
+  <!-- Header -->
+  <div id="camHeader">
+    <div id="camHeaderTxt">
+      <div class="cam-live-dot" id="camDot"></div>
+      <span class="cam-live-lbl" id="camLbl">Starting...</span>
+    </div>
+    <div class="cam-head-btns">
+      <button class="cam-hbtn" id="camMinBtn" onclick="toggleMinimize()" title="Minimize">
+        <i class="bi bi-dash"></i>
+      </button>
+      <button class="cam-hbtn" onclick="toggleCamera()" title="Toggle camera" id="camToggleBtn">
+        <i class="bi bi-camera-video-off"></i>
+      </button>
+    </div>
+  </div>
+  <!-- Video -->
+  <video id="camVideo" autoplay muted playsinline></video>
+  <!-- Footer -->
+  <div id="camFooter">
+    <button class="cam-snap-btn" onclick="captureSnapshot()" title="Take snapshot">
+      <i class="bi bi-camera"></i> Snap
+    </button>
+    <span class="cam-snap-lbl" id="snapCount">Auto: 10s</span>
+  </div>
+</div>
+
+<!-- Camera error box (hidden by default) -->
+<div id="camError" style="display:none;">
+  <i class="bi bi-camera-video-off"></i>
+  <span id="camErrorMsg">Camera access denied</span>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MAIN PAGE
+═══════════════════════════════════════ -->
+<div class="iq-page">
+<div class="iq-wrap">
+
+  <!-- Progress bar -->
+  <div class="prog-bar">
+    <div class="prog-steps">
+      {% for i in range(total_questions) %}
+      <div class="prog-step {% if i < question_number - 1 %}done{% elif i == question_number - 1 %}active{% endif %}"></div>
+      {% endfor %}
+    </div>
+    <span class="prog-label">{{ question_number }} / {{ total_questions }}</span>
+  </div>
+
+  <!-- Question card -->
+  <div class="iq-card">
+
+    <!-- Card header -->
+    <div class="card-head">
+      <div class="q-num">Q{{ question_number }}</div>
+      <div class="q-meta">
+        <div class="q-meta-top">AI Interview · Question {{ question_number }}</div>
+        <div class="q-meta-bot">Answer clearly and use specific examples</div>
+      </div>
+      <!-- Live timer -->
+      <div class="timer-pill" id="timerPill">
+        <i class="bi bi-clock"></i>
+        <span id="timerVal">2:00</span>
+      </div>
+    </div>
+
+    <!-- Question text -->
+    <div class="q-text" id="qText">{{ question }}</div>
+
+    <!-- Speak button -->
+    <button class="speak-btn" id="speakBtn" onclick="speakQuestion()">
+      <i class="bi bi-volume-up-fill"></i> Hear Question
+    </button>
+
+    <!-- Answer form -->
+    <form method="POST" action="{{ url_for('interview.question') }}" id="ansForm">
+
+      <!-- Voice input toggle -->
+      <button type="button" class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+        <i class="bi bi-mic-fill" id="voiceIcon"></i>
+        <span id="voiceTxt">Use Voice Input</span>
+      </button>
+
+      <div class="ans-label"><i class="bi bi-pencil-square"></i> Your Answer</div>
+      <textarea
+        name="answer"
+        id="ansField"
+        class="ans-textarea"
+        placeholder="Type your answer here… Be specific, use examples, and structure your response clearly."
+        oninput="onAnswerInput(this)"
+        required
+      ></textarea>
+      <div class="char-count"><span id="charCount">0</span> characters</div>
+
+      <div class="form-footer">
+        <button type="button" class="btn-skip" onclick="skipQ()">
+          <i class="bi bi-skip-forward"></i> Skip
+        </button>
+        <button type="submit" class="btn-submit" id="submitBtn">
+          {% if question_number == total_questions %}
+            <i class="bi bi-check-circle-fill"></i> Finish Interview
+          {% else %}
+            Next <i class="bi bi-arrow-right-circle-fill"></i>
+          {% endif %}
+        </button>
+      </div>
+    </form>
+
+    <!-- STAR tip -->
+    <div class="tip-box">
+      <i class="bi bi-lightbulb-fill"></i>
+      <div class="tip-txt">
+        <strong>STAR Method:</strong> Situation → Task → Action → Result.
+        Give specific examples from your experience for stronger, structured answers.
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────
+   STATE
+───────────────────────────────────── */
+var camStream       = null;   // MediaStream
+var camActive       = false;  // camera on/off
+var isMinimized     = false;  // minimized state
+var isRecording     = false;  // voice recording
+var recognition     = null;   // SpeechRecognition
+var timerSecs       = 120;    // 2 minutes per question
+var timerInterval   = null;
+var snapInterval    = null;   // auto-snapshot every 10s
+var snapCount       = 0;
+
+/* ─────────────────────────────────────
+   1. CAMERA — Auto start on load
+───────────────────────────────────── */
+async function startCamera() {
+  try {
+    // Request camera + audio
+    var stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+      audio: false  // audio handled separately by voice input
+    });
+
+    camStream = stream;
+    camActive = true;
+
+    var video = document.getElementById('camVideo');
+    video.srcObject = stream;
+
+    // Show camera box
+    var box = document.getElementById('cameraBox');
+    box.style.display = 'block';
+
+    // Update status
+    document.getElementById('camDot').classList.add('live');
+    document.getElementById('camLbl').textContent = 'LIVE';
+    document.getElementById('camToggleBtn').innerHTML = '<i class="bi bi-camera-video-fill"></i>';
+
+    // Hide error box
+    document.getElementById('camError').style.display = 'none';
+
+    // Start auto-snapshot every 10 seconds
+    startAutoSnapshot();
+
+    console.log('[Camera] Started successfully');
+
+  } catch (err) {
+    console.warn('[Camera] Error:', err.message);
+    showCameraError(err);
+  }
+}
+
+/* Show error message */
+function showCameraError(err) {
+  var errBox = document.getElementById('camError');
+  var msg    = document.getElementById('camErrorMsg');
+
+  if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+    msg.textContent = 'Camera permission denied';
+  } else if (err.name === 'NotFoundError') {
+    msg.textContent = 'No camera found';
+  } else {
+    msg.textContent = 'Camera unavailable';
+  }
+
+  errBox.style.display = 'flex';
+
+  // Auto-hide error after 5 seconds
+  setTimeout(() => { errBox.style.display = 'none'; }, 5000);
+}
+
+/* ─────────────────────────────────────
+   2. CAMERA CONTROLS
+───────────────────────────────────── */
+
+/* Toggle camera on/off */
+function toggleCamera() {
+  if (camActive && camStream) {
+    // Turn off
+    camStream.getTracks().forEach(t => t.stop());
+    camStream = null;
+    camActive = false;
+    document.getElementById('camVideo').srcObject = null;
+    document.getElementById('camDot').classList.remove('live');
+    document.getElementById('camLbl').textContent = 'OFF';
+    document.getElementById('camToggleBtn').innerHTML = '<i class="bi bi-camera-video-off"></i>';
+    clearInterval(snapInterval);
+  } else {
+    // Turn on
+    startCamera();
+  }
+}
+
+/* Minimize / expand camera box */
+function toggleMinimize() {
+  var box = document.getElementById('cameraBox');
+  isMinimized = !isMinimized;
+  box.classList.toggle('minimized', isMinimized);
+  document.getElementById('camMinBtn').innerHTML = isMinimized
+    ? '<i class="bi bi-arrows-angle-expand"></i>'
+    : '<i class="bi bi-dash"></i>';
+}
+
+/* ─────────────────────────────────────
+   3. SNAPSHOT — Capture & send to Flask
+───────────────────────────────────── */
+function captureSnapshot() {
+  if (!camStream || !camActive) return;
+
+  // Flash effect
+  var flash = document.getElementById('snapFlash');
+  flash.classList.add('flash');
+  setTimeout(() => flash.classList.remove('flash'), 150);
+
+  // Draw frame to canvas
+  var video  = document.getElementById('camVideo');
+  var canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 320;
+  canvas.height = video.videoHeight || 240;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+
+  // Convert to base64
+  var imgData = canvas.toDataURL('image/jpeg', 0.7);
+
+  snapCount++;
+  document.getElementById('snapCount').textContent = 'Snap #' + snapCount;
+
+  // Send to Flask backend
+  fetch('/interview/snapshot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      image: imgData,
+      question_number: {{ question_number }},
+      timestamp: new Date().toISOString()
+    })
+  })
+  .then(r => r.json())
+  .then(d => console.log('[Snapshot] Saved:', d))
+  .catch(e => console.warn('[Snapshot] Failed:', e));
+}
+
+/* Auto snapshot every 10 seconds */
+function startAutoSnapshot() {
+  var countdown = 10;
+  snapInterval = setInterval(() => {
+    countdown--;
+    document.getElementById('snapCount').textContent = 'Auto: ' + countdown + 's';
+    if (countdown <= 0) {
+      captureSnapshot();
+      countdown = 10;
+    }
+  }, 1000);
+}
+
+/* ─────────────────────────────────────
+   4. TIMER
+───────────────────────────────────── */
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timerSecs--;
+    var m = Math.floor(timerSecs / 60);
+    var s = timerSecs % 60;
+    document.getElementById('timerVal').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+
+    // Warning state at 30 seconds
+    if (timerSecs <= 30) {
+      document.getElementById('timerPill').classList.add('warning');
+    }
+
+    // Auto-submit when time's up
+    if (timerSecs <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('ansForm').submit();
+    }
+  }, 1000);
+}
+
+/* ─────────────────────────────────────
+   5. AI VOICE — Speak question aloud
+───────────────────────────────────── */
+function speakQuestion() {
+  if (!('speechSynthesis' in window)) {
+    alert('Text-to-speech not supported in this browser. Try Chrome.');
+    return;
+  }
+
+  var btn = document.getElementById('speakBtn');
+
+  // If already speaking, stop
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    btn.classList.remove('speaking');
+    btn.innerHTML = '<i class="bi bi-volume-up-fill"></i> Hear Question';
+    return;
+  }
+
+  var text = document.getElementById('qText').textContent.trim();
+  var utt  = new SpeechSynthesisUtterance(text);
+  utt.rate   = 0.9;
+  utt.pitch  = 1.05;
+  utt.volume = 1;
+  utt.lang   = 'en-US';
+
+  // Pick best available voice
+  function pickVoice() {
+    var voices = window.speechSynthesis.getVoices();
+    return voices.find(v =>
+      v.name.includes('Google UK English Female') ||
+      v.name.includes('Microsoft Zira') ||
+      v.name.includes('Samantha') ||
+      v.name.includes('Karen')
+    ) || voices.find(v => v.lang.startsWith('en')) || null;
+  }
+
+  var voice = pickVoice();
+  if (voice) utt.voice = voice;
+
+  utt.onstart = () => {
+    btn.classList.add('speaking');
+    btn.innerHTML = '<i class="bi bi-stop-circle-fill"></i> Stop';
+  };
+  utt.onend = utt.onerror = () => {
+    btn.classList.remove('speaking');
+    btn.innerHTML = '<i class="bi bi-volume-up-fill"></i> Hear Question';
+  };
+
+  window.speechSynthesis.speak(utt);
+}
+
+/* Auto-speak on page load */
+window.addEventListener('load', () => {
+  var speakOnLoad = () => speakQuestion();
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.addEventListener('voiceschanged', () => {
+      setTimeout(speakOnLoad, 700);
+    });
+  } else {
+    setTimeout(speakOnLoad, 700);
+  }
+});
+
+/* ─────────────────────────────────────
+   6. VOICE INPUT — Speech to text
+───────────────────────────────────── */
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    alert('Voice input not supported. Please use Google Chrome.');
+    return;
+  }
+
+  if (isRecording) {
+    recognition.stop();
+    return;
+  }
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous    = true;
+  recognition.interimResults = true;
+  recognition.lang           = 'en-US';
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('voiceIcon').className = 'bi bi-stop-circle-fill';
+    document.getElementById('voiceTxt').textContent  = 'Recording… Click to stop';
+  };
+
+  recognition.onresult = (e) => {
+    var transcript = '';
+    for (var i = 0; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    document.getElementById('ansField').value = transcript;
+    onAnswerInput(document.getElementById('ansField'));
+  };
+
+  recognition.onerror = (e) => {
+    console.warn('[Voice] Error:', e.error);
+    stopVoice();
+  };
+
+  recognition.onend = () => stopVoice();
+
+  recognition.start();
+}
+
+function stopVoice() {
+  isRecording = false;
+  document.getElementById('voiceBtn').classList.remove('recording');
+  document.getElementById('voiceIcon').className = 'bi bi-mic-fill';
+  document.getElementById('voiceTxt').textContent  = 'Use Voice Input';
+}
+
+/* ─────────────────────────────────────
+   7. FORM HELPERS
+───────────────────────────────────── */
+function onAnswerInput(el) {
+  document.getElementById('charCount').textContent = el.value.length;
+}
+
+function skipQ() {
+  document.getElementById('ansField').value = 'Skipped';
+  document.getElementById('ansForm').submit();
+}
+
+/* Submit loading state */
+document.getElementById('ansForm').addEventListener('submit', () => {
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spinAnim .6s linear infinite;"></div> Evaluating…';
+  // Stop camera when leaving
+  stopAllMedia();
+});
+
+/* ─────────────────────────────────────
+   8. CLEANUP — Stop camera on page leave
+───────────────────────────────────── */
+function stopAllMedia() {
+  if (camStream) camStream.getTracks().forEach(t => t.stop());
+  if (recognition) recognition.stop();
+  if (timerInterval) clearInterval(timerInterval);
+  if (snapInterval)  clearInterval(snapInterval);
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+window.addEventListener('beforeunload', stopAllMedia);
+window.addEventListener('pagehide',     stopAllMedia);
+
+/* ─────────────────────────────────────
+   9. INIT
+───────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  startCamera();   // Auto-start camera
+  startTimer();    // Start countdown timer
+});
+</script>
+
+<style>
+@keyframes spinAnim { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}

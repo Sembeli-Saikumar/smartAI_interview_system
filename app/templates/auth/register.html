@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account — Smart Interview System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f7ff;font-family:'DM Sans',sans-serif;padding:32px 16px;}
+
+    .orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.1;pointer-events:none;z-index:0;}
+    .orb-1{width:500px;height:500px;background:#1e6091;top:-150px;left:-150px;}
+    .orb-2{width:400px;height:400px;background:#168aad;bottom:-120px;right:-120px;}
+
+    .card{position:relative;z-index:10;width:100%;max-width:460px;background:#fff;border:1px solid #d0e8f2;border-radius:24px;padding:40px 36px;box-shadow:0 8px 48px rgba(30,96,145,.1);}
+
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+    .brand-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#1e6091,#168aad);display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff;}
+    .brand-name{font-family:'Instrument Serif',serif;font-size:1.5rem;color:#0d2d3f;}
+    .brand-name em{font-style:italic;background:linear-gradient(135deg,#1e6091,#168aad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    h2{font-family:'Instrument Serif',serif;font-size:1.7rem;color:#0d2d3f;margin-bottom:4px;}
+    .sub{color:#6b8a96;font-size:.88rem;margin-bottom:24px;}
+
+    .flash{border-radius:10px;padding:10px 14px;font-size:.84rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .flash-danger{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);color:#c0392b;}
+    .flash-success{background:rgba(26,122,74,.08);border:1px solid rgba(26,122,74,.2);color:#1a7a4a;}
+
+    /* Role selector */
+    .role-label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6b8a96;margin-bottom:10px;}
+    .role-btns{display:flex;gap:10px;margin-bottom:20px;}
+    .role-btn{flex:1;padding:12px 8px;border-radius:14px;border:1px solid #d0e8f2;background:#f0f7ff;color:#6b8a96;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .role-btn i{font-size:1.3rem;}
+    .role-btn:hover{background:#d0e8f2;color:#0d2d3f;}
+    .role-btn.active-admin{background:rgba(184,104,10,.08);border-color:rgba(184,104,10,.3);color:#b8680a;}
+    .role-btn.active-interviewer{background:rgba(30,96,145,.08);border-color:rgba(30,96,145,.3);color:#1e6091;}
+
+    .field{margin-bottom:16px;}
+    .field label{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5a7d90;display:block;margin-bottom:6px;}
+    .field-wrap{position:relative;}
+    .field-input{width:100%;padding:12px 14px 12px 42px;background:#f0f7ff;border:1px solid #d0e8f2;border-radius:12px;color:#0d2d3f;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s,background .2s;}
+    .field-input::placeholder{color:#9ab5c0;}
+    .field-input:focus{border-color:#168aad;background:#fff;box-shadow:0 0 0 3px rgba(22,138,173,.12);}
+    .fi{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ab5c0;font-size:.95rem;pointer-events:none;}
+    .toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#9ab5c0;cursor:pointer;font-size:.95rem;padding:0;}
+    .toggle-pw:hover{color:#1e6091;}
+
+    .str-bar-wrap{height:3px;background:#d0e8f2;border-radius:99px;margin-top:6px;overflow:hidden;}
+    .str-bar{height:100%;border-radius:99px;width:0;transition:width .3s,background .3s;}
+    .str-label{font-size:.72rem;color:#9ab5c0;margin-top:4px;}
+
+    .terms-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:20px;}
+    .terms-row input{width:15px;height:15px;accent-color:#1e6091;margin-top:2px;flex-shrink:0;}
+    .terms-row label{font-size:.82rem;color:#6b8a96;}
+    .terms-row a{color:#1e6091;text-decoration:none;}
+
+    .btn-submit{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#1e6091,#168aad);color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(30,96,145,.2);display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(30,96,145,.3);}
+
+    .login-link{text-align:center;margin-top:18px;font-size:.85rem;color:#6b8a96;}
+    .login-link a{color:#1e6091;text-decoration:none;font-weight:600;}
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="card">
+    <div class="brand">
+      <div class="brand-icon"><i class="bi bi-cpu-fill"></i></div>
+      <div class="brand-name">Smart <em>Interview</em></div>
+    </div>
+
+    <h2>Create account</h2>
+    <p class="sub">Register as Admin or Interviewer</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for c,m in messages %}
+        <div class="flash flash-{{ c }}"><i class="bi bi-info-circle"></i> {{ m }}</div>
+      {% endfor %}{% endif %}
+    {% endwith %}
+
+    <!-- Role Selector — Admin & Interviewer only -->
+    <div class="role-label">Register as</div>
+    <div class="role-btns">
+      <button type="button" class="role-btn" id="btn-admin"
+              onclick="selectRole('admin')">
+        <i class="bi bi-shield-check"></i> Admin
+      </button>
+      <button type="button" class="role-btn active-interviewer" id="btn-interviewer"
+              onclick="selectRole('interviewer')">
+        <i class="bi bi-person-badge"></i> Interviewer
+      </button>
+    </div>
+
+    <form action="/auth/register" method="POST" novalidate>
+      <input type="hidden" name="role" id="roleInput" value="interviewer"/>
+
+      <div class="field">
+        <label>Full Name</label>
+        <div class="field-wrap">
+          <i class="bi bi-person fi"></i>
+          <input type="text" class="field-input" name="name"
+                 placeholder="Your full name" required/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Email Address</label>
+        <div class="field-wrap">
+          <i class="bi bi-envelope fi"></i>
+          <input type="email" class="field-input" name="email"
+                 placeholder="you@example.com" required/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="field-wrap">
+          <i class="bi bi-lock fi"></i>
+          <input type="password" class="field-input" name="password" id="pwField"
+                 placeholder="Min. 8 characters"
+                 oninput="checkStrength(this.value)" required/>
+          <button type="button" class="toggle-pw" onclick="togglePw()">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+        <div class="str-bar-wrap"><div class="str-bar" id="strBar"></div></div>
+        <div class="str-label" id="strLabel">Enter a password</div>
+      </div>
+
+      <div class="field">
+        <label>Confirm Password</label>
+        <div class="field-wrap">
+          <i class="bi bi-shield-lock fi"></i>
+          <input type="password" class="field-input" name="confirm_password"
+                 placeholder="Re-enter password" required/>
+        </div>
+      </div>
+
+      <div class="terms-row">
+        <input type="checkbox" id="terms" required/>
+        <label for="terms">I agree to the
+          <a href="#">Terms of Service</a> and
+          <a href="#">Privacy Policy</a>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <i class="bi bi-rocket-takeoff"></i> Create Account
+      </button>
+    </form>
+
+    <p class="login-link">Already have an account?
+      <a href="/auth/login">Sign in</a>
+    </p>
+  </div>
+
+  <script>
+    function selectRole(role) {
+      document.getElementById('roleInput').value = role;
+      document.querySelectorAll('.role-btn').forEach(b =>
+        b.classList.remove('active-admin','active-interviewer')
+      );
+      document.getElementById('btn-' + role).classList.add('active-' + role);
+    }
+    function togglePw() {
+      const f = document.getElementById('pwField');
+      const i = document.getElementById('eyeIcon');
+      f.type = f.type === 'password' ? 'text' : 'password';
+      i.className = f.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+    }
+    function checkStrength(val) {
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const map = [
+        {w:'0%',   bg:'#c0392b', txt:'Too weak'},
+        {w:'30%',  bg:'#c0392b', txt:'Weak'},
+        {w:'55%',  bg:'#b8680a', txt:'Fair'},
+        {w:'80%',  bg:'#1a7a4a', txt:'Good'},
+        {w:'100%', bg:'#1e6091', txt:'Strong 🔒'},
+      ];
+      document.getElementById('strBar').style.width      = map[score].w;
+      document.getElementById('strBar').style.background = map[score].bg;
+      document.getElementById('strLabel').textContent    = map[score].txt;
+      document.getElementById('strLabel').style.color    = map[score].bg;
+    }
+  </script>
+</body>
+</html>

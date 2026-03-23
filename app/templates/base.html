@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Smart Interview System{% endblock %}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --primary:    #1e6091;
+      --primary-lt: #168aad;
+      --primary-bg: #d0e8f2;
+      --accent:     #1e6091;
+      --bg:         #f0f7ff;
+      --bg-card:    #ffffff;
+      --border:     #c0dced;
+      --muted:      #5a7d90;
+      --dark:       #0d2d3f;
+      --success:    #1a7a4a;
+      --danger:     #c0392b;
+      --warning:    #b8680a;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--primary-lt); border-radius:99px; }
+
+    h1,h2,h3,h4,h5,h6 {
+      font-family: 'Syne', sans-serif;
+      color: var(--dark);
+      font-weight: 700;
+    }
+
+    a { color: var(--primary); transition: color .2s; }
+    a:hover { color: var(--primary-lt); }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: var(--primary) !important;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 2px 16px rgba(30,96,145,.25);
+      padding: 13px 28px;
+    }
+    .navbar-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #fff !important;
+      letter-spacing: -.01em;
+    }
+    .navbar-brand span { color: #a8d8f0; }
+
+    .nav-link {
+      color: rgba(255,255,255,.75) !important;
+      font-weight: 500;
+      font-size: .88rem;
+      padding: 6px 14px !important;
+      border-radius: 8px;
+      transition: all .2s;
+    }
+    .nav-link:hover {
+      color: #fff !important;
+      background: rgba(255,255,255,.12);
+    }
+    .nav-link.active {
+      color: #fff !important;
+      background: rgba(255,255,255,.18);
+      font-weight: 600;
+    }
+    .navbar-toggler { border-color: rgba(255,255,255,.3); }
+    .navbar-toggler-icon {
+      filter: invert(1);
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: #fff !important;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all .2s;
+    }
+    .btn-primary:hover {
+      background: var(--dark) !important;
+      border-color: var(--dark) !important;
+      box-shadow: 0 4px 14px rgba(30,96,145,.3);
+      transform: translateY(-1px);
+    }
+    .btn-outline-primary {
+      border-color: var(--primary) !important;
+      color: var(--primary) !important;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all .2s;
+    }
+    .btn-outline-primary:hover {
+      background: var(--primary) !important;
+      color: #fff !important;
+    }
+    .btn-light {
+      background: var(--primary-bg) !important;
+      border-color: var(--border) !important;
+      color: var(--dark) !important;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .btn-light:hover {
+      background: var(--border) !important;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(30,96,145,.07);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .card:hover {
+      box-shadow: 0 8px 28px rgba(30,96,145,.13);
+      transform: translateY(-2px);
+    }
+    .card-header {
+      background: var(--primary-bg) !important;
+      border-bottom: 1px solid var(--border);
+      border-radius: 18px 18px 0 0 !important;
+      padding: 14px 20px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    /* ── Forms ── */
+    .form-control, .form-select {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      color: var(--dark);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-lt);
+      box-shadow: 0 0 0 3px rgba(22,138,173,.2);
+      outline: none;
+    }
+    .form-label {
+      font-weight: 600;
+      font-size: .85rem;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    /* ── Alerts ── */
+    .alert {
+      border-radius: 12px;
+      font-size: .87rem;
+      border: none;
+      padding: 12px 16px;
+    }
+    .alert-success { background:rgba(26,122,74,.09);  color:var(--success); border-left:3px solid var(--success); }
+    .alert-danger  { background:rgba(192,57,43,.09);  color:var(--danger);  border-left:3px solid var(--danger); }
+    .alert-warning { background:rgba(184,104,10,.09); color:var(--warning); border-left:3px solid var(--warning); }
+    .alert-info    { background:rgba(22,138,173,.1);  color:var(--primary); border-left:3px solid var(--primary-lt); }
+
+    /* ── Tables ── */
+    .table th {
+      background: var(--primary-bg);
+      color: var(--dark);
+      font-family: 'Syne', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      border: none;
+    }
+    .table td {
+      padding: 12px 16px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      font-size: .88rem;
+      vertical-align: middle;
+    }
+    .table tbody tr:hover td {
+      background: rgba(22,138,173,.06);
+      color: var(--dark);
+    }
+
+    /* ── Badges ── */
+    .badge {
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 4px 10px;
+    }
+    .badge-primary { background: var(--primary-bg); color: var(--primary); }
+
+    /* ── Page wrapper ── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    /* ── Section title ── */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 99px;
+      display: inline-block;
+    }
+
+    /* ── Divider ── */
+    hr {
+      border-color: var(--border);
+      opacity: 1;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up   { animation: fadeUp .4s ease both; }
+    .fade-up-2 { animation: fadeUp .4s .1s ease both; }
+    .fade-up-3 { animation: fadeUp .4s .2s ease both; }
+    .fade-up-4 { animation: fadeUp .4s .3s ease both; }
+
+    @media (max-width:768px) {
+      .page-wrap { padding: 20px 14px 60px; }
+    }
+  </style>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">
+        🎯 Smart <span>Interview</span>
+      </a>
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-center gap-1">
+          {% if session.get('user_id') %}
+            <li class="nav-item">
+              <span class="nav-link" style="color:#a8d8f0 !important;font-weight:600;">
+                <i class="bi bi-person-circle"></i> {{ session.get('user_name','') }}
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.login') }}">
+                <i class="bi bi-person"></i> Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('auth.register') }}">
+                <i class="bi bi-person-plus"></i> Register
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+
+</body>
+</html>

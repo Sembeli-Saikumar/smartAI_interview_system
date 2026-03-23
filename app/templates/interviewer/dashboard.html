@@ -1,0 +1,2033 @@
+{% extends "base.html" %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+
+/* ─────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────── */
+:root {
+  --p:       #2563EB;
+  --p-h:     #1D4ED8;
+  --p-l:     #EFF6FF;
+  --p-b:     #BFDBFE;
+  --s:       #6366F1;
+  --s-l:     #F5F3FF;
+  --s-b:     #DDD6FE;
+  --ok:      #10B981;
+  --ok-l:    #F0FDF4;
+  --ok-b:    #BBF7D0;
+  --warn:    #F59E0B;
+  --warn-l:  #FFFBEB;
+  --warn-b:  #FDE68A;
+  --err:     #EF4444;
+  --err-l:   #FEF2F2;
+  --err-b:   #FECACA;
+  --bg:      #F1F5FB;
+  --surface: #FFFFFF;
+  --border:  #E2E8F0;
+  --text:    #0F172A;
+  --muted:   #64748B;
+  --faint:   #94A3B8;
+  --nav-h:   64px;
+  --radius:  16px;
+  --shadow:  0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-h:0 8px 24px rgba(0,0,0,.1),  0 2px 8px rgba(0,0,0,.06);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────
+   NAVBAR
+───────────────────────────────────────── */
+.topnav {
+  height: var(--nav-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.brand-mark {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: .95rem;
+  box-shadow: 0 3px 10px rgba(37,99,235,.35);
+}
+.brand-name {
+  font-size: .92rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.015em;
+}
+.brand-name em { font-style: normal; color: var(--p); }
+
+.nav-divider {
+  width: 1px; height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.nav-pill-label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--faint);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border-radius: 99px;
+  background: var(--p-l);
+  border: 1px solid var(--p-b);
+}
+.user-av {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.user-nm { font-size: .79rem; font-weight: 600; color: var(--p); }
+
+.nbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .79rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .13s;
+  background: var(--surface);
+  color: var(--muted);
+}
+.nbtn:hover { background: var(--bg); color: var(--text); text-decoration: none; }
+.nbtn-danger {
+  background: var(--err-l);
+  border-color: var(--err-b);
+  color: var(--err);
+}
+.nbtn-danger:hover { background: #FEE2E2; color: var(--err); }
+
+/* ─────────────────────────────────────────
+   WRAPPER
+───────────────────────────────────────── */
+.wrap { padding: 28px 24px 72px; max-width: 1180px; margin: 0 auto; }
+
+/* Flash */
+.flash {
+  border-radius: 11px;
+  padding: 10px 14px;
+  font-size: .81rem;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.flash-s { background: var(--ok-l); border: 1px solid var(--ok-b); color: #15803D; }
+.flash-d { background: var(--err-l); border: 1px solid var(--err-b); color: #DC2626; }
+.flash-w { background: var(--warn-l); border: 1px solid var(--warn-b); color: #D97706; }
+
+/* ─────────────────────────────────────────
+   PAGE HEADER
+───────────────────────────────────────── */
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.page-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -.025em;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.2;
+}
+.page-sub { font-size: .81rem; color: var(--muted); margin-top: 3px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(37,99,235,.3);
+  transition: all .15s;
+}
+.btn-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37,99,235,.4);
+  color: #fff; text-decoration: none;
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all .13s;
+}
+.btn-ghost:hover { background: var(--bg); color: var(--text); text-decoration: none; border-color: #CBD5E1; }
+
+/* ─────────────────────────────────────────
+   STAT CARDS — THE HERO SECTION
+───────────────────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+  cursor: default;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-h);
+}
+.stat-card:hover::after { opacity: 1; }
+
+/* Accent lines per card */
+.sc-blue::after   { background: linear-gradient(90deg, #2563EB, #6366F1); }
+.sc-green::after  { background: linear-gradient(90deg, #10B981, #34D399); }
+.sc-amber::after  { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.sc-indigo::after { background: linear-gradient(90deg, #6366F1, #A78BFA); }
+.sc-red::after    { background: linear-gradient(90deg, #EF4444, #F87171); }
+
+/* Decorative circle in background */
+.stat-card .card-bg-circle {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  top: -16px; right: -16px;
+  opacity: .07;
+}
+.sc-blue  .card-bg-circle { background: var(--p); }
+.sc-green .card-bg-circle { background: var(--ok); }
+.sc-amber .card-bg-circle { background: var(--warn); }
+.sc-indigo.card-bg-circle { background: var(--s); }
+.sc-red   .card-bg-circle { background: var(--err); }
+
+.stat-ico {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.ico-blue   { background: var(--p-l); color: var(--p); }
+.ico-green  { background: var(--ok-l); color: var(--ok); }
+.ico-amber  { background: var(--warn-l); color: var(--warn); }
+.ico-indigo { background: var(--s-l); color: var(--s); }
+.ico-red    { background: var(--err-l); color: var(--err); }
+
+.stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  color: var(--text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: .01em;
+}
+.stat-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: .7rem;
+  color: var(--faint);
+  font-weight: 500;
+}
+.stat-footer i { font-size: .72rem; }
+.sf-up  { color: var(--ok); }
+.sf-mid { color: var(--warn); }
+.sf-pri { color: var(--p); }
+
+/* Progress pill */
+.stat-prog {
+  height: 3px;
+  background: var(--bg);
+  border-radius: 99px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.stat-prog-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1.4s cubic-bezier(.22,1,.36,1);
+}
+
+/* ─────────────────────────────────────────
+   CHART CARDS
+───────────────────────────────────────── */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  height: 100%;
+  transition: box-shadow .2s, transform .2s;
+}
+.chart-card:hover { box-shadow: var(--shadow-h); transform: translateY(-2px); }
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chart-title { font-size: .87rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.chart-sub { font-size: .72rem; color: var(--faint); }
+.chart-loader { display: flex; align-items: center; justify-content: center; min-height: 180px; }
+.spin { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--p); border-radius: 50%; animation: spinning .65s linear infinite; }
+@keyframes spinning { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────
+   SECTION CARDS
+───────────────────────────────────────── */
+.sec-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  height: 100%;
+  transition: box-shadow .2s, transform .2s;
+}
+.sec-card:hover { box-shadow: var(--shadow-h); transform: translateY(-1px); }
+.sec-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #FAFBFC;
+}
+.sec-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cnt-pill {
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--p-l);
+  color: var(--p);
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────
+   TABLE
+───────────────────────────────────────── */
+table.t { width: 100%; border-collapse: collapse; }
+table.t th {
+  font-size: .64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--faint);
+  padding: 9px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  background: #FAFBFC;
+}
+table.t td {
+  padding: 11px 14px;
+  font-size: .81rem;
+  color: var(--muted);
+  border-bottom: 1px solid #F8FAFC;
+  vertical-align: middle;
+}
+table.t tr:last-child td { border-bottom: none; }
+table.t tbody tr { transition: background .1s; animation: rowSlide .3s ease both; }
+table.t tbody tr:hover { background: #F8FAFC; }
+table.t tbody tr:nth-child(1){animation-delay:.04s}
+table.t tbody tr:nth-child(2){animation-delay:.08s}
+table.t tbody tr:nth-child(3){animation-delay:.12s}
+table.t tbody tr:nth-child(4){animation-delay:.16s}
+table.t tbody tr:nth-child(5){animation-delay:.20s}
+@keyframes rowSlide { from{opacity:0;transform:translateX(-5px)}to{opacity:1;transform:none} }
+.cell-name { font-weight: 600; color: var(--text); font-size: .82rem; }
+.cell-sub  { font-size: .69rem; color: var(--faint); margin-top: 1px; }
+
+/* ─────────────────────────────────────────
+   BADGES
+───────────────────────────────────────── */
+.badge-sm {
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: .68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  letter-spacing: .01em;
+}
+.bd-blue   { background: var(--p-l);    color: var(--p);    border: 1px solid var(--p-b); }
+.bd-indigo { background: var(--s-l);    color: var(--s);    border: 1px solid var(--s-b); }
+.bd-green  { background: var(--ok-l);   color: var(--ok);   border: 1px solid var(--ok-b); }
+.bd-red    { background: var(--err-l);  color: var(--err);  border: 1px solid var(--err-b); }
+.bd-amber  { background: var(--warn-l); color: var(--warn); border: 1px solid var(--warn-b); }
+
+/* ─────────────────────────────────────────
+   SCORE BAR
+───────────────────────────────────────── */
+.score-row { display: flex; align-items: center; gap: 8px; }
+.score-track { height: 5px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 99px; }
+
+/* ─────────────────────────────────────────
+   RESUME CARD
+───────────────────────────────────────── */
+.res-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.res-card:hover { border-color: var(--p-b); box-shadow: 0 4px 12px rgba(37,99,235,.08); }
+.res-ico {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--err-l);
+  border: 1px solid var(--err-b);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--err); font-size: .95rem;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────
+   SKILL CHIPS
+───────────────────────────────────────── */
+.skill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .66rem; font-weight: 600; background: var(--s-l); border: 1px solid var(--s-b); color: var(--s); margin: 2px; }
+
+/* ─────────────────────────────────────────
+   MINI BUTTONS
+───────────────────────────────────────── */
+.xbtn {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: .73rem; font-weight: 600;
+  cursor: pointer; transition: all .12s;
+  text-decoration: none; border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.xb-blue  { background: var(--p-l); border: 1px solid var(--p-b); color: var(--p); }
+.xb-blue:hover  { background: #DBEAFE; color: var(--p); text-decoration: none; }
+.xb-red   { background: var(--err-l); border: 1px solid var(--err-b); color: var(--err); }
+.xb-red:hover   { background: #FEE2E2; }
+.xb-green { background: var(--ok-l); border: 1px solid var(--ok-b); color: var(--ok); }
+.xb-green:hover { background: #DCFCE7; }
+
+/* ─────────────────────────────────────────
+   TIP CARDS
+───────────────────────────────────────── */
+.tip-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex; gap: 12px; align-items: flex-start;
+  transition: border-color .15s, box-shadow .15s;
+  height: 100%;
+}
+.tip-card:hover { border-color: var(--p-b); box-shadow: 0 4px 14px rgba(37,99,235,.07); }
+.tip-ico { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: .88rem; flex-shrink: 0; }
+.tip-title { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.tip-body  { font-size: .74rem; color: var(--muted); line-height: 1.55; }
+
+/* ─────────────────────────────────────────
+   UPLOAD ZONE
+───────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 13px;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .18s;
+  background: var(--bg);
+}
+.upload-zone:hover { border-color: var(--p); background: var(--p-l); }
+.upload-zone i { font-size: 1.8rem; color: var(--faint); display: block; margin-bottom: 8px; }
+.upload-zone p { font-size: .81rem; color: var(--muted); margin: 0; line-height: 1.5; }
+.upload-zone strong { color: var(--p); }
+
+/* ─────────────────────────────────────────
+   MODAL
+───────────────────────────────────────── */
+.modal-ov { visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;transition:all .18s;backdrop-filter:blur(5px); }
+.modal-ov.open { visibility:visible;opacity:1; }
+.mbox { background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.14); }
+.mtit { font-size:.98rem;font-weight:800;color:var(--text);margin-bottom:18px; }
+.mf { margin-bottom:12px; }
+.mf label { font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:4px; }
+.mf input { width:100%;padding:9px 11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;outline:none;transition:all .15s; }
+.mf input:focus { border-color:var(--p);box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.mfoot { display:flex;gap:8px;margin-top:16px; }
+.mb-c { flex:1;padding:9px;border-radius:8px;background:#F1F5F9;border:none;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:background .12s; }
+.mb-c:hover { background:var(--border); }
+.mb-s { flex:2;padding:9px;border-radius:8px;background:var(--p);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.83rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .12s; }
+.mb-s:hover { background:var(--p-h); }
+
+/* ─────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────── */
+@keyframes pageIn { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none} }
+.ani-1 { animation: pageIn .4s .04s ease both; }
+.ani-2 { animation: pageIn .4s .12s ease both; }
+.ani-3 { animation: pageIn .4s .20s ease both; }
+.ani-4 { animation: pageIn .4s .28s ease both; }
+.ani-5 { animation: pageIn .4s .36s ease both; }
+.ani-6 { animation: pageIn .4s .44s ease both; }
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .wrap { padding: 18px 14px 60px; }
+  .topnav { padding: 0 14px; }
+  .user-nm { display: none; }
+  .page-head { flex-direction: column; }
+  .head-actions { width: 100%; }
+}
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stat-num { font-size: 1.65rem; }
+  .stat-ico { width: 36px; height: 36px; font-size: 1rem; }
+  .brand-name { display: none; }
+}
+@media (max-width: 360px) {
+  .stat-grid { grid-template-columns: 1fr; }
+}
+/* ─────────────────────────────────────────
+   MAIN ACTION CARDS
+───────────────────────────────────────── */
+.action-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 240px;
+  cursor: default;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease;
+  border: 1px solid rgba(255,255,255,.15);
+}
+.action-card:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+/* Gradients */
+.ac-blue   { background: linear-gradient(135deg, #2563EB 0%, #6366F1 100%); box-shadow: 0 8px 32px rgba(37,99,235,.35); }
+.ac-purple { background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%); box-shadow: 0 8px 32px rgba(124,58,237,.35); }
+.ac-teal   { background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%); box-shadow: 0 8px 32px rgba(14,165,233,.35); }
+
+.ac-blue:hover   { box-shadow: 0 16px 48px rgba(37,99,235,.45); }
+.ac-purple:hover { box-shadow: 0 16px 48px rgba(124,58,237,.45); }
+.ac-teal:hover   { box-shadow: 0 16px 48px rgba(14,165,233,.45); }
+
+/* Glow blob in top-right */
+.ac-glow {
+  position: absolute;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  top: -40px; right: -40px;
+  filter: blur(50px);
+  pointer-events: none;
+  opacity: .55;
+}
+.ac-glow-blue   { background: rgba(255,255,255,.3); }
+.ac-glow-purple { background: rgba(255,255,255,.25); }
+.ac-glow-teal   { background: rgba(255,255,255,.28); }
+
+/* Subtle dot pattern overlay */
+.ac-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+/* Icon */
+.ac-ico-wrap {
+  width: 52px; height: 52px;
+  border-radius: 15px;
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  color: #fff;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  transition: transform .2s, background .2s;
+}
+.action-card:hover .ac-ico-wrap {
+  transform: scale(1.1) rotate(-4deg);
+  background: rgba(255,255,255,.26);
+}
+
+/* Content */
+.ac-content { position: relative; z-index: 1; flex: 1; }
+.ac-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.015em;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.ac-desc {
+  font-size: .79rem;
+  color: rgba(255,255,255,.72);
+  line-height: 1.55;
+}
+
+/* Button */
+.ac-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 11px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .18s;
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  letter-spacing: .01em;
+}
+.ac-btn-white {
+  background: rgba(255,255,255,.95);
+  color: var(--text);
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+}
+.ac-btn-white:hover {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.2);
+  color: var(--text);
+  text-decoration: none;
+}
+.ac-btn i { font-size: .82rem; }
+
+/* Label badge top-right */
+.ac-badge {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.85);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+/* Mobile: stack nicely */
+@media (max-width: 768px) {
+  .action-card { min-height: 200px; padding: 22px 18px 20px; }
+  .ac-title { font-size: .95rem; }
+  .ac-btn { padding: 9px 16px; font-size: .79rem; }
+}
+@media (max-width: 480px) {
+  .action-card { min-height: 180px; }
+}
+/* ─────────────────────────────────────────
+   ANALYTICS CHART CARDS V2
+───────────────────────────────────────── */
+.chart-card-v2 {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+  height: 100%;
+  transition: box-shadow .2s, transform .2s;
+}
+.chart-card-v2:hover { box-shadow: var(--shadow-h); transform: translateY(-2px); }
+
+.cv2-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cv2-left { display: flex; align-items: center; gap: 11px; }
+.cv2-ico {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(37,99,235,.2);
+}
+.cv2-title { font-size: .9rem; font-weight: 800; color: var(--text); letter-spacing: -.01em; }
+.cv2-sub   { font-size: .71rem; color: var(--faint); margin-top: 2px; }
+
+.cv2-right { display: flex; align-items: center; gap: 6px; }
+.cv2-stat {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 6px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-width: 56px;
+}
+.cv2-stat-val { font-size: .88rem; font-weight: 800; color: var(--text); line-height: 1; }
+.cv2-stat-lbl { font-size: .6rem; color: var(--faint); font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
+
+/* Chart legend */
+.cv2-legend {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.cv2-leg-item { display: flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 600; color: var(--muted); }
+.cv2-leg-line { display: inline-block; width: 18px; height: 3px; border-radius: 99px; flex-shrink: 0; }
+
+/* Status pills */
+.cv2-status-pills {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.cv2-pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: .74rem; font-weight: 700;
+}
+.cv2-pill-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.cv2-pill-num { font-size: .88rem; font-weight: 800; line-height: 1; }
+.cv2-pill-txt { font-weight: 600; }
+.cv2-pill-green { background: #F0FDF4; border: 1px solid #BBF7D0; color: #16A34A; }
+.cv2-pill-green .cv2-pill-dot { background: #10B981; }
+.cv2-pill-amber { background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706; }
+.cv2-pill-amber .cv2-pill-dot { background: #F59E0B; animation: pdot 1.4s ease-in-out infinite; }
+.cv2-pill-gray  { background: #F8FAFC; border: 1px solid #E2E8F0; color: #64748B; }
+.cv2-pill-gray  .cv2-pill-dot { background: #CBD5E1; }
+@keyframes pdot { 0%,100%{opacity:1}50%{opacity:.3} }
+
+@media (max-width: 576px) {
+  .chart-card-v2 { padding: 16px; }
+  .cv2-right { display: none; }
+}
+
+
+.ih-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  height: 100%;
+  transition: box-shadow .2s;
+}
+.ih-card:hover { box-shadow: var(--shadow-h); }
+
+/* Header */
+.ih-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #FAFBFC, #F8FAFC);
+}
+.ih-header-left { display: flex; align-items: center; gap: 11px; }
+.ih-header-ico {
+  width: 38px; height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1rem;
+  box-shadow: 0 3px 10px rgba(37,99,235,.25);
+  flex-shrink: 0;
+}
+.ih-title { font-size: .9rem; font-weight: 800; color: var(--text); letter-spacing: -.01em; }
+.ih-sub   { font-size: .71rem; color: var(--faint); margin-top: 1px; }
+.ih-header-right { display: flex; align-items: center; gap: 10px; }
+
+/* Mini stats in header */
+.ih-stats-mini { display: flex; align-items: center; gap: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; }
+.ihm-stat { text-align: center; padding: 0 8px; }
+.ihm-val  { font-size: .85rem; font-weight: 800; line-height: 1; letter-spacing: -.01em; }
+.ihm-lbl  { font-size: .6rem; color: var(--faint); font-weight: 500; margin-top: 1px; text-transform: uppercase; letter-spacing: .04em; }
+.ihm-divider { width: 1px; height: 24px; background: var(--border); margin: 0 2px; }
+
+/* New session button */
+.ih-new-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .78rem; font-weight: 700;
+  border: none; cursor: pointer; text-decoration: none;
+  box-shadow: 0 3px 10px rgba(37,99,235,.25);
+  transition: all .15s; white-space: nowrap;
+}
+.ih-new-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(37,99,235,.35); color: #fff; text-decoration: none; }
+
+/* Table */
+.ih-table { width: 100%; border-collapse: collapse; }
+.ih-table thead tr { border-bottom: 2px solid var(--border); background: #FAFBFC; }
+.ih-table th { padding: 10px 14px; text-align: left; white-space: nowrap; }
+.ih-th {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .64rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--faint);
+}
+.ih-th i { font-size: .68rem; }
+
+.ih-row {
+  border-bottom: 1px solid #F8FAFC;
+  transition: background .12s, transform .12s;
+  animation: ihRowIn .35s ease both;
+}
+.ih-row:hover { background: #F8FAFC; }
+.ih-row:hover td:first-child { border-left: 3px solid var(--p); }
+.ih-row td { padding: 13px 14px; vertical-align: middle; }
+.ih-row td:first-child { border-left: 3px solid transparent; transition: border-color .15s; }
+.ih-table tbody tr:last-child { border-bottom: none; }
+@keyframes ihRowIn { from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none} }
+
+/* Date cell */
+.ih-date-wrap { display: flex; align-items: center; gap: 10px; }
+.ih-date-box {
+  width: 34px; height: 38px;
+  background: var(--p-l); border: 1px solid var(--p-b);
+  border-radius: 9px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ih-day { font-size: .82rem; font-weight: 800; color: var(--p); line-height: 1; }
+.ih-mon { font-size: .56rem; font-weight: 700; color: var(--p); text-transform: uppercase; letter-spacing: .04em; }
+.ih-date-full { font-size: .79rem; font-weight: 600; color: var(--text); }
+.ih-time { font-size: .69rem; color: var(--faint); margin-top: 1px; }
+
+/* Q ring */
+.ih-q-wrap { display: flex; align-items: center; gap: 7px; }
+.ih-q-ring {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: conic-gradient(var(--ring-color) calc(var(--ring-pct) * 1), #F1F5F9 0);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ih-q-num {
+  font-size: .6rem; font-weight: 800; color: var(--text);
+  background: var(--surface);
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: -.02em;
+}
+.ih-q-label { font-size: .68rem; color: var(--faint); }
+
+/* Score cell */
+.ih-score-wrap { display: flex; align-items: center; gap: 9px; }
+.ih-score-circle {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ih-score-inner {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  gap: 0;
+}
+.ih-score-val  { font-size: .68rem; font-weight: 800; line-height: 1; }
+.ih-score-pct  { font-size: .52rem; font-weight: 700; color: var(--faint); }
+.ih-score-bar-track { width: 64px; height: 4px; background: #F1F5F9; border-radius: 99px; overflow: hidden; }
+.ih-score-bar-fill  { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.ih-score-grade { font-size: .62rem; color: var(--faint); margin-top: 3px; font-weight: 500; }
+.ih-no-score { display: flex; align-items: center; gap: 5px; font-size: .76rem; color: var(--faint); }
+
+/* Status badges */
+.ih-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 99px;
+  font-size: .7rem; font-weight: 700; white-space: nowrap;
+}
+.ih-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.ih-badge-done     { background: #F0FDF4; border: 1px solid #BBF7D0; color: #16A34A; }
+.ih-badge-done     .ih-badge-dot { background: #16A34A; animation: badgePulse 2s ease-in-out infinite; }
+.ih-badge-progress { background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706; }
+.ih-badge-progress .ih-badge-dot { background: #D97706; animation: badgePulse 1.2s ease-in-out infinite; }
+.ih-badge-pending  { background: #F8FAFC; border: 1px solid #E2E8F0; color: #64748B; }
+.ih-badge-pending  .ih-badge-dot { background: #94A3B8; }
+@keyframes badgePulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* Action buttons */
+.ih-actions { display: flex; align-items: center; gap: 5px; }
+.ih-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: 8px;
+  font-size: .74rem; font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  border: none; cursor: pointer; text-decoration: none;
+  transition: all .13s; white-space: nowrap;
+}
+.ih-btn-primary { background: var(--p-l); border: 1px solid var(--p-b); color: var(--p); }
+.ih-btn-primary:hover { background: #DBEAFE; color: var(--p); text-decoration: none; transform: translateY(-1px); }
+.ih-btn-warning { background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706; }
+.ih-btn-warning:hover { background: #FEF3C7; color: #D97706; text-decoration: none; transform: translateY(-1px); }
+.ih-btn-ghost { background: #F8FAFC; border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; }
+.ih-btn-ghost:hover { background: var(--bg); color: var(--text); text-decoration: none; }
+
+/* Footer */
+.ih-footer {
+  padding: 11px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: #FAFBFC;
+  font-size: .72rem; color: var(--faint); font-weight: 500;
+}
+.ih-footer-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--p); font-weight: 700; text-decoration: none; font-size: .72rem;
+}
+.ih-footer-link:hover { text-decoration: underline; }
+
+/* Mobile cards */
+.ih-mobile-list { padding: 12px; }
+.ihm-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 14px;
+  margin-bottom: 10px;
+  animation: ihRowIn .35s ease both;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ihm-card:hover { border-color: var(--p-b); box-shadow: 0 4px 14px rgba(37,99,235,.08); }
+.ihm-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.ihm-card-mid { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.ihm-meta { display: flex; align-items: center; gap: 5px; font-size: .78rem; color: var(--muted); font-weight: 500; }
+.ihm-card-btns { display: flex; gap: 6px; margin-top: 10px; }
+
+/* Empty state */
+.ih-empty {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.ih-empty-ico {
+  width: 64px; height: 64px;
+  border-radius: 18px;
+  background: #F1F5F9;
+  border: 2px dashed #CBD5E1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; color: #CBD5E1;
+  margin-bottom: 14px;
+}
+.ih-empty-title { font-size: .95rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.ih-empty-sub   { font-size: .79rem; color: var(--muted); max-width: 240px; line-height: 1.5; }
+
+
+
+
+
+</style>
+
+<!-- ══════ TOPNAV ══════ -->
+<nav class="topnav">
+  <a class="brand" href="#">
+    <div class="brand-mark"><i class="bi bi-cpu-fill"></i></div>
+    <div class="brand-name">Smart <em>Interview</em></div>
+  </a>
+  <div class="nav-divider"></div>
+  <span class="nav-pill-label d-none d-sm-inline">Interviewer</span>
+  <div class="nav-right">
+    <div class="user-chip">
+      <div class="user-av">{{ session.get('user_name','U')[0].upper() }}</div>
+      <span class="user-nm">{{ session.get('user_name','Interviewer') }}</span>
+    </div>
+    <a href="{{ url_for('interviewer.profile') }}" class="nbtn">
+      <i class="bi bi-person-gear"></i>
+      <span class="d-none d-md-inline">Profile</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="nbtn nbtn-danger">
+      <i class="bi bi-box-arrow-right"></i>
+      <span class="d-none d-md-inline">Logout</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ══════ MAIN ══════ -->
+<div class="wrap">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}
+      <div class="flash flash-{{ c[0] }}"><i class="bi bi-info-circle-fill"></i> {{ m }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
+
+  <!-- Page Header -->
+  <div class="page-head ani-1">
+    <div>
+      <h1 class="page-title">Interviewer Dashboard</h1>
+      <p class="page-sub">Good to see you, {{ session.get('user_name','') }}! Here's your performance overview.</p>
+    </div>
+    <div class="head-actions">
+      <a href="{{ url_for('interview.start_interview') }}" class="btn-start">
+        <i class="bi bi-play-circle-fill"></i> Start Interview
+      </a>
+      <a href="{{ url_for('interviewer.upload_page') }}" class="btn-ghost">
+        <i class="bi bi-upload"></i> Upload Resume
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════ 5 STAT CARDS ══════ -->
+  <div class="stat-grid ani-2">
+
+    <!-- 1. Total Interviews -->
+    <div class="stat-card sc-blue">
+      <div class="card-bg-circle"></div>
+      <div class="stat-ico ico-blue"><i class="bi bi-mic-fill"></i></div>
+      <div class="stat-num" data-target="{{ total }}">0</div>
+      <div class="stat-label">Total Interviews</div>
+      <div class="stat-prog"><div class="stat-prog-bar" style="width:0%;background:var(--p);" data-w="100%"></div></div>
+      <div class="stat-footer sf-pri"><i class="bi bi-arrow-right-circle"></i>All sessions taken</div>
+    </div>
+
+    <!-- 2. Completed -->
+    <div class="stat-card sc-green">
+      <div class="card-bg-circle"></div>
+      <div class="stat-ico ico-green"><i class="bi bi-check-circle-fill"></i></div>
+      <div class="stat-num" data-target="{{ completed }}">0</div>
+      <div class="stat-label">Completed</div>
+      <div class="stat-prog"><div class="stat-prog-bar" style="width:0%;background:var(--ok);" data-w="{{ [((completed / [total,1]|max)*100)|round|int, 100]|min }}%"></div></div>
+      <div class="stat-footer sf-up"><i class="bi bi-arrow-up-right"></i>Finished sessions</div>
+    </div>
+
+    <!-- 3. In Progress -->
+    <div class="stat-card sc-amber">
+      <div class="card-bg-circle"></div>
+      <div class="stat-ico ico-amber"><i class="bi bi-hourglass-split"></i></div>
+      <div class="stat-num" data-target="{{ ongoing }}">0</div>
+      <div class="stat-label">In Progress</div>
+      <div class="stat-prog"><div class="stat-prog-bar" style="width:0%;background:var(--warn);" data-w="{{ [((ongoing / [total,1]|max)*100)|round|int, 100]|min }}%"></div></div>
+      <div class="stat-footer sf-mid"><i class="bi bi-clock-history"></i>Active sessions</div>
+    </div>
+
+    <!-- 4. Best Score -->
+    <div class="stat-card sc-indigo">
+      <div class="card-bg-circle"></div>
+      <div class="stat-ico ico-indigo"><i class="bi bi-trophy-fill"></i></div>
+      <div class="stat-num" data-target="{{ best_score or 0 }}">0</div>
+      <div class="stat-label">Best Score</div>
+      <div class="stat-prog"><div class="stat-prog-bar" style="width:0%;background:var(--s);" data-w="{{ best_score or 0 }}%"></div></div>
+      <div class="stat-footer"><i class="bi bi-star-fill" style="color:var(--warn);"></i>Personal best</div>
+    </div>
+
+    <!-- 5. Resumes Reviewed -->
+    <div class="stat-card sc-red">
+      <div class="card-bg-circle"></div>
+      <div class="stat-ico ico-red"><i class="bi bi-file-earmark-person-fill"></i></div>
+      <div class="stat-num" data-target="{{ resumes|length }}">0</div>
+      <div class="stat-label">Resumes Reviewed</div>
+      <div class="stat-prog"><div class="stat-prog-bar" style="width:0%;background:var(--err);" data-w="{{ [(resumes|length * 20), 100]|min }}%"></div></div>
+      <div class="stat-footer"><i class="bi bi-file-earmark-check"></i>AI scored</div>
+    </div>
+
+  </div>
+  <!-- end stat cards -->
+
+  <!-- ══════ MAIN ACTIONS ══════ -->
+  <div class="mb-4 ani-3">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div style="width:4px;height:18px;border-radius:99px;background:linear-gradient(180deg,var(--p),var(--s));flex-shrink:0;"></div>
+      <span style="font-size:.88rem;font-weight:800;color:var(--text);letter-spacing:-.01em;">Main Actions</span>
+    </div>
+    <div class="row g-3">
+
+      <!-- Card 1: Start Interview -->
+      <div class="col-12 col-md-4">
+        <div class="action-card ac-blue">
+          <div class="ac-glow ac-glow-blue"></div>
+          <div class="ac-pattern"></div>
+          <div class="ac-ico-wrap">
+            <i class="bi bi-mic-fill"></i>
+          </div>
+          <div class="ac-content">
+            <div class="ac-title">Start Interview</div>
+            <div class="ac-desc">Launch an AI-powered interview session with real-time question generation and voice recognition.</div>
+          </div>
+          <a href="{{ url_for('interview.start_interview') }}" class="ac-btn ac-btn-white" id="btn-start-interview">
+            <i class="bi bi-play-circle-fill"></i> Start Now
+          </a>
+          <div class="ac-badge">AI Powered</div>
+        </div>
+      </div>
+
+      <!-- Card 2: AI Question Generator -->
+      <div class="col-12 col-md-4">
+        <div class="action-card ac-purple">
+          <div class="ac-glow ac-glow-purple"></div>
+          <div class="ac-pattern"></div>
+          <div class="ac-ico-wrap">
+            <i class="bi bi-stars"></i>
+          </div>
+          <div class="ac-content">
+            <div class="ac-title">AI Question Generator</div>
+            <div class="ac-desc">Generate tailored interview questions automatically based on your resume and skill profile.</div>
+          </div>
+<a href="{{ url_for('interview.start_interview') }}" class="ac-btn ac-btn-white" id="btn-generate-questions">
+
+            <i class="bi bi-lightning-charge-fill"></i> Generate Questions
+          </a>
+          <div class="ac-badge">Smart AI</div>
+        </div>
+      </div>
+
+      <!-- Card 3: My Scores -->
+      <div class="col-12 col-md-4">
+        <div class="action-card ac-teal">
+          <div class="ac-glow ac-glow-teal"></div>
+          <div class="ac-pattern"></div>
+          <div class="ac-ico-wrap">
+            <i class="bi bi-bar-chart-line-fill"></i>
+          </div>
+          <div class="ac-content">
+            <div class="ac-title">My Scores</div>
+            <div class="ac-desc">View your performance analytics, score history, and detailed AI feedback from past sessions.</div>
+          </div>
+          <button class="ac-btn ac-btn-white" onclick="document.getElementById('scoreChart').closest('.chart-card').scrollIntoView({behavior:'smooth',block:'start'})">
+            <i class="bi bi-graph-up-arrow"></i> View Analytics
+          </button>
+          <div class="ac-badge">Analytics</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════ ANALYTICS CHARTS ══════ -->
+  <div class="mb-4 ani-3">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div style="width:4px;height:18px;border-radius:99px;background:linear-gradient(180deg,#2563EB,#6366F1);flex-shrink:0;"></div>
+      <span style="font-size:.88rem;font-weight:800;color:var(--text);letter-spacing:-.01em;">Analytics</span>
+    </div>
+    <div class="row g-3">
+
+      <!-- Chart 1: Score Trend -->
+      <div class="col-12 col-lg-7">
+        <div class="chart-card-v2">
+          <div class="cv2-header">
+            <div class="cv2-left">
+              <div class="cv2-ico" style="background:linear-gradient(135deg,#2563EB,#6366F1);">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div>
+                <div class="cv2-title">Score Trend</div>
+                <div class="cv2-sub">Performance across all interview sessions</div>
+              </div>
+            </div>
+            <div class="cv2-right">
+              <div class="cv2-stat" id="avgTrendStat">
+                <span class="cv2-stat-val">—</span>
+                <span class="cv2-stat-lbl">Avg</span>
+              </div>
+              <div class="cv2-stat" id="bestTrendStat">
+                <span class="cv2-stat-val" style="color:#10B981;">—</span>
+                <span class="cv2-stat-lbl">Best</span>
+              </div>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div class="cv2-legend">
+            <span class="cv2-leg-item">
+              <span class="cv2-leg-line" style="background:#2563EB;"></span> Your Score
+            </span>
+            <span class="cv2-leg-item">
+              <span class="cv2-leg-line" style="background:#10B981;height:1px;border-top:2px dashed #10B981;"></span> Pass (70%)
+            </span>
+          </div>
+          <div id="sLoader" class="chart-loader"><div class="spin"></div></div>
+          <canvas id="scoreChart" style="display:none;"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Interview Status Distribution -->
+      <div class="col-12 col-lg-5">
+        <div class="chart-card-v2">
+          <div class="cv2-header">
+            <div class="cv2-left">
+              <div class="cv2-ico" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">
+                <i class="bi bi-circle-half"></i>
+              </div>
+              <div>
+                <div class="cv2-title">Interview Status</div>
+                <div class="cv2-sub">Distribution of all sessions</div>
+              </div>
+            </div>
+          </div>
+          <!-- Status summary pills -->
+          <div class="cv2-status-pills">
+            <div class="cv2-pill cv2-pill-green">
+              <span class="cv2-pill-dot"></span>
+              <span class="cv2-pill-num">{{ completed }}</span>
+              <span class="cv2-pill-txt">Completed</span>
+            </div>
+            <div class="cv2-pill cv2-pill-amber">
+              <span class="cv2-pill-dot"></span>
+              <span class="cv2-pill-num">{{ ongoing }}</span>
+              <span class="cv2-pill-txt">In Progress</span>
+            </div>
+            <div class="cv2-pill cv2-pill-gray">
+              <span class="cv2-pill-dot"></span>
+              <span class="cv2-pill-num">0</span>
+              <span class="cv2-pill-txt">Pending</span>
+            </div>
+          </div>
+          <div id="pLoader" class="chart-loader"><div class="spin"></div></div>
+          <canvas id="perfChart" style="display:none;"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════ RESUMES + HISTORY ══════ -->
+  <div class="row g-3 mb-4">
+
+    <!-- Resumes -->
+    <div class="col-12 col-lg-5 ani-4">
+      <div class="sec-card">
+        <div class="sec-head">
+          <div class="sec-title"><i class="bi bi-file-earmark-person" style="color:var(--warn);"></i> My Resumes <span class="cnt-pill">{{ resumes|length }}</span></div>
+          <a href="{{ url_for('interviewer.upload_page') }}" class="xbtn xb-blue"><i class="bi bi-plus"></i> Upload</a>
+        </div>
+        <div style="padding:14px;">
+          {% if resumes %}
+            {% for r in resumes %}
+            {% set hs = r.overall_score and r.overall_score > 0 %}
+            <div class="res-card">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="res-ico"><i class="bi bi-file-earmark-pdf"></i></div>
+                <div style="flex:1;min-width:0;">
+                  <div class="cell-name text-truncate">{{ r.original_filename }}</div>
+                  <div class="cell-sub">{{ r.file_type|upper if r.file_type else 'PDF' }} · {{ r.size_display }} · {{ r.uploaded_at.strftime('%d %b %Y') if r.uploaded_at else '' }}</div>
+                </div>
+                <div class="d-flex gap-1 flex-shrink-0">
+                  <a href="{{ url_for('static', filename=r.file_path) }}" target="_blank" class="xbtn xb-blue"><i class="bi bi-eye"></i></a>
+                  <form method="POST" action="{{ url_for('interviewer.delete_resume', resume_id=r.id) }}" onsubmit="return confirm('Delete this resume?')" style="display:inline;">
+                    <button type="submit" class="xbtn xb-red"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </div>
+              {% if hs %}
+              <div>
+                {% set sc = r.overall_score %}
+                <div class="score-row mb-1"><span style="font-size:.67rem;color:var(--muted);width:62px;flex-shrink:0;">Overall</span><div class="score-track" style="flex:1;"><div class="score-fill" style="width:{{ sc }}%;background:{% if sc>=70 %}var(--ok){% elif sc>=40 %}var(--warn){% else %}var(--err){% endif %}"></div></div><span style="font-size:.7rem;font-weight:700;width:24px;text-align:right;color:{% if sc>=70 %}var(--ok){% elif sc>=40 %}var(--warn){% else %}var(--err){% endif %}">{{ sc }}</span></div>
+                <div class="score-row mb-1"><span style="font-size:.67rem;color:var(--muted);width:62px;flex-shrink:0;">Technical</span><div class="score-track" style="flex:1;"><div class="score-fill" style="width:{{ r.technical_score or 0 }}%;background:var(--s)"></div></div><span style="font-size:.7rem;font-weight:700;width:24px;text-align:right;color:var(--s)">{{ r.technical_score or 0 }}</span></div>
+                <div class="score-row"><span style="font-size:.67rem;color:var(--muted);width:62px;flex-shrink:0;">Experience</span><div class="score-track" style="flex:1;"><div class="score-fill" style="width:{{ r.experience_score or 0 }}%;background:var(--warn)"></div></div><span style="font-size:.7rem;font-weight:700;width:24px;text-align:right;color:var(--warn)">{{ r.experience_score or 0 }}</span></div>
+                {% if r.skills %}
+                <div class="mt-2">{% for s in r.skills.split(',') %}{% if s.strip() %}<span class="skill">{{ s.strip() }}</span>{% endif %}{% endfor %}</div>
+                {% endif %}
+              </div>
+              {% else %}
+              <span class="badge-sm bd-amber"><i class="bi bi-hourglass-split"></i> AI Score pending</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="upload-zone mt-1" onclick="window.location='{{ url_for('interviewer.upload_page') }}'">
+            <i class="bi bi-cloud-upload"></i>
+            <p>Click to upload your resume<br><strong>PDF only</strong> — AI scores automatically</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Interview History — Redesigned -->
+    <div class="col-12 col-lg-7 ani-4">
+      <div class="ih-card">
+
+        <!-- Header -->
+        <div class="ih-header">
+          <div class="ih-header-left">
+            <div class="ih-header-ico"><i class="bi bi-collection-play-fill"></i></div>
+            <div>
+              <div class="ih-title">Interview History</div>
+              <div class="ih-sub">{{ interviews|length }} session{{ 's' if interviews|length != 1 }} recorded</div>
+            </div>
+          </div>
+          <div class="ih-header-right">
+            {% if interviews %}
+            <div class="ih-stats-mini">
+              <div class="ihm-stat">
+                <div class="ihm-val" style="color:var(--ok);">{{ completed }}</div>
+                <div class="ihm-lbl">Done</div>
+              </div>
+              <div class="ihm-divider"></div>
+              <div class="ihm-stat">
+                <div class="ihm-val" style="color:var(--warn);">{{ ongoing }}</div>
+                <div class="ihm-lbl">Active</div>
+              </div>
+              <div class="ihm-divider"></div>
+              <div class="ihm-stat">
+                <div class="ihm-val" style="color:var(--p);">{{ best_score or 0 }}%</div>
+                <div class="ihm-lbl">Best</div>
+              </div>
+            </div>
+            {% endif %}
+            <a href="{{ url_for('interview.start_interview') }}" class="ih-new-btn">
+              <i class="bi bi-plus-lg"></i> New Session
+            </a>
+          </div>
+        </div>
+
+        {% if interviews %}
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-md-block">
+          <table class="ih-table">
+            <thead>
+              <tr>
+                <th><span class="ih-th"><i class="bi bi-calendar3"></i> Interview Date</span></th>
+                <th><span class="ih-th"><i class="bi bi-question-circle"></i> Questions</span></th>
+                <th><span class="ih-th"><i class="bi bi-bar-chart"></i> Total Score</span></th>
+                <th><span class="ih-th"><i class="bi bi-circle-half"></i> Status</span></th>
+                <th><span class="ih-th"><i class="bi bi-hand-index"></i> Action</span></th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for i in interviews %}
+            <tr class="ih-row" style="animation-delay:{{ loop.index0 * 0.05 }}s;">
+              <!-- Date -->
+              <td>
+                <div class="ih-date-wrap">
+                  <div class="ih-date-box">
+                    <span class="ih-day">{{ i.started_at.strftime('%d') if i.started_at else '—' }}</span>
+                    <span class="ih-mon">{{ i.started_at.strftime('%b') if i.started_at else '' }}</span>
+                  </div>
+                  <div>
+                    <div class="ih-date-full">{{ i.started_at.strftime('%d %b %Y') if i.started_at else '—' }}</div>
+                    <div class="ih-time">{{ i.started_at.strftime('%I:%M %p') if i.started_at else '' }}</div>
+                  </div>
+                </div>
+              </td>
+              <!-- Questions answered -->
+              <td>
+                <div class="ih-q-wrap">
+                  {% set pct = ((i.answer_count / 5) * 100)|round|int %}
+                  <div class="ih-q-ring" style="--ring-pct:{{ pct }}%;--ring-color:{% if i.completed_at %}#10B981{% else %}#F59E0B{% endif %};">
+                    <span class="ih-q-num">{{ i.answer_count }}/5</span>
+                  </div>
+                  <span class="ih-q-label">answered</span>
+                </div>
+              </td>
+              <!-- Score -->
+              <td>
+                {% if i.total_score %}
+                <div class="ih-score-wrap">
+                  <div class="ih-score-circle" style="background:conic-gradient({% if i.total_score>=70 %}#10B981{% elif i.total_score>=40 %}#F59E0B{% else %}#EF4444{% endif %} {{ i.total_score * 3.6 }}deg, #F1F5F9 0deg);">
+                    <div class="ih-score-inner">
+                      <span class="ih-score-val" style="color:{% if i.total_score>=70 %}#10B981{% elif i.total_score>=40 %}#F59E0B{% else %}#EF4444{% endif %}">{{ i.total_score }}</span>
+                      <span class="ih-score-pct">%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="ih-score-bar-track">
+                      <div class="ih-score-bar-fill" style="width:{{ i.total_score }}%;background:{% if i.total_score>=70 %}linear-gradient(90deg,#10B981,#34D399){% elif i.total_score>=40 %}linear-gradient(90deg,#F59E0B,#FBBF24){% else %}linear-gradient(90deg,#EF4444,#F87171){% endif %}"></div>
+                    </div>
+                    <div class="ih-score-grade">{% if i.total_score>=80 %}Excellent{% elif i.total_score>=60 %}Good{% elif i.total_score>=40 %}Average{% else %}Needs Work{% endif %}</div>
+                  </div>
+                </div>
+                {% else %}
+                <div class="ih-no-score">
+                  <i class="bi bi-dash-circle"></i> Not scored
+                </div>
+                {% endif %}
+              </td>
+              <!-- Status -->
+              <td>
+                {% if i.completed_at %}
+                  <span class="ih-badge ih-badge-done"><span class="ih-badge-dot"></span>Completed</span>
+                {% elif i.answer_count > 0 %}
+                  <span class="ih-badge ih-badge-progress"><span class="ih-badge-dot"></span>In Progress</span>
+                {% else %}
+                  <span class="ih-badge ih-badge-pending"><span class="ih-badge-dot"></span>Pending</span>
+                {% endif %}
+              </td>
+              <!-- Actions -->
+              <td>
+                <div class="ih-actions">
+                  {% if i.completed_at %}
+                    <a href="{{ url_for('interviewer.view_session', session_id=i.id) }}" class="ih-btn ih-btn-primary" title="View Result">
+                      <i class="bi bi-eye-fill"></i> View Result
+                    </a>
+                    <a href="{{ url_for('interview.download_pdf', session_id=i.id) }}" class="ih-btn ih-btn-ghost" title="Download PDF Report" onclick="showDlToast(event, this)">
+                      <i class="bi bi-file-earmark-pdf"></i>
+                    </a>
+                  {% elif i.answer_count > 0 %}
+                    <a href="{{ url_for('interview.start_interview') }}" class="ih-btn ih-btn-warning" title="Continue Interview">
+                      <i class="bi bi-play-fill"></i> Continue
+                    </a>
+                  {% else %}
+                    <a href="{{ url_for('interview.start_interview') }}" class="ih-btn ih-btn-ghost" title="Start Interview">
+                      <i class="bi bi-play-circle"></i> Start
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="d-md-none ih-mobile-list">
+          {% for i in interviews %}
+          <div class="ihm-card" style="animation-delay:{{ loop.index0 * 0.06 }}s;">
+            <div class="ihm-card-top">
+              <div>
+                <div class="ih-date-full" style="font-weight:700;color:var(--text);">{{ i.started_at.strftime('%d %b %Y') if i.started_at else '—' }}</div>
+                <div class="ih-time">{{ i.started_at.strftime('%I:%M %p') if i.started_at else '' }}</div>
+              </div>
+              {% if i.completed_at %}
+                <span class="ih-badge ih-badge-done"><span class="ih-badge-dot"></span>Completed</span>
+              {% elif i.answer_count > 0 %}
+                <span class="ih-badge ih-badge-progress"><span class="ih-badge-dot"></span>In Progress</span>
+              {% else %}
+                <span class="ih-badge ih-badge-pending"><span class="ih-badge-dot"></span>Pending</span>
+              {% endif %}
+            </div>
+            <div class="ihm-card-mid">
+              <div class="ihm-meta">
+                <i class="bi bi-question-circle" style="color:var(--p);"></i>
+                <span>{{ i.answer_count }}/5 Questions</span>
+              </div>
+              {% if i.total_score %}
+              <div class="ihm-meta">
+                <i class="bi bi-bar-chart" style="color:{% if i.total_score>=70 %}var(--ok){% elif i.total_score>=40 %}var(--warn){% else %}var(--err){% endif %};"></i>
+                <span style="font-weight:700;color:{% if i.total_score>=70 %}var(--ok){% elif i.total_score>=40 %}var(--warn){% else %}var(--err){% endif %};">{{ i.total_score }}%</span>
+              </div>
+              {% endif %}
+            </div>
+            {% if i.total_score %}
+            <div class="ih-score-bar-track mb-2">
+              <div class="ih-score-bar-fill" style="width:{{ i.total_score }}%;background:{% if i.total_score>=70 %}linear-gradient(90deg,#10B981,#34D399){% elif i.total_score>=40 %}linear-gradient(90deg,#F59E0B,#FBBF24){% else %}linear-gradient(90deg,#EF4444,#F87171){% endif %}"></div>
+            </div>
+            {% endif %}
+            <div class="ihm-card-btns">
+              {% if i.completed_at %}
+                <a href="{{ url_for('interviewer.view_session', session_id=i.id) }}" class="ih-btn ih-btn-primary" style="flex:1;justify-content:center;"><i class="bi bi-eye-fill"></i> View Result</a>
+                <a href="{{ url_for('interview.download_pdf', session_id=i.id) }}" class="ih-btn ih-btn-ghost" onclick="showDlToast(event, this)"><i class="bi bi-file-earmark-pdf"></i></a>
+              {% elif i.answer_count > 0 %}
+                <a href="{{ url_for('interview.start_interview') }}" class="ih-btn ih-btn-warning" style="flex:1;justify-content:center;"><i class="bi bi-play-fill"></i> Continue</a>
+              {% else %}
+                <a href="{{ url_for('interview.start_interview') }}" class="ih-btn ih-btn-ghost" style="flex:1;justify-content:center;"><i class="bi bi-play-circle"></i> Start Now</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Footer -->
+        <div class="ih-footer">
+          <span>Showing {{ interviews|length }} of {{ interviews|length }} sessions</span>
+          <a href="{{ url_for('interview.start_interview') }}" class="ih-footer-link">
+            <i class="bi bi-plus-circle"></i> New Interview
+          </a>
+        </div>
+
+        {% else %}
+        <!-- Empty state -->
+        <div class="ih-empty">
+          <div class="ih-empty-ico">
+            <i class="bi bi-mic-mute"></i>
+          </div>
+          <div class="ih-empty-title">No interviews yet</div>
+          <div class="ih-empty-sub">Start your first AI-powered interview session to see your history here.</div>
+          <a href="{{ url_for('interview.start_interview') }}" class="ih-new-btn mt-3">
+            <i class="bi bi-play-circle-fill"></i> Start First Interview
+          </a>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════ AI INSIGHTS ══════ -->
+  <div class="mb-4 ani-5">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div style="width:4px;height:18px;border-radius:99px;background:linear-gradient(180deg,#7C3AED,#06B6D4);flex-shrink:0;"></div>
+      <span style="font-size:.88rem;font-weight:800;color:var(--text);letter-spacing:-.01em;">AI Insights</span>
+      <span class="ai-ins-tag"><i class="bi bi-stars"></i> Powered by AI</span>
+    </div>
+    <div class="row g-3">
+
+      <!-- Card 1: Avg Score -->
+      <div class="col-12 col-md-4">
+        <div class="ai-ins-card aic-blue">
+          <div class="aic-noise"></div>
+          <div class="aic-top">
+            <div class="aic-ico-ring aic-ring-blue">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <span class="aic-label">Average Score</span>
+          </div>
+          <div class="aic-value aic-val-blue">
+            <span class="aic-big" id="avgVal">0</span><span class="aic-unit">%</span>
+          </div>
+          <div class="aic-bar-wrap">
+            <div class="aic-bar-track">
+              <div class="aic-bar-fill aic-bar-blue" data-w="{{ avg_score or 0 }}%"></div>
+            </div>
+            <span class="aic-bar-end">100</span>
+          </div>
+          <div class="aic-desc">
+            {% if avg_score >= 70 %}
+              <i class="bi bi-arrow-up-circle-fill" style="color:#10B981;"></i> Above average performance — keep it up!
+            {% elif avg_score >= 40 %}
+              <i class="bi bi-dash-circle-fill" style="color:#F59E0B;"></i> Room to improve — review AI feedback.
+            {% elif avg_score > 0 %}
+              <i class="bi bi-arrow-down-circle-fill" style="color:#EF4444;"></i> Focus on weak areas to boost score.
+            {% else %}
+              <i class="bi bi-info-circle-fill" style="color:#94A3B8;"></i> Complete an interview to see your score.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Hardest Question -->
+      <div class="col-12 col-md-4">
+        <div class="ai-ins-card aic-purple">
+          <div class="aic-noise"></div>
+          <div class="aic-top">
+            <div class="aic-ico-ring aic-ring-purple">
+              <i class="bi bi-patch-question-fill"></i>
+            </div>
+            <span class="aic-label">Most Difficult Question</span>
+          </div>
+          <div class="aic-value aic-val-purple">
+            <i class="bi bi-quote" style="font-size:.9rem;opacity:.4;"></i>
+            <span class="aic-question-txt">{{ hardest_question }}</span>
+          </div>
+          <div class="aic-chip-wrap">
+            <span class="aic-chip aic-chip-purple"><i class="bi bi-bar-chart-fill"></i> Lowest avg score</span>
+          </div>
+          <div class="aic-desc">
+            <i class="bi bi-lightbulb-fill" style="color:#8B5CF6;"></i>
+            Practice this question type to improve your overall performance.
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Weak Skill -->
+      <div class="col-12 col-md-4">
+        <div class="ai-ins-card aic-teal">
+          <div class="aic-noise"></div>
+          <div class="aic-top">
+            <div class="aic-ico-ring aic-ring-teal">
+              <i class="bi bi-bullseye"></i>
+            </div>
+            <span class="aic-label">Common Weak Skill</span>
+          </div>
+          <div class="aic-value aic-val-teal">
+            <span class="aic-skill-pill">{{ weak_skill }}</span>
+          </div>
+          <div class="aic-chip-wrap">
+            <span class="aic-chip aic-chip-teal"><i class="bi bi-arrow-up-circle"></i> Needs improvement</span>
+          </div>
+          <div class="aic-desc">
+            <i class="bi bi-robot" style="color:#06B6D4;"></i>
+            Detected from your resume AI feedback. Focus here for best results.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════ TIPS ══════ -->
+  <div class="ani-5">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <i class="bi bi-lightbulb-fill" style="color:var(--warn);font-size:1rem;"></i>
+      <span style="font-size:.83rem;font-weight:700;color:var(--text);">Interview Tips</span>
+    </div>
+    <div class="row g-2">
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="tip-card"><div class="tip-ico" style="background:var(--p-l);color:var(--p);"><i class="bi bi-camera-video"></i></div><div><div class="tip-title">Camera Setup</div><div class="tip-body">Good lighting, camera at eye level. A professional look builds confidence instantly.</div></div></div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="tip-card"><div class="tip-ico" style="background:var(--warn-l);color:var(--warn);"><i class="bi bi-mic"></i></div><div><div class="tip-title">Clear Speech</div><div class="tip-body">Speak clearly at moderate pace. Pause before answering — it shows thoughtfulness.</div></div></div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="tip-card"><div class="tip-ico" style="background:var(--s-l);color:var(--s);"><i class="bi bi-list-ol"></i></div><div><div class="tip-title">STAR Method</div><div class="tip-body">Structure every answer: Situation → Task → Action → Result for impact.</div></div></div>
+      </div>
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="tip-card"><div class="tip-ico" style="background:var(--ok-l);color:var(--ok);"><i class="bi bi-bar-chart-steps"></i></div><div><div class="tip-title">Track Progress</div><div class="tip-body">Review AI feedback after each session. Target your weakest skill areas.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end wrap -->
+
+<script>
+/* ── Animated Counters ── */
+function countUp(el, target, ms = 1100) {
+  const t0 = performance.now();
+  const run = (t) => {
+    const p = Math.min((t - t0) / ms, 1);
+    const ease = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    el.textContent = Math.floor(ease * target).toLocaleString();
+    if (p < 1) requestAnimationFrame(run);
+    else el.textContent = target.toLocaleString();
+  };
+  requestAnimationFrame(run);
+}
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      countUp(e.target, parseInt(e.target.dataset.target || 0));
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('.stat-num[data-target]').forEach(el => io.observe(el));
+
+/* ── Progress bars ── */
+setTimeout(() => {
+  document.querySelectorAll('.stat-prog-bar[data-w]').forEach(b => {
+    b.style.width = b.getAttribute('data-w');
+  });
+  // AI Insights bars
+  document.querySelectorAll('.aic-bar-fill[data-w]').forEach(b => {
+    b.style.width = b.getAttribute('data-w');
+  });
+}, 500);
+
+// AI Insights avg counter
+const avgEl = document.getElementById('avgVal');
+if (avgEl) {
+  const avgTarget = parseFloat('{{ avg_score or 0 }}');
+  const ioAvg = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        countUp(e.target, Math.round(avgTarget), 1000);
+        ioAvg.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  ioAvg.observe(avgEl);
+}
+
+/* ── Charts ── */
+const iws = {{ interviews | tojson }};
+const scores = iws.filter(i => i.total_score).map(i => i.total_score);
+const labels = scores.map((_, n) => '#' + (n + 1));
+const CF = { family: 'Plus Jakarta Sans', size: 11 };
+const GC = '#F1F5F9', TC = '#94A3B8';
+const TT = {
+  backgroundColor: '#0F172A', titleColor: '#F8FAFC', bodyColor: '#94A3B8',
+  padding: 10, cornerRadius: 9,
+  titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: '700' },
+  bodyFont:  { family: 'Plus Jakarta Sans', size: 11 },
+  borderColor: 'rgba(255,255,255,.08)', borderWidth: 1,
+};
+
+/* ── Score Trend Chart ── */
+setTimeout(() => {
+  document.getElementById('sLoader').style.display = 'none';
+  const c = document.getElementById('scoreChart');
+  c.style.display = 'block';
+
+  // Compute avg + best for header stats
+  if (scores.length) {
+    const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+    const best = Math.max(...scores);
+    const avgEl = document.getElementById('avgTrendStat');
+    const bestEl = document.getElementById('bestTrendStat');
+    if(avgEl) avgEl.querySelector('.cv2-stat-val').textContent = avg + '%';
+    if(bestEl) bestEl.querySelector('.cv2-stat-val').textContent = best + '%';
+  }
+
+  new Chart(c, {
+    type: 'line',
+    data: {
+      labels: labels.length ? labels : ['No data'],
+      datasets: [
+        {
+          label: 'Score',
+          data: scores.length ? scores : [0],
+          borderColor: '#2563EB',
+          backgroundColor: ctx => {
+            const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+            g.addColorStop(0, 'rgba(37,99,235,.22)');
+            g.addColorStop(0.6, 'rgba(37,99,235,.06)');
+            g.addColorStop(1, 'rgba(37,99,235,.0)');
+            return g;
+          },
+          borderWidth: 3,
+          pointBackgroundColor: ctx => {
+            const v = ctx.raw;
+            return v >= 70 ? '#10B981' : v >= 40 ? '#F59E0B' : '#EF4444';
+          },
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2.5,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          pointHoverBorderWidth: 3,
+          tension: 0.42,
+          fill: true,
+        },
+        {
+          // Pass line at 70%
+          label: 'Pass Line',
+          data: labels.map(() => 70),
+          borderColor: 'rgba(16,185,129,.35)',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          tension: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 1000, easing: 'easeOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          ...TT,
+          callbacks: {
+            title: i => `Interview ${i[0].label}`,
+            label: i => {
+              if(i.datasetIndex === 1) return null;
+              const v = i.raw;
+              const grade = v>=80?'Excellent':v>=60?'Good':v>=40?'Average':'Needs Work';
+              return [` Score: ${v}%`, ` Grade: ${grade}`];
+            },
+            labelColor: i => {
+              if(i.datasetIndex === 1) return null;
+              const v = i.raw;
+              const c = v>=70?'#10B981':v>=40?'#F59E0B':'#EF4444';
+              return { borderColor: c, backgroundColor: c, borderRadius: 4 };
+            }
+          },
+          filter: item => item.datasetIndex === 0
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: TC, font: CF, padding: 6 },
+          grid: { color: '#F1F5F9', drawBorder: false },
+          border: { display: false }
+        },
+        y: {
+          min: 0, max: 100,
+          ticks: {
+            color: TC, font: CF, padding: 8,
+            callback: v => v + '%',
+            stepSize: 25,
+          },
+          grid: { color: '#F1F5F9', drawBorder: false },
+          border: { display: false }
+        }
+      }
+    }
+  });
+}, 420);
+
+/* ── Status Donut Chart ── */
+setTimeout(() => {
+  document.getElementById('pLoader').style.display = 'none';
+  const c = document.getElementById('perfChart');
+  c.style.display = 'block';
+
+  const completed_n = {{ completed or 0 }};
+  const ongoing_n   = {{ ongoing or 0 }};
+  const pending_n   = 0;
+  const total_n     = completed_n + ongoing_n + pending_n || 1;
+
+  new Chart(c, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'In Progress', 'Pending'],
+      datasets: [{
+        data: [completed_n, ongoing_n, pending_n],
+        backgroundColor: ['#10B981', '#F59E0B', '#E2E8F0'],
+        hoverBackgroundColor: ['#059669', '#D97706', '#CBD5E1'],
+        borderWidth: 4,
+        borderColor: '#fff',
+        hoverBorderColor: '#fff',
+        hoverOffset: 12,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '72%',
+      animation: { animateScale: true, animateRotate: true, duration: 1000, easing: 'easeOutQuart' },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#64748B',
+            padding: 16,
+            font: { size: 11, family: 'Plus Jakarta Sans', weight: '600' },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            pointStyleWidth: 8,
+          }
+        },
+        tooltip: {
+          ...TT,
+          callbacks: {
+            label: i => {
+              const pct = Math.round((i.raw / total_n) * 100);
+              return ` ${i.label}: ${i.raw} (${pct}%)`;
+            }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: 'centerText',
+      afterDraw(chart) {
+        const { ctx, chartArea: { width, height, left, top } } = chart;
+        ctx.save();
+        const cx = left + width / 2;
+        const cy = top + height / 2;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '800 1.6rem Plus Jakarta Sans, sans-serif';
+        ctx.fillStyle = '#0F172A';
+        ctx.fillText(total_n, cx, cy - 8);
+        ctx.font = '600 .7rem Plus Jakarta Sans, sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('TOTAL', cx, cy + 12);
+        ctx.restore();
+      }
+    }]
+  });
+}, 640);
+</script>
+
+<style>
+/* ── PDF Download toast ── */
+.dl-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #0F172A;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 99px;
+  font-size: .82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  z-index: 9999;
+  opacity: 0;
+  transition: all .3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.dl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.dl-toast.ok   { background: #064E3B; }
+.dl-toast.err  { background: #7F1D1D; }
+</style>
+
+<!-- PDF download toast -->
+<div class="dl-toast" id="dlToast">
+  <span id="dlToastIco">⏳</span>
+  <span id="dlToastTxt">Generating PDF...</span>
+</div>
+
+<script>
+/* ── PDF Download with toast ── */
+function showDlToast(e, btn) {
+  e.preventDefault();
+  var url  = btn.getAttribute('href');
+  var toast = document.getElementById('dlToast');
+  var ico   = document.getElementById('dlToastIco');
+  var txt   = document.getElementById('dlToastTxt');
+
+  // Show generating state
+  toast.className = 'dl-toast show';
+  ico.textContent = '⏳';
+  txt.textContent = 'Generating PDF Report...';
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+
+  fetch(url, { method: 'GET' })
+    .then(res => {
+      if (!res.ok) throw new Error('Failed');
+      return res.blob();
+    })
+    .then(blob => {
+      // Trigger download
+      var a    = document.createElement('a');
+      a.href   = URL.createObjectURL(blob);
+      a.download = 'interview_report.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+
+      // Success toast
+      toast.className = 'dl-toast show ok';
+      ico.textContent = '✅';
+      txt.textContent = 'PDF Downloaded Successfully!';
+    })
+    .catch(() => {
+      toast.className = 'dl-toast show err';
+      ico.textContent = '❌';
+      txt.textContent = 'PDF Failed — Try Again';
+    })
+    .finally(() => {
+      btn.style.opacity = '';
+      btn.style.pointerEvents = '';
+      setTimeout(() => { toast.className = 'dl-toast'; }, 3000);
+    });
+}
+</script>
+{% endblock %}

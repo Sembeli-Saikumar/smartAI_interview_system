@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Upload Resume - Smart Interview System{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+<div class="page-wrap fade-up">
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{{ url_for('interviewer.dashboard') }}" 
+       style="width:38px;height:38px;border-radius:10px;background:var(--primary-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--primary);text-decoration:none;">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 style="margin:0;font-family:'Syne',sans-serif;color:var(--dark);">Upload Resume</h4>
+      <p style="margin:0;font-size:.82rem;color:var(--muted);">AI will analyze and score your resume instantly</p>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mb-3">
+        <i class="bi bi-info-circle me-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+
+      <!-- Upload Card -->
+      <div class="card p-4 mb-4">
+        <h6 class="section-title mb-3">
+          <i class="bi bi-file-earmark-arrow-up" style="color:var(--primary);"></i>
+          Upload Your Resume
+        </h6>
+
+        <form method="POST" enctype="multipart/form-data"
+              action="{{ url_for('interviewer.upload_resume') }}">
+
+          <!-- Drag & Drop Area -->
+          <div id="dropZone"
+               style="border:2px dashed var(--border);border-radius:14px;padding:40px;text-align:center;background:var(--bg);cursor:pointer;transition:all .2s;"
+               onclick="document.getElementById('resumeFile').click()"
+               ondragover="event.preventDefault();this.style.borderColor='var(--primary-lt)';this.style.background='var(--primary-bg)';"
+               ondragleave="this.style.borderColor='var(--border)';this.style.background='var(--bg)';"
+               ondrop="handleDrop(event)">
+
+            <div id="dropIcon" style="font-size:2.5rem;color:var(--primary-lt);margin-bottom:10px;">
+              <i class="bi bi-cloud-arrow-up"></i>
+            </div>
+            <div id="dropText">
+              <p style="font-weight:600;color:var(--dark);margin:0;">Click or drag your resume here</p>
+              <p style="font-size:.8rem;color:var(--muted);margin-top:4px;">PDF or DOCX · Max 5MB</p>
+            </div>
+            <div id="fileChosen" style="display:none;margin-top:10px;">
+              <i class="bi bi-file-earmark-check" style="color:var(--primary);font-size:1.5rem;"></i>
+              <p id="fileName" style="font-weight:600;color:var(--primary);margin:4px 0 0;font-size:.88rem;"></p>
+            </div>
+
+            <input type="file" id="resumeFile" name="resume"
+                   accept=".pdf,.docx" style="display:none;"
+                   onchange="showFile(this)"/>
+          </div>
+
+          <!-- Format Info -->
+          <div class="d-flex gap-3 mt-3 mb-4">
+            <div style="flex:1;background:var(--primary-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+              <i class="bi bi-file-earmark-pdf" style="color:#dc2626;font-size:1.1rem;"></i>
+              <div>
+                <div style="font-size:.78rem;font-weight:700;color:var(--dark);">PDF Format</div>
+                <div style="font-size:.7rem;color:var(--muted);">Recommended</div>
+              </div>
+            </div>
+            <div style="flex:1;background:var(--primary-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+              <i class="bi bi-file-earmark-word" style="color:#2563eb;font-size:1.1rem;"></i>
+              <div>
+                <div style="font-size:.78rem;font-weight:700;color:var(--dark);">DOCX Format</div>
+                <div style="font-size:.7rem;color:var(--muted);">Also supported</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-100 py-2"
+                  style="font-size:.95rem;font-family:'Syne',sans-serif;">
+            <i class="bi bi-upload me-2"></i> Upload & Analyze Resume
+          </button>
+
+        </form>
+      </div>
+
+      <!-- AI Analysis Info Card -->
+      <div class="card p-4">
+        <h6 class="section-title mb-3">
+          <i class="bi bi-stars" style="color:var(--primary);"></i>
+          What AI Analyzes
+        </h6>
+        <div class="row g-3">
+          <div class="col-6">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+              <div style="font-size:1.3rem;margin-bottom:6px;">⚙️</div>
+              <div style="font-size:.82rem;font-weight:700;color:var(--dark);">Technical Skills</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:2px;">Languages, tools & frameworks</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+              <div style="font-size:1.3rem;margin-bottom:6px;">💼</div>
+              <div style="font-size:.82rem;font-weight:700;color:var(--dark);">Experience</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:2px;">Work history & projects</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+              <div style="font-size:1.3rem;margin-bottom:6px;">🎓</div>
+              <div style="font-size:.82rem;font-weight:700;color:var(--dark);">Education</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:2px;">Degrees & certifications</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+              <div style="font-size:1.3rem;margin-bottom:6px;">📊</div>
+              <div style="font-size:.82rem;font-weight:700;color:var(--dark);">Overall Score</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:2px;">0–100 with feedback</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function showFile(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('dropText').style.display = 'none';
+    document.getElementById('dropIcon').style.display = 'none';
+    document.getElementById('fileChosen').style.display = 'block';
+    document.getElementById('fileName').textContent = input.files[0].name;
+    document.getElementById('dropZone').style.borderColor = 'var(--primary)';
+    document.getElementById('dropZone').style.background = 'var(--primary-bg)';
+  }
+}
+function handleDrop(event) {
+  event.preventDefault();
+  var files = event.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('resumeFile').files = files;
+    showFile(document.getElementById('resumeFile'));
+  }
+  event.currentTarget.style.borderColor = 'var(--border)';
+  event.currentTarget.style.background = 'var(--bg)';
+}
+</script>
+{% endblock %}
+```
+
+---
