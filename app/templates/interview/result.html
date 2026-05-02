@@ -11,10 +11,11 @@
   --bg:#F8FAFC;--card:#fff;--border:#E2E8F0;--text:#0F172A;--muted:#64748B;--faint:#94A3B8;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#F1F5FB;color:var(--text);position:relative;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 10% 15%,rgba(37,99,235,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 90% 80%,rgba(99,102,241,.04) 0%,transparent 55%);pointer-events:none;z-index:0;}
 
 /* Page */
-.page{min-height:100vh;padding:32px 20px 80px;background:linear-gradient(160deg,#EFF6FF 0%,#F8FAFC 40%);}
+.page{min-height:100vh;padding:32px 20px 80px;position:relative;z-index:1;}
 .wrap{max-width:980px;margin:0 auto;}
 
 /* Animations */
@@ -34,8 +35,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .session-id{font-size:.76rem;color:var(--faint);}
 
 /* ── HERO SCORE CARD ── */
-.hero{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;box-shadow:0 4px 24px rgba(37,99,235,.08);margin-bottom:20px;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--p),var(--s));}
+.hero{background:rgba(255,255,255,.88);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border:1px solid rgba(226,232,240,.8);border-radius:28px;padding:40px;box-shadow:0 8px 48px rgba(37,99,235,.08),0 2px 8px rgba(0,0,0,.04);margin-bottom:20px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--p),var(--s),#06B6D4);border-radius:28px 28px 0 0;}
 .hero-inner{display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:space-between;}
 .hero-left{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
 

@@ -17,9 +17,16 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background: linear-gradient(160deg, #EFF6FF 0%, #F8FAFC 50%);
+  background: #F1F5FB;
   color: var(--text);
   min-height: 100vh;
+  position: relative;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background: radial-gradient(ellipse 60% 50% at 10% 15%,rgba(37,99,235,.04) 0%,transparent 60%),
+              radial-gradient(ellipse 50% 40% at 90% 80%,rgba(99,102,241,.04) 0%,transparent 55%);
+  pointer-events:none; z-index:0;
 }
 
 /* ═══════════════════════════════════════
@@ -60,11 +67,13 @@ body {
    QUESTION CARD
 ═══════════════════════════════════════ */
 .iq-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 8px 32px rgba(37,99,235,.08), 0 2px 8px rgba(0,0,0,.04);
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(226,232,240,.8);
+  border-radius: 28px;
+  padding: 36px;
+  box-shadow: 0 8px 48px rgba(37,99,235,.08), 0 2px 8px rgba(0,0,0,.04);
   animation: fadeUp .45s .05s ease both;
   position: relative;
   overflow: hidden;
@@ -73,8 +82,9 @@ body {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--p), var(--s));
+  height: 4px;
+  background: linear-gradient(90deg, var(--p), var(--s), #06B6D4);
+  border-radius: 28px 28px 0 0;
 }
 
 /* Card header */

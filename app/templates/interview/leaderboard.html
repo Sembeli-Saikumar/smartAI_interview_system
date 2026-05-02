@@ -1,173 +1,114 @@
 {% extends "base.html" %}
+{% block title %}Leaderboard — Smart Interview System{% endblock %}
+
 {% block content %}
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
 <style>
-:root{--p:#2563EB;--s:#6366F1;--ok:#10B981;--warn:#F59E0B;--err:#EF4444;--bg:#F8FAFC;--card:#fff;--border:#E2E8F0;--text:#0F172A;--muted:#64748B;--faint:#94A3B8;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);}
-.page{min-height:100vh;padding:32px 20px 80px;}
-.wrap{max-width:900px;margin:0 auto;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.a1{animation:fadeUp .4s .05s ease both}.a2{animation:fadeUp .4s .1s ease both}.a3{animation:fadeUp .4s .15s ease both}
+.lb-page{min-height:100vh;background:#F1F5FB;padding:48px 16px 80px;position:relative;}
+.lb-page::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 50% 40% at 10% 10%,rgba(37,99,235,.05) 0%,transparent 60%),radial-gradient(ellipse 40% 35% at 90% 85%,rgba(99,102,241,.04) 0%,transparent 55%);pointer-events:none;z-index:0;}
+.lb-wrap{position:relative;z-index:10;max-width:860px;margin:0 auto;}
 
-.back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:.81rem;font-weight:600;text-decoration:none;transition:all .15s;margin-bottom:24px;}
-.back-btn:hover{background:var(--bg);color:var(--text);text-decoration:none;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* Header */
-.lb-header{text-align:center;margin-bottom:32px;}
-.lb-icon{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#F59E0B,#F97316);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px;box-shadow:0 6px 20px rgba(245,158,11,.3);}
-.lb-title{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin-bottom:5px;}
-.lb-sub{font-size:.84rem;color:var(--muted);}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:#64748B;font-size:.83rem;text-decoration:none;margin-bottom:20px;padding:7px 14px;border-radius:10px;background:#fff;border:1px solid #E2E8F0;transition:all .2s;font-weight:600;}
+.back-link:hover{color:#2563EB;border-color:#BFDBFE;background:#EFF6FF;text-decoration:none;}
 
-/* Top 3 podium */
-.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:32px;flex-wrap:wrap;}
-.pod{text-align:center;transition:transform .2s;}
-.pod:hover{transform:translateY(-4px);}
-.pod-av{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff;margin:0 auto 8px;position:relative;}
-.pod-av .pod-crown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:1.2rem;}
-.pod-name{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:3px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.pod-score{font-size:1.1rem;font-weight:900;margin-bottom:4px;}
-.pod-base{border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:rgba(255,255,255,.7);}
-.pod1 .pod-base{height:90px;background:linear-gradient(180deg,#F59E0B,#F97316);width:100px;}
-.pod2 .pod-base{height:70px;background:linear-gradient(180deg,#94A3B8,#64748B);width:90px;}
-.pod3 .pod-base{height:55px;background:linear-gradient(180deg,#D97706,#B45309);width:90px;}
-.pod1 .pod-score{color:#F59E0B;}
-.pod2 .pod-score{color:#64748B;}
-.pod3 .pod-score{color:#B45309;}
+.lb-header{margin-bottom:32px;animation:fadeUp .5s ease both;}
+.lb-title{font-size:2rem;font-weight:800;color:#0F172A;letter-spacing:-.03em;}
+.lb-title em{font-style:normal;background:linear-gradient(135deg,#F59E0B,#EF4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.lb-sub{color:#64748B;font-size:.88rem;margin-top:4px;}
 
-/* Table */
-.lb-card{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.05);}
-.lb-thead{background:#FAFBFC;border-bottom:2px solid var(--border);}
-.lb-thead th{padding:11px 16px;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);}
-.lb-row{border-bottom:1px solid #F8FAFC;transition:background .12s;animation:fadeUp .35s ease both;}
-.lb-row:hover{background:#F8FAFC;}
-.lb-row:last-child{border-bottom:none;}
-.lb-row td{padding:13px 16px;vertical-align:middle;}
-.rank-badge{width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;}
-.r1{background:#FEF3C7;color:#D97706;font-size:1rem;}
-.r2{background:#F1F5F9;color:#64748B;}
-.r3{background:#FEF9EB;color:#B45309;}
-.rn{background:#F8FAFC;color:#94A3B8;font-size:.78rem;}
-.lb-name{font-weight:700;color:var(--text);font-size:.84rem;}
-.lb-email{font-size:.7rem;color:var(--faint);margin-top:1px;}
-.score-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:99px;font-size:.78rem;font-weight:800;}
-.sbar{display:flex;align-items:center;gap:7px;}
-.sbt{height:5px;background:#F1F5F9;border-radius:99px;overflow:hidden;width:65px;}
-.sbf{height:100%;border-radius:99px;}
+/* Table card */
+.tbl-card{background:#fff;border:1px solid #E2E8F0;border-radius:20px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04);animation:fadeUp .5s .1s ease both;}
+.tbl-head{padding:14px 22px;border-bottom:1px solid #E2E8F0;background:#FAFBFC;display:flex;align-items:center;justify-content:space-between;}
+.tbl-head-title{font-size:.9rem;font-weight:700;color:#0F172A;display:flex;align-items:center;gap:8px;}
+.cnt{background:#EFF6FF;color:#2563EB;padding:2px 9px;border-radius:99px;font-size:.72rem;font-weight:700;}
 
-/* Empty */
-.lb-empty{text-align:center;padding:52px 20px;color:var(--muted);}
-.lb-empty i{font-size:2.5rem;color:#CBD5E1;display:block;margin-bottom:12px;}
+table{width:100%;border-collapse:collapse;}
+table th{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94A3B8;padding:11px 16px;text-align:left;border-bottom:1px solid #E2E8F0;white-space:nowrap;background:#FAFBFC;}
+table td{padding:13px 16px;font-size:.84rem;color:#64748B;border-bottom:1px solid #F8FAFC;vertical-align:middle;}
+table tbody tr{transition:all .15s;animation:rowIn .35s ease both;}
+table tbody tr:hover{background:#F8FAFC;}
+table tbody tr:nth-child(1){animation-delay:.04s}
+table tbody tr:nth-child(2){animation-delay:.08s}
+table tbody tr:nth-child(3){animation-delay:.12s}
+table tbody tr:nth-child(4){animation-delay:.16s}
+table tbody tr:nth-child(5){animation-delay:.20s}
+@keyframes rowIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
 
-/* Current user highlight */
-.lb-row.is-me{background:#EFF6FF!important;border-left:3px solid var(--p);}
-.lb-row.is-me .lb-name::after{content:' (You)';color:var(--p);font-size:.72rem;}
+.rnk{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;}
+.r1{background:#FEF3C7;color:#D97706;} .r2{background:#F1F5F9;color:#64748B;} .r3{background:#FEF9EB;color:#B45309;} .rn{background:#F8FAFC;color:#94A3B8;font-size:.78rem;}
+
+.un{font-weight:700;color:#0F172A;font-size:.87rem;}
+.ue{font-size:.72rem;color:#94A3B8;margin-top:2px;}
+
+.bdg{padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;}
+.bdg-b{background:#EFF6FF;color:#2563EB;}
+
+.score-mini{display:flex;align-items:center;gap:8px;}
+.score-track{height:5px;background:#F1F5F9;border-radius:99px;overflow:hidden;width:60px;}
+.score-fill{height:100%;border-radius:99px;}
+.score-val{font-weight:700;font-size:.82rem;}
+
+.empty{text-align:center;padding:60px 20px;color:#64748B;}
+.empty i{font-size:3rem;display:block;margin-bottom:14px;color:#CBD5E1;}
 </style>
 
-<div class="page">
-<div class="wrap">
+<div class="lb-page">
+<div class="lb-wrap">
 
-  <a href="{{ url_for('interviewer.dashboard') }}" class="back-btn"><i class="bi bi-arrow-left"></i> Back</a>
+<a href="javascript:history.back()" class="back-link"><i class="bi bi-arrow-left"></i> Back</a>
 
-  <!-- Header -->
-  <div class="lb-header a1">
-    <div class="lb-icon">🏆</div>
-    <div class="lb-title">Candidate Leaderboard</div>
-    <div class="lb-sub">Top performers ranked by average interview score</div>
+<div class="lb-header">
+  <div class="lb-title">🏆 <em>Leaderboard</em></div>
+  <div class="lb-sub">Top performers ranked by average interview score</div>
+</div>
+
+<div class="tbl-card">
+  <div class="tbl-head">
+    <div class="tbl-head-title"><i class="bi bi-trophy" style="color:#F59E0B;"></i> Rankings <span class="cnt">{{ leaderboard|length }}</span></div>
   </div>
 
   {% if leaderboard %}
-  <!-- Podium Top 3 -->
-  {% if leaderboard|length >= 3 %}
-  <div class="podium a2">
-    <!-- 2nd place -->
-    <div class="pod pod2">
-      <div class="pod-av" style="background:linear-gradient(135deg,#94A3B8,#64748B);width:50px;height:50px;font-size:.95rem;">
-        {{ leaderboard[1].name[0].upper() }}
-      </div>
-      <div class="pod-name">{{ leaderboard[1].name }}</div>
-      <div class="pod-score" style="color:#64748B;">{{ leaderboard[1].avg_score|round(1) }}%</div>
-      <div class="pod-base">2</div>
-    </div>
-    <!-- 1st place -->
-    <div class="pod pod1">
-      <div class="pod-av" style="background:linear-gradient(135deg,#F59E0B,#F97316);width:62px;height:62px;font-size:1.15rem;">
-        <span class="pod-crown">👑</span>
-        {{ leaderboard[0].name[0].upper() }}
-      </div>
-      <div class="pod-name" style="font-size:.84rem;">{{ leaderboard[0].name }}</div>
-      <div class="pod-score" style="color:#F59E0B;font-size:1.3rem;">{{ leaderboard[0].avg_score|round(1) }}%</div>
-      <div class="pod-base">1</div>
-    </div>
-    <!-- 3rd place -->
-    <div class="pod pod3">
-      <div class="pod-av" style="background:linear-gradient(135deg,#D97706,#B45309);width:50px;height:50px;font-size:.95rem;">
-        {{ leaderboard[2].name[0].upper() }}
-      </div>
-      <div class="pod-name">{{ leaderboard[2].name }}</div>
-      <div class="pod-score" style="color:#B45309;">{{ leaderboard[2].avg_score|round(1) }}%</div>
-      <div class="pod-base">3</div>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Full Table -->
-  <div class="lb-card a3">
-    <div class="table-responsive">
-    <table style="width:100%;border-collapse:collapse;">
-      <thead class="lb-thead">
-        <tr>
-          <th>Rank</th><th>Candidate</th><th>Interviews</th>
-          <th>Best Score</th><th>Avg Score</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for l in leaderboard %}
-      <tr class="lb-row {% if l.email == session.get('user_email') %}is-me{% endif %}"
-          style="animation-delay:{{ loop.index0 * 0.04 }}s;">
-        <td>
-          {% if loop.index==1 %}<span class="rank-badge r1">🥇</span>
-          {% elif loop.index==2 %}<span class="rank-badge r2">🥈</span>
-          {% elif loop.index==3 %}<span class="rank-badge r3">🥉</span>
-          {% else %}<span class="rank-badge rn">{{ loop.index }}</span>{% endif %}
-        </td>
-        <td>
-          <div class="lb-name">{{ l.name }}</div>
-          <div class="lb-email">{{ l.email }}</div>
-        </td>
-        <td>
-          <span style="background:#EFF6FF;border:1px solid #BFDBFE;color:#2563EB;padding:3px 9px;border-radius:99px;font-size:.72rem;font-weight:700;">{{ l.total_interviews }}</span>
-        </td>
-        <td>
-          <span class="score-pill" style="background:{% if l.best_score>=70 %}#F0FDF4;border:1px solid #BBF7D0;color:#16A34A{% elif l.best_score>=40 %}#FFFBEB;border:1px solid #FDE68A;color:#D97706{% else %}#FEF2F2;border:1px solid #FECACA;color:#DC2626{% endif %}">
-            {{ l.best_score or 0 }}%
-          </span>
-        </td>
-        <td>
-          <div class="sbar">
-            <div class="sbt"><div class="sbf" style="width:{{ l.avg_score|round|int }}%;background:{% if l.avg_score>=70 %}#10B981{% elif l.avg_score>=40 %}#F59E0B{% else %}#EF4444{% endif %}"></div></div>
-            <span style="font-weight:800;font-size:.82rem;color:{% if l.avg_score>=70 %}#16A34A{% elif l.avg_score>=40 %}#D97706{% else %}#DC2626{% endif %}">{{ l.avg_score|round(1) }}%</span>
+  <div class="table-responsive">
+  <table>
+    <thead>
+      <tr><th>Rank</th><th>Candidate</th><th>Interviews</th><th>Best Score</th><th>Avg Score</th></tr>
+    </thead>
+    <tbody>
+    {% for l in leaderboard %}
+    <tr>
+      <td>
+        {% if loop.index == 1 %}<span class="rnk r1">🥇</span>
+        {% elif loop.index == 2 %}<span class="rnk r2">🥈</span>
+        {% elif loop.index == 3 %}<span class="rnk r3">🥉</span>
+        {% else %}<span class="rnk rn">{{ loop.index }}</span>
+        {% endif %}
+      </td>
+      <td><div class="un">{{ l.name }}</div><div class="ue">{{ l.email }}</div></td>
+      <td><span class="bdg bdg-b">{{ l.total_interviews }}</span></td>
+      <td><span style="color:#10B981;font-weight:700;">{{ l.best_score or 0 }}%</span></td>
+      <td>
+        <div class="score-mini">
+          <div class="score-track">
+            <div class="score-fill" style="width:{{ l.avg_score|round|int }}%;background:{% if l.avg_score >= 70 %}#10B981{% elif l.avg_score >= 40 %}#F97316{% else %}#EF4444{% endif %}"></div>
           </div>
-        </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    </div>
+          <span class="score-val" style="color:{% if l.avg_score >= 70 %}#10B981{% elif l.avg_score >= 40 %}#F97316{% else %}#EF4444{% endif %}">{{ l.avg_score|round(1) }}%</span>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
   </div>
-
   {% else %}
-  <div class="lb-card lb-empty a2">
+  <div class="empty">
     <i class="bi bi-trophy"></i>
-    <p style="font-weight:700;font-size:.95rem;margin-bottom:6px;">No rankings yet</p>
-    <p style="font-size:.82rem;">Complete interviews to appear on the leaderboard!</p>
-    <a href="{{ url_for('interview.start_interview') }}" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:10px 20px;border-radius:10px;background:linear-gradient(135deg,#2563EB,#6366F1);color:#fff;font-weight:700;font-size:.82rem;text-decoration:none;">
-      <i class="bi bi-play-circle-fill"></i> Start Interview
-    </a>
+    <p>No completed interviews yet</p>
   </div>
   {% endif %}
+</div>
 
 </div>
 </div>

@@ -2,41 +2,41 @@
 {% block title %}Start Interview - Smart Interview System{% endblock %}
 
 {% block content %}
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
-.interview-bg{min-height:100vh;background:var(--bg);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:40px 16px;}
-.interview-bg::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 65% 50% at 10% 15%,rgba(30,96,145,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 90% 80%,rgba(22,138,173,.07) 0%,transparent 55%);pointer-events:none;z-index:0;}
-.grid-lines{position:fixed;inset:0;background-image:linear-gradient(rgba(30,96,145,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,96,145,.04) 1px,transparent 1px);background-size:64px 64px;z-index:0;pointer-events:none;}
-.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.1;pointer-events:none;z-index:0;animation:driftOrb 20s ease-in-out infinite alternate;}
-.orb-a{width:500px;height:500px;background:#1e6091;top:-150px;left:-150px;}
-.orb-b{width:400px;height:400px;background:#168aad;bottom:-100px;right:-100px;animation-delay:-8s;}
-.orb-c{width:250px;height:250px;background:#a5ccd1;top:50%;left:55%;animation-delay:-4s;}
+.interview-bg{min-height:100vh;background:#F1F5FB;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:40px 16px;}
+.interview-bg::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 65% 50% at 10% 15%,rgba(37,99,235,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 90% 80%,rgba(99,102,241,.04) 0%,transparent 55%);pointer-events:none;z-index:0;}
+.grid-lines{position:fixed;inset:0;background-image:linear-gradient(rgba(37,99,235,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.03) 1px,transparent 1px);background-size:64px 64px;z-index:0;pointer-events:none;}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.06;pointer-events:none;z-index:0;animation:driftOrb 20s ease-in-out infinite alternate;}
+.orb-a{width:500px;height:500px;background:#2563EB;top:-150px;left:-150px;}
+.orb-b{width:400px;height:400px;background:#6366F1;bottom:-100px;right:-100px;animation-delay:-8s;}
+.orb-c{width:250px;height:250px;background:#06B6D4;top:50%;left:55%;animation-delay:-4s;}
 @keyframes driftOrb{0%{transform:translate(0,0) scale(1);}100%{transform:translate(30px,25px) scale(1.06);}}
-.glass-panel{position:relative;z-index:10;width:100%;max-width:620px;background:#fff;border:1px solid var(--border);border-radius:28px;padding:52px;box-shadow:0 8px 48px rgba(30,96,145,.1);animation:panelIn .8s cubic-bezier(.22,1,.36,1) both;}
+.glass-panel{position:relative;z-index:10;width:100%;max-width:620px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(226,232,240,.8);border-radius:28px;padding:52px;box-shadow:0 8px 48px rgba(37,99,235,.08),0 2px 8px rgba(0,0,0,.04);animation:panelIn .8s cubic-bezier(.22,1,.36,1) both;}
+.glass-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#2563EB,#6366F1,#06B6D4);border-radius:28px 28px 0 0;}
 @keyframes panelIn{from{opacity:0;transform:translateY(36px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
-.status-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(30,96,145,.08);border:1px solid rgba(30,96,145,.2);border-radius:99px;padding:5px 14px;font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--primary);margin-bottom:24px;}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--primary-lt);animation:pulse 2s ease-in-out infinite;}
+.status-pill{display:inline-flex;align-items:center;gap:7px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:99px;padding:5px 14px;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2563EB;margin-bottom:24px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#2563EB;animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
-.interview-title{font-family:'Instrument Serif',serif;font-size:clamp(2.2rem,5vw,3rem);line-height:1.1;color:var(--dark);margin-bottom:6px;}
-.interview-title em{font-style:italic;background:linear-gradient(135deg,#1e6091,#168aad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.interview-desc{color:var(--muted);font-size:.95rem;line-height:1.75;margin-bottom:36px;}
+.interview-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2.2rem,5vw,3rem);line-height:1.1;color:#0F172A;margin-bottom:6px;font-weight:800;letter-spacing:-.04em;}
+.interview-title em{font-style:normal;background:linear-gradient(135deg,#2563EB,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.interview-desc{color:#64748B;font-size:.95rem;line-height:1.75;margin-bottom:36px;}
 .steps-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:36px;}
-.step-item{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:16px 14px;text-align:center;transition:all .2s;}
-.step-item:hover{background:var(--primary-bg);border-color:var(--primary-lt);box-shadow:0 4px 14px rgba(30,96,145,.1);}
-.step-num{font-family:'Instrument Serif',serif;font-size:1.5rem;line-height:1;background:linear-gradient(135deg,#1e6091,#168aad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
-.step-label{font-size:.75rem;color:var(--muted);line-height:1.4;}
+.step-item{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:14px;padding:16px 14px;text-align:center;transition:all .25s cubic-bezier(.34,1.56,.64,1);}
+.step-item:hover{background:#EFF6FF;border-color:#BFDBFE;box-shadow:0 4px 14px rgba(37,99,235,.08);transform:translateY(-2px);}
+.step-num{font-size:1.5rem;line-height:1;background:linear-gradient(135deg,#2563EB,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;font-weight:800;}
+.step-label{font-size:.75rem;color:#64748B;line-height:1.4;font-weight:500;}
 .info-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
-.chip{display:inline-flex;align-items:center;gap:7px;background:var(--primary-bg);border:1px solid var(--border);border-radius:99px;padding:7px 14px;font-size:.82rem;color:var(--muted);transition:all .2s;}
-.chip:hover{background:var(--border);color:var(--dark);}
-.chip i{font-size:.9rem;color:var(--primary);}
-.btn-start{width:100%;padding:16px 24px;border:none;border-radius:16px;background:linear-gradient(135deg,#1e6091 0%,#168aad 100%);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.05rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 32px rgba(30,96,145,.25);display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;}
-.btn-start:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(30,96,145,.35);color:#fff;text-decoration:none;}
+.chip{display:inline-flex;align-items:center;gap:7px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:99px;padding:7px 14px;font-size:.82rem;color:#64748B;transition:all .2s;font-weight:500;}
+.chip:hover{background:#EFF6FF;color:#2563EB;border-color:#BFDBFE;}
+.chip i{font-size:.9rem;color:#2563EB;}
+.btn-start{width:100%;padding:16px 24px;border:none;border-radius:16px;background:linear-gradient(135deg,#2563EB,#6366F1);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.05rem;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 32px rgba(37,99,235,.25);display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(37,99,235,.35);color:#fff;text-decoration:none;}
 .btn-arrow{display:inline-flex;transition:transform .2s;}
 .btn-start:hover .btn-arrow{transform:translateX(5px);}
-.disclaimer{text-align:center;margin-top:18px;font-size:.78rem;color:var(--muted);}
-.card-divider{border:none;border-top:1px solid var(--border);margin:28px 0;}
+.disclaimer{text-align:center;margin-top:18px;font-size:.78rem;color:#94A3B8;}
+.card-divider{border:none;border-top:1px solid #E2E8F0;margin:28px 0;}
 @media(max-width:520px){.glass-panel{padding:36px 22px;}.steps-row{grid-template-columns:1fr;gap:8px;}}
 </style>
 
@@ -92,11 +92,6 @@
     Start Interview
     <span class="btn-arrow"><i class="bi bi-arrow-right"></i></span>
   </a>
-<!-- 
-  <p class="disclaimer">
-    Make sure your resume is uploaded before starting &nbsp;·&nbsp;
-    <a href="{{ url_for('resume.upload') }}" style="color:var(--primary-lt);text-decoration:none;">Upload Resume</a>
-  </p> -->
 
 </div>
 </div>

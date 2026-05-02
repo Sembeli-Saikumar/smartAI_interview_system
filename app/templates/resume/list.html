@@ -1,67 +1,68 @@
 {% extends "base.html" %}
 {% block content %}
 
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:'DM Sans',sans-serif; background:#080b14; }
-.rl-page { min-height:100vh; background:#080b14; padding:48px 16px 80px; position:relative; }
+body { font-family:'Plus Jakarta Sans',sans-serif; }
+.rl-page { min-height:100vh; background:#F1F5FB; padding:48px 16px 80px; position:relative; }
 .rl-bg { position:fixed; inset:0; z-index:0; pointer-events:none;
-  background: radial-gradient(ellipse 50% 40% at 5% 10%, rgba(10,255,237,.08) 0%, transparent 60%),
-              radial-gradient(ellipse 45% 35% at 95% 85%, rgba(99,102,241,.1) 0%, transparent 55%); }
+  background: radial-gradient(ellipse 50% 40% at 5% 10%, rgba(37,99,235,.04) 0%, transparent 60%),
+              radial-gradient(ellipse 45% 35% at 95% 85%, rgba(99,102,241,.05) 0%, transparent 55%); }
 .rl-wrap { position:relative; z-index:10; max-width:860px; margin:0 auto; }
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
 
 .rl-header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:32px; animation:fadeUp .5s ease both; }
-.rl-title { font-family:'Instrument Serif',serif; font-size:2rem; color:#fff; }
-.rl-title em { font-style:italic; background:linear-gradient(135deg,#0affed,#818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.rl-sub { color:rgba(255,255,255,.35); font-size:.88rem; margin-top:4px; }
-.btn-upload { display:inline-flex; align-items:center; gap:7px; padding:11px 22px; border-radius:12px; background:linear-gradient(135deg,#0affed,#6366f1); color:#080b14; font-weight:700; font-size:.88rem; text-decoration:none; transition:transform .2s,box-shadow .2s; box-shadow:0 4px 16px rgba(10,255,237,.2); }
-.btn-upload:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(10,255,237,.3); text-decoration:none; color:#080b14; }
+.rl-title { font-size:2rem; font-weight:800; color:#0F172A; letter-spacing:-.03em; }
+.rl-title em { font-style:normal; background:linear-gradient(135deg,#2563EB,#6366F1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.rl-sub { color:#64748B; font-size:.88rem; margin-top:4px; }
+.btn-upload { display:inline-flex; align-items:center; gap:7px; padding:11px 22px; border-radius:12px; background:linear-gradient(135deg,#2563EB,#6366F1); color:#fff; font-weight:700; font-size:.88rem; text-decoration:none; transition:all .2s; box-shadow:0 4px 16px rgba(37,99,235,.25); }
+.btn-upload:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(37,99,235,.35); text-decoration:none; color:#fff; }
 
-.back-link { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,.35); font-size:.83rem; text-decoration:none; margin-bottom:20px; transition:color .2s; }
-.back-link:hover { color:#0affed; text-decoration:none; }
+.back-link { display:inline-flex; align-items:center; gap:6px; color:#64748B; font-size:.83rem; text-decoration:none; margin-bottom:20px; padding:7px 14px; border-radius:10px; background:#fff; border:1px solid #E2E8F0; transition:all .2s; font-weight:600; }
+.back-link:hover { color:#2563EB; border-color:#BFDBFE; background:#EFF6FF; text-decoration:none; }
 
-.resume-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:18px; padding:22px; margin-bottom:14px; transition:border-color .2s,background .2s; animation:fadeUp .5s ease both; }
-.resume-card:hover { border-color:rgba(255,255,255,.12); background:rgba(255,255,255,.05); }
+.resume-card { background:#fff; border:1px solid #E2E8F0; border-radius:18px; padding:22px; margin-bottom:14px; transition:all .25s cubic-bezier(.34,1.56,.64,1); animation:fadeUp .5s ease both; box-shadow:0 2px 8px rgba(0,0,0,.04); position:relative; overflow:hidden; }
+.resume-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#2563EB,#6366F1); opacity:0; transition:opacity .2s; }
+.resume-card:hover { border-color:#BFDBFE; box-shadow:0 8px 24px rgba(37,99,235,.08); transform:translateY(-3px); }
+.resume-card:hover::before { opacity:1; }
 
 .rc-top { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
-.rc-icon { width:42px; height:42px; border-radius:12px; background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2); display:flex; align-items:center; justify-content:center; color:#f87171; font-size:1.2rem; flex-shrink:0; }
+.rc-icon { width:42px; height:42px; border-radius:12px; background:#FEF2F2; border:1px solid #FECACA; display:flex; align-items:center; justify-content:center; color:#EF4444; font-size:1.2rem; flex-shrink:0; }
 .rc-info { flex:1; min-width:0; }
-.rc-name { font-size:.95rem; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.rc-meta { font-size:.75rem; color:rgba(255,255,255,.3); margin-top:3px; }
+.rc-name { font-size:.95rem; font-weight:700; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rc-meta { font-size:.75rem; color:#94A3B8; margin-top:3px; }
 .rc-actions { display:flex; gap:8px; flex-shrink:0; }
-.btn-view { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:9px; background:rgba(10,255,237,.08); border:1px solid rgba(10,255,237,.2); color:#0affed; font-size:.8rem; text-decoration:none; transition:background .2s; }
-.btn-view:hover { background:rgba(10,255,237,.15); text-decoration:none; color:#0affed; }
-.btn-del { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:9px; background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.2); color:#f87171; font-size:.8rem; cursor:pointer; transition:background .2s; }
-.btn-del:hover { background:rgba(239,68,68,.15); }
+.btn-view { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:9px; background:#EFF6FF; border:1px solid #BFDBFE; color:#2563EB; font-size:.8rem; text-decoration:none; transition:all .2s; font-weight:600; }
+.btn-view:hover { background:#DBEAFE; text-decoration:none; color:#2563EB; transform:translateY(-1px); box-shadow:0 2px 8px rgba(37,99,235,.1); }
+.btn-del { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:9px; background:#FEF2F2; border:1px solid #FECACA; color:#EF4444; font-size:.8rem; cursor:pointer; transition:all .2s; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; }
+.btn-del:hover { background:#FEE2E2; transform:translateY(-1px); }
 
-/* Score bars */
 .score-section { margin-top:4px; }
 .score-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-.score-label { font-size:.72rem; color:rgba(255,255,255,.35); width:80px; flex-shrink:0; }
-.score-track { flex:1; height:6px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+.score-label { font-size:.72rem; color:#94A3B8; width:80px; flex-shrink:0; font-weight:600; }
+.score-track { flex:1; height:6px; background:#F1F5F9; border-radius:99px; overflow:hidden; }
 .score-fill { height:100%; border-radius:99px; transition:width 1s ease; }
-.score-num { font-size:.75rem; font-weight:600; width:36px; text-align:right; flex-shrink:0; }
+.score-num { font-size:.75rem; font-weight:700; width:36px; text-align:right; flex-shrink:0; }
 
-/* Skills */
 .skills-wrap { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
-.skill-chip { padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:500; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.2); color:#a78bfa; }
+.skill-chip { padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:600; background:#F5F3FF; border:1px solid #DDD6FE; color:#6366F1; }
 
-/* Pending */
-.pending-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:99px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); color:#fbbf24; font-size:.75rem; }
+.pending-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:99px; background:#FFFBEB; border:1px solid #FDE68A; color:#D97706; font-size:.75rem; font-weight:600; animation:badgePulse 2s ease-in-out infinite; }
+@keyframes badgePulse { 0%,100%{opacity:1}50%{opacity:.6} }
 
-.empty-state { text-align:center; padding:60px 20px; color:rgba(255,255,255,.3); }
-.empty-state i { font-size:3rem; margin-bottom:16px; display:block; }
-.empty-state a { color:#0affed; text-decoration:none; }
+.empty-state { text-align:center; padding:60px 20px; color:#64748B; background:#fff; border:1px solid #E2E8F0; border-radius:20px; }
+.empty-state i { font-size:3rem; margin-bottom:16px; display:block; color:#CBD5E1; }
+.empty-state p { font-size:.9rem; margin-bottom:16px; }
+.empty-state a { display:inline-flex; align-items:center; gap:6px; padding:10px 20px; border-radius:12px; background:linear-gradient(135deg,#2563EB,#6366F1); color:#fff; text-decoration:none; font-weight:700; font-size:.85rem; box-shadow:0 4px 14px rgba(37,99,235,.25); transition:all .2s; }
+.empty-state a:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(37,99,235,.35); color:#fff; }
 
-.flash-msg { border-radius:12px; padding:12px 16px; font-size:.88rem; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
-.flash-success { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); color:#4ade80; }
-.flash-danger  { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:#f87171; }
-.flash-warning { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:#fbbf24; }
+.flash-msg { border-radius:12px; padding:12px 16px; font-size:.88rem; margin-bottom:18px; display:flex; align-items:center; gap:10px; font-weight:500; }
+.flash-success { background:#F0FDF4; border:1px solid #BBF7D0; color:#166534; }
+.flash-danger  { background:#FEF2F2; border:1px solid #FECACA; color:#991B1B; }
+.flash-warning { background:#FFFBEB; border:1px solid #FDE68A; color:#92400E; }
 </style>
 
 <div class="rl-page">
@@ -96,7 +97,7 @@ body { font-family:'DM Sans',sans-serif; background:#080b14; }
     {% if resumes %}
       {% for r in resumes %}
       {% set has_score = r.overall_score and r.overall_score > 0 %}
-      <div class="resume-card">
+      <div class="resume-card" style="animation-delay:{{ loop.index0 * 0.06 }}s;">
         <div class="rc-top">
           <div class="rc-icon"><i class="bi bi-file-earmark-pdf"></i></div>
           <div class="rc-info">
@@ -115,29 +116,25 @@ body { font-family:'DM Sans',sans-serif; background:#080b14; }
 
         {% if has_score %}
         <div class="score-section">
-          <!-- Overall -->
           <div class="score-row">
             <div class="score-label">Overall</div>
-            <div class="score-track"><div class="score-fill" style="width:{{ r.overall_score }}%;background:{% if r.overall_score >= 70 %}linear-gradient(90deg,#0affed,#34d399){% elif r.overall_score >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#ef4444,#f87171){% endif %}"></div></div>
-            <div class="score-num" style="color:{% if r.overall_score >= 70 %}#34d399{% elif r.overall_score >= 40 %}#fbbf24{% else %}#f87171{% endif %}">{{ r.overall_score }}</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.overall_score }}%;background:{% if r.overall_score >= 70 %}linear-gradient(90deg,#10B981,#34d399){% elif r.overall_score >= 40 %}linear-gradient(90deg,#F59E0B,#FBBF24){% else %}linear-gradient(90deg,#EF4444,#F87171){% endif %}"></div></div>
+            <div class="score-num" style="color:{% if r.overall_score >= 70 %}#10B981{% elif r.overall_score >= 40 %}#F59E0B{% else %}#EF4444{% endif %}">{{ r.overall_score }}</div>
           </div>
-          <!-- Technical -->
           <div class="score-row">
             <div class="score-label">Technical</div>
-            <div class="score-track"><div class="score-fill" style="width:{{ r.technical_score or 0 }}%;background:linear-gradient(90deg,#6366f1,#818cf8)"></div></div>
-            <div class="score-num" style="color:#818cf8">{{ r.technical_score or 0 }}</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.technical_score or 0 }}%;background:linear-gradient(90deg,#6366F1,#818cf8)"></div></div>
+            <div class="score-num" style="color:#6366F1">{{ r.technical_score or 0 }}</div>
           </div>
-          <!-- Experience -->
           <div class="score-row">
             <div class="score-label">Experience</div>
-            <div class="score-track"><div class="score-fill" style="width:{{ r.experience_score or 0 }}%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
-            <div class="score-num" style="color:#fbbf24">{{ r.experience_score or 0 }}</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.experience_score or 0 }}%;background:linear-gradient(90deg,#F59E0B,#FBBF24)"></div></div>
+            <div class="score-num" style="color:#F59E0B">{{ r.experience_score or 0 }}</div>
           </div>
-          <!-- Education -->
           <div class="score-row">
             <div class="score-label">Education</div>
-            <div class="score-track"><div class="score-fill" style="width:{{ r.education_score or 0 }}%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
-            <div class="score-num" style="color:#34d399">{{ r.education_score or 0 }}</div>
+            <div class="score-track"><div class="score-fill" style="width:{{ r.education_score or 0 }}%;background:linear-gradient(90deg,#10B981,#34d399)"></div></div>
+            <div class="score-num" style="color:#10B981">{{ r.education_score or 0 }}</div>
           </div>
 
           {% if r.skills %}
@@ -160,7 +157,8 @@ body { font-family:'DM Sans',sans-serif; background:#080b14; }
     {% else %}
       <div class="empty-state">
         <i class="bi bi-file-earmark-x"></i>
-        No resumes yet. <a href="{{ url_for('resume.upload') }}">Upload your first resume!</a>
+        <p>No resumes uploaded yet</p>
+        <a href="{{ url_for('resume.upload') }}"><i class="bi bi-upload"></i> Upload your first resume</a>
       </div>
     {% endif %}
 

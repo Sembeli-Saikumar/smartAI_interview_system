@@ -82,7 +82,71 @@ def get_ai_questions_from_resume(user_id):
         return get_fallback_questions()
 
 
-# ── Start ──────────────────────────────────────────────────────
+# ── AI Question Generator Page ────────────────────────────────
+@interview_bp.route("/generate-questions")
+def generate_questions():
+    """Separate page for AI Question Generator — NOT the same as start_interview."""
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    # Check if user has a resume uploaded
+    resume = execute_query(
+        """SELECT original_filename, skills, overall_score
+           FROM resumes WHERE user_id=%s
+           ORDER BY uploaded_at DESC LIMIT 1""",
+        (session["user_id"],), fetch=True
+    )
+    has_resume = bool(resume and resume[0].get("skills"))
+    resume_data = resume[0] if resume else None
+
+    return render_template(
+        "interview/generate_questions.html",
+        has_resume=has_resume,
+        resume=resume_data,
+    )
+
+
+# ── AI Question Generator API (called by JS fetch) ────────────
+@interview_bp.route("/generate-questions-api", methods=["POST"])
+def generate_questions_api():
+    """Returns AI-generated questions as JSON."""
+    if "user_id" not in session:
+        return jsonify({"error": "unauthorized"}), 401
+
+    try:
+        count = request.get_json().get("count", 10)
+    except Exception:
+        count = 10
+
+    try:
+        # Try AI questions from resume
+        questions_raw = get_ai_questions_from_resume(session["user_id"])
+
+        # Format with type labels
+        type_cycle = ["behavioral", "technical", "hr",
+                      "behavioral", "technical",
+                      "behavioral", "hr", "technical",
+                      "behavioral", "technical"]
+        questions = []
+        for i, q in enumerate(questions_raw[:count]):
+            questions.append({
+                "question": q if isinstance(q, str) else q.get("question", str(q)),
+                "type": type_cycle[i % len(type_cycle)],
+            })
+
+        return jsonify({"questions": questions, "source": "ai"})
+
+    except Exception as e:
+        print(f"[GenerateQ API error] {e}")
+        # Fallback to question bank
+        fallback = get_fallback_questions(count)
+        type_cycle = ["behavioral", "technical", "hr"] * 4
+        questions = [{"question": q, "type": type_cycle[i % 3]}
+                     for i, q in enumerate(fallback)]
+        return jsonify({"questions": questions, "source": "fallback"})
+
+
+# ── Start Interview ────────────────────────────────────────────
 @interview_bp.route("/start")
 def start_interview():
     if "user_id" not in session:

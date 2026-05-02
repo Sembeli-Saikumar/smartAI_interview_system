@@ -1,249 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Upload Resume — InterviewIQ</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
-  <style>
-    body { min-height:100vh; padding-top:80px; padding-bottom:60px; }
+{% extends "base.html" %}
+{% block title %}Upload Resume — Smart Interview System{% endblock %}
 
-    /* ── Drop Zone ── */
-    .drop-zone {
-      border: 2px dashed rgba(10,255,237,.3);
-      border-radius: 20px;
-      padding: 48px 32px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .25s, background .25s;
-      background: rgba(10,255,237,.03);
-      position: relative;
-    }
-    .drop-zone:hover,
-    .drop-zone.dragover {
-      border-color: var(--teal);
-      background: rgba(10,255,237,.07);
-    }
-    .drop-zone input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-    .drop-icon {
-      width: 72px; height: 72px;
-      border-radius: 20px;
-      background: rgba(10,255,237,.1);
-      color: var(--teal);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 30px rgba(10,255,237,.2);
-      transition: transform .2s;
-    }
-    .drop-zone:hover .drop-icon { transform: translateY(-4px); }
-    .drop-title  { font-family:'Syne',sans-serif; font-weight:700; font-size:1.15rem; color:#fff; margin-bottom:6px; }
-    .drop-sub    { color:rgba(255,255,255,.4); font-size:.88rem; }
-    .drop-badges { display:flex; gap:8px; justify-content:center; margin-top:16px; }
-    .drop-badge  {
-      padding: 4px 12px;
-      border-radius: 99px;
-      font-size: .75rem;
-      font-weight: 600;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-    }
-    .badge-pdf  { background:rgba(239,68,68,.12);  color:#f87171; border:1px solid rgba(239,68,68,.2); }
-    .badge-docx { background:rgba(59,130,246,.12); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
-    .badge-size { background:rgba(255,255,255,.06); color:rgba(255,255,255,.4); border:1px solid rgba(255,255,255,.08); }
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
-    /* selected file preview */
-    .file-preview {
-      display: none;
-      align-items: center;
-      gap: 14px;
-      background: rgba(10,255,237,.06);
-      border: 1px solid rgba(10,255,237,.2);
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-top: 16px;
-    }
-    .file-preview.show { display:flex; }
-    .file-preview-icon { font-size:1.6rem; color:var(--teal); }
-    .file-preview-name { font-size:.9rem; color:#fff; font-weight:500; flex:1; word-break:break-all; }
-    .file-preview-size { font-size:.8rem; color:rgba(255,255,255,.4); }
+<style>
+.ru-page{min-height:100vh;background:#F1F5FB;display:flex;align-items:center;justify-content:center;padding:48px 16px;position:relative;}
+.ru-page::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 10% 15%,rgba(37,99,235,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 90% 80%,rgba(99,102,241,.04) 0%,transparent 55%);pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.06;pointer-events:none;z-index:0;}
+.orb-1{width:500px;height:500px;background:#2563EB;top:-150px;left:-150px;}
+.orb-2{width:400px;height:400px;background:#6366F1;bottom:-120px;right:-120px;}
 
-    /* upload btn */
-    .btn-upload {
-      width:100%; padding:13px;
-      border:none; border-radius:12px;
-      background: linear-gradient(135deg,#0affed,#5c6bc0);
-      color:#0d0f1a;
-      font-family:'Syne',sans-serif; font-weight:700; font-size:1rem;
-      cursor:pointer;
-      transition:transform .2s, box-shadow .2s, opacity .2s;
-      box-shadow:0 6px 28px rgba(10,255,237,.3);
-      margin-top:20px;
-      display:flex; align-items:center; justify-content:center; gap:8px;
-    }
-    .btn-upload:disabled { opacity:.5; cursor:not-allowed; transform:none !important; }
-    .btn-upload:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 10px 36px rgba(10,255,237,.4); }
+.ru-card{position:relative;z-index:10;width:100%;max-width:540px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(226,232,240,.8);border-radius:28px;padding:44px 40px;box-shadow:0 8px 48px rgba(37,99,235,.08);animation:slideUp .6s cubic-bezier(.22,1,.36,1) both;}
+.ru-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#2563EB,#6366F1,#06B6D4);border-radius:28px 28px 0 0;}
+@keyframes slideUp{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-    /* page card */
-    .page-card {
-      background: rgba(255,255,255,.045);
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 24px;
-      padding: 40px 40px;
-      backdrop-filter: blur(20px);
-      max-width: 580px;
-      margin: 0 auto;
-      animation: cardIn .6s cubic-bezier(.22,1,.36,1) both;
-    }
-    .page-title {
-      font-family:'Syne',sans-serif; font-weight:800; font-size:1.7rem;
-      color:#fff; letter-spacing:-.4px; margin-bottom:6px;
-    }
-    .page-title span { color:var(--teal); }
-    .page-sub { color:rgba(255,255,255,.4); font-size:.9rem; margin-bottom:32px; }
+.back-link{display:inline-flex;align-items:center;gap:6px;color:#64748B;font-size:.83rem;text-decoration:none;margin-bottom:22px;padding:7px 14px;border-radius:10px;background:#F8FAFC;border:1px solid #E2E8F0;transition:all .2s;font-weight:600;}
+.back-link:hover{color:#2563EB;border-color:#BFDBFE;background:#EFF6FF;text-decoration:none;}
 
-    /* flash messages */
-    .flash-msg {
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: .88rem;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .flash-success { background:rgba(34,197,94,.1);  border:1px solid rgba(34,197,94,.25);  color:#4ade80; }
-    .flash-danger  { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.25);  color:#f87171; }
-    .flash-warning { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:#fbbf24; }
+.ru-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#2563EB,#6366F1);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.3);margin-bottom:22px;transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.ru-card:hover .ru-icon{transform:scale(1.06) rotate(-3deg);}
+.ru-title{font-size:1.7rem;font-weight:800;color:#0F172A;margin-bottom:4px;letter-spacing:-.03em;}
+.ru-title em{font-style:normal;background:linear-gradient(135deg,#2563EB,#6366F1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ru-sub{color:#64748B;font-size:.88rem;margin-bottom:28px;line-height:1.6;}
 
-    .back-link {
-      display:inline-flex; align-items:center; gap:6px;
-      color:rgba(255,255,255,.4); font-size:.85rem; text-decoration:none;
-      margin-bottom:28px;
-      transition:color .2s;
-    }
-    .back-link:hover { color:var(--teal); }
+.flash{border-radius:12px;padding:10px 14px;font-size:.84rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:500;}
+.flash-danger{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;}
+.flash-success{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;}
 
-    @media(max-width:480px){ .page-card{padding:28px 18px;} }
-  </style>
-</head>
-<body>
+.drop-zone{border:2px dashed #BFDBFE;border-radius:20px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .25s;background:#F8FAFC;margin-bottom:20px;position:relative;}
+.drop-zone:hover,.drop-zone.dragging{border-color:#2563EB;background:#EFF6FF;box-shadow:0 0 0 4px rgba(37,99,235,.08);}
+.drop-zone i{font-size:2.5rem;color:#94A3B8;display:block;margin-bottom:12px;transition:all .3s;}
+.drop-zone:hover i{color:#2563EB;transform:translateY(-4px);}
+.drop-zone p{font-size:.88rem;color:#64748B;line-height:1.6;margin:0;}
+.drop-zone strong{color:#2563EB;}
+.drop-zone .size-note{font-size:.75rem;color:#94A3B8;margin-top:8px;display:block;}
 
-<div class="bg-mesh"></div>
+.file-preview{display:none;padding:14px 16px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:20px;align-items:center;gap:12px;}
+.file-preview.visible{display:flex;}
+.fp-icon{width:38px;height:38px;border-radius:10px;background:#FEF2F2;border:1px solid #FECACA;display:flex;align-items:center;justify-content:center;color:#EF4444;font-size:1.1rem;}
+.fp-info{flex:1;min-width:0;}
+.fp-name{font-size:.85rem;font-weight:600;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fp-size{font-size:.72rem;color:#94A3B8;margin-top:2px;}
+.fp-remove{background:none;border:none;color:#94A3B8;cursor:pointer;font-size:1rem;transition:color .2s;padding:4px;}
+.fp-remove:hover{color:#EF4444;}
+
+.btn-upload{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#2563EB,#6366F1);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(37,99,235,.25);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-upload:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(37,99,235,.35);}
+.btn-upload:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+
+.tips{margin-top:24px;padding-top:20px;border-top:1px solid #E2E8F0;}
+.tips-title{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94A3B8;margin-bottom:10px;}
+.tip-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;color:#64748B;}
+.tip-item i{color:#10B981;font-size:.85rem;}
+</style>
+
+<div class="ru-page">
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
-<div class="container">
-<a href="{{ url_for('auth.dashboard') }}" class="back-link">
-    <i class="bi bi-arrow-left"></i> Back to Dashboard
+<div class="ru-card">
+
+  <a href="{{ url_for('resume.list') }}" class="back-link">
+    <i class="bi bi-arrow-left"></i> My Resumes
   </a>
 
-  <div class="page-card">
+  <div class="ru-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+  <div class="ru-title">Upload <em>Resume</em></div>
+  <p class="ru-sub">Upload your resume in PDF format. Our AI will analyze it and provide a detailed skill assessment score.</p>
 
-    <div class="page-title">Upload <span>Resume</span></div>
-    <p class="page-sub">Upload your PDF or DOCX resume — max 5 MB</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for c,m in messages %}
+      <div class="flash flash-{{ c }}"><i class="bi bi-info-circle"></i> {{ m }}</div>
+    {% endfor %}{% endif %}
+  {% endwith %}
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash-msg flash-{{ category }}">
-            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}x-circle{% else %}exclamation-triangle{% endif %}"></i>
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+  <form method="POST" action="{{ url_for('resume.upload') }}" enctype="multipart/form-data" id="uploadForm">
 
-    <!-- Upload Form -->
-    <form action="{{ url_for('resume.upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+    <label class="drop-zone" id="dropZone" for="fileInput">
+      <i class="bi bi-file-earmark-arrow-up"></i>
+      <p><strong>Click to browse</strong> or drag and drop your file here</p>
+      <span class="size-note">PDF format only • Max 10 MB</span>
+    </label>
+    <input type="file" name="resume" id="fileInput" accept=".pdf,application/pdf" required style="display:none"/>
 
-      <!-- Drag & Drop Zone -->
-      <div class="drop-zone" id="dropZone">
-        <input type="file" name="resume" id="resumeInput" accept=".pdf,.docx" onchange="previewFile(this)"/>
-        <div class="drop-icon"><i class="bi bi-cloud-upload"></i></div>
-        <div class="drop-title">Drag & drop your resume here</div>
-        <div class="drop-sub">or click to browse files</div>
-        <div class="drop-badges">
-          <span class="drop-badge badge-pdf">PDF</span>
-          <span class="drop-badge badge-docx">DOCX</span>
-          <span class="drop-badge badge-size">Max 5 MB</span>
-        </div>
+    <div class="file-preview" id="filePreview">
+      <div class="fp-icon"><i class="bi bi-file-earmark-pdf"></i></div>
+      <div class="fp-info">
+        <div class="fp-name" id="fileName"></div>
+        <div class="fp-size" id="fileSize"></div>
       </div>
-
-      <!-- File Preview -->
-      <div class="file-preview" id="filePreview">
-        <i class="bi bi-file-earmark-text file-preview-icon" id="previewIcon"></i>
-        <span class="file-preview-name" id="previewName">—</span>
-        <span class="file-preview-size" id="previewSize">—</span>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn-upload" id="uploadBtn" disabled>
-        <i class="bi bi-upload"></i> Upload Resume
+      <button type="button" class="fp-remove" onclick="clearFile()" title="Remove">
+        <i class="bi bi-x-lg"></i>
       </button>
+    </div>
 
-    </form>
+    <button type="submit" class="btn-upload" id="submitBtn" disabled>
+      <i class="bi bi-cloud-upload"></i> Upload Resume
+    </button>
 
-    <!-- View My Resumes link -->
-    <p style="text-align:center;margin-top:22px;font-size:.88rem;color:rgba(255,255,255,.35);">
-      <a href="{{ url_for('resume.list_resumes') }}" style="color:var(--teal);text-decoration:none;">
-        <i class="bi bi-collection"></i> View my uploaded resumes
-      </a>
-    </p>
+  </form>
 
+  <div class="tips">
+    <div class="tips-title">Tips for best results</div>
+    <div class="tip-item"><i class="bi bi-check-circle-fill"></i> Use a clean, well-structured PDF</div>
+    <div class="tip-item"><i class="bi bi-check-circle-fill"></i> Include skills, experience &amp; education</div>
+    <div class="tip-item"><i class="bi bi-check-circle-fill"></i> Avoid images-only or scanned documents</div>
   </div>
+
+</div>
 </div>
 
 <script>
-  const dropZone   = document.getElementById('dropZone');
-  const uploadBtn  = document.getElementById('uploadBtn');
-  const filePreview = document.getElementById('filePreview');
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('filePreview');
+const submitBtn = document.getElementById('submitBtn');
 
-  /* drag over / leave styling */
-  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('dragover'));
-  dropZone.addEventListener('drop',      e  => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    const input = document.getElementById('resumeInput');
-    input.files = e.dataTransfer.files;
-    previewFile(input);
-  });
+fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
 
-  function previewFile(input) {
-    const file = input.files[0];
-    if (!file) return;
+['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.add('dragging');
+}));
+['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.remove('dragging');
+}));
+dropZone.addEventListener('drop', ev => {
+  const file = ev.dataTransfer.files[0];
+  if (file) { fileInput.files = ev.dataTransfer.files; handleFile(file); }
+});
 
-    const ext  = file.name.split('.').pop().toLowerCase();
-    const icon = document.getElementById('previewIcon');
-    icon.className = ext === 'pdf'
-      ? 'bi bi-file-earmark-pdf file-preview-icon'
-      : 'bi bi-file-earmark-word file-preview-icon';
-    icon.style.color = ext === 'pdf' ? '#f87171' : '#60a5fa';
-
-    document.getElementById('previewName').textContent = file.name;
-    document.getElementById('previewSize').textContent = formatSize(file.size);
-
-    filePreview.classList.add('show');
-    uploadBtn.disabled = false;
-  }
-
-  function formatSize(bytes) {
-    if (bytes < 1024)        return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  }
+function handleFile(file) {
+  if (!file) return;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+  preview.classList.add('visible');
+  dropZone.style.display = 'none';
+  submitBtn.disabled = false;
+}
+function clearFile() {
+  fileInput.value = '';
+  preview.classList.remove('visible');
+  dropZone.style.display = '';
+  submitBtn.disabled = true;
+}
 </script>
-</body>
-</html>
+{% endblock %}

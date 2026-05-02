@@ -43,10 +43,17 @@
 html, body { height: 100%; margin: 0; padding: 0; }
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background: var(--bg);
+  background: #F1F5FB;
   color: var(--text);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+body::before {
+  content:''; position:fixed; inset:0;
+  background: radial-gradient(ellipse 60% 50% at 5% 10%,rgba(37,99,235,.04) 0%,transparent 60%),
+              radial-gradient(ellipse 50% 40% at 95% 85%,rgba(99,102,241,.04) 0%,transparent 55%);
+  pointer-events:none; z-index:0;
 }
 
 /* ─────────────────────────────────────────
@@ -54,8 +61,10 @@ body {
 ───────────────────────────────────────── */
 .topnav {
   height: var(--nav-h);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(226,232,240,.8);
   display: flex;
   align-items: center;
   padding: 0 24px;
@@ -63,7 +72,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 200;
-  box-shadow: 0 1px 0 var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.03);
 }
 
 .brand {
@@ -244,8 +253,9 @@ body {
 .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
 
 .stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226,232,240,.8);
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -258,7 +268,7 @@ body {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;
+  height: 4px;
   border-radius: var(--radius) var(--radius) 0 0;
   opacity: 0;
   transition: opacity .2s;
@@ -1060,6 +1070,395 @@ table.t tbody tr:nth-child(5){animation-delay:.20s}
 
 
 
+/* ─────────────────────────────────────────
+   AI QUESTION GENERATOR PANEL
+───────────────────────────────────────── */
+.qgen-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.qgen-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #7C3AED, #8B5CF6, #A78BFA);
+  border-radius: 20px 20px 0 0;
+}
+
+/* Step Indicator */
+.qgen-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+  padding: 0 16px;
+}
+.qgen-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  transition: all .3s;
+  flex-shrink: 0;
+}
+.qgen-step.active {
+  background: #F5F3FF;
+  border-color: #DDD6FE;
+}
+.qgen-step.done {
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+}
+.qs-num {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 800; color: var(--faint);
+  flex-shrink: 0;
+  transition: all .3s;
+}
+.qgen-step.active .qs-num {
+  background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(124,58,237,.3);
+}
+.qgen-step.done .qs-num {
+  background: var(--ok);
+  color: #fff;
+}
+.qs-label { font-size: .76rem; font-weight: 700; color: var(--text); }
+.qs-sub { font-size: .64rem; color: var(--faint); }
+.qgen-step.active .qs-label { color: #7C3AED; }
+.qgen-step.done .qs-label { color: var(--ok); }
+
+.qs-connector { flex: 0 0 40px; display: flex; align-items: center; justify-content: center; }
+.qs-line {
+  width: 100%; height: 3px;
+  background: var(--border);
+  border-radius: 99px;
+  position: relative;
+  overflow: hidden;
+}
+.qs-line.filled { background: var(--ok); }
+.qs-line.filling::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #7C3AED, #8B5CF6);
+  animation: fillLine 1.5s ease-in-out infinite;
+}
+@keyframes fillLine { 0%{transform:translateX(-100%)}100%{transform:translateX(100%)} }
+
+/* Drop Zone */
+.qgen-dropzone {
+  border: 2px dashed #DDD6FE;
+  border-radius: 16px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: #FAFAFE;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.qgen-dropzone:hover, .qgen-dropzone.dragging {
+  border-color: #7C3AED;
+  background: #F5F3FF;
+  box-shadow: 0 0 0 4px rgba(124,58,237,.06);
+}
+.qd-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: #F5F3FF;
+  border: 1px solid #DDD6FE;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: #8B5CF6;
+  transition: all .2s;
+}
+.qgen-dropzone:hover .qd-icon {
+  background: #EDE9FE;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(124,58,237,.15);
+}
+.qd-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+.qd-text strong { color: #7C3AED; }
+.qd-hint { font-size: .72rem; color: var(--faint); }
+
+/* File Preview */
+.qgen-file-preview {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #F5F3FF;
+  border: 1px solid #DDD6FE;
+  border-radius: 12px;
+  margin-top: 14px;
+}
+.qgen-file-preview.visible { display: flex; }
+.qfp-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--err-l);
+  border: 1px solid var(--err-b);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--err); font-size: 1rem;
+}
+.qfp-info { flex: 1; min-width: 0; }
+.qfp-name { font-size: .82rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qfp-size { font-size: .68rem; color: var(--faint); margin-top: 2px; }
+.qfp-remove {
+  background: none; border: none; color: var(--faint);
+  cursor: pointer; font-size: .9rem; padding: 4px;
+  transition: color .15s;
+}
+.qfp-remove:hover { color: var(--err); }
+
+/* Submit Button */
+.qgen-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: .9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  transition: all .2s;
+  box-shadow: 0 4px 18px rgba(124,58,237,.25);
+}
+.qgen-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(124,58,237,.35);
+}
+.qgen-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Loading */
+.qgen-loader {
+  text-align: center;
+  padding: 40px 20px;
+}
+.ql-spinner {
+  width: 48px; height: 48px;
+  border: 4px solid #EDE9FE;
+  border-top: 4px solid #7C3AED;
+  border-radius: 50%;
+  margin: 0 auto 18px;
+  animation: spinAnim .8s linear infinite;
+}
+.ql-status { font-size: .95rem; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.ql-progress-track {
+  max-width: 320px;
+  margin: 0 auto;
+  height: 6px;
+  background: #EDE9FE;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.ql-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #7C3AED, #8B5CF6);
+  width: 0%;
+  transition: width .5s ease;
+}
+.ql-sub { font-size: .76rem; color: var(--faint); margin-top: 10px; }
+@keyframes spinAnim { to { transform: rotate(360deg); } }
+
+/* Error */
+.qgen-error-box {
+  text-align: center;
+  padding: 36px 20px;
+}
+.qgen-error-box > i { font-size: 2rem; color: var(--err); display: block; margin-bottom: 12px; }
+.qe-msg { font-size: .9rem; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+.qe-retry {
+  padding: 10px 22px;
+  border-radius: 10px;
+  background: var(--err-l);
+  border: 1px solid var(--err-b);
+  color: var(--err);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: .82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+}
+.qe-retry:hover { background: #FEE2E2; }
+
+/* Results Header */
+.qr-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+.qr-header-left { display: flex; align-items: center; gap: 12px; }
+.qr-ico {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: var(--ok-l);
+  border: 1px solid var(--ok-b);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ok); font-size: 1.2rem;
+}
+.qr-title { font-size: .95rem; font-weight: 800; color: var(--text); }
+.qr-sub { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+.qr-reset-btn {
+  padding: 8px 16px;
+  border-radius: 9px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .78rem; font-weight: 700;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all .15s;
+}
+.qr-reset-btn:hover { background: var(--border); color: var(--text); }
+
+/* Skills Tags */
+.qr-skills {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 18px;
+}
+.qr-skill-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: .72rem; font-weight: 700;
+  background: #F5F3FF;
+  border: 1px solid #DDD6FE;
+  color: #7C3AED;
+  animation: tagIn .3s ease both;
+  cursor: pointer;
+  transition: all .15s;
+}
+.qr-skill-tag:hover { background: #EDE9FE; transform: translateY(-1px); }
+.qr-skill-tag.active { background: #7C3AED; color: #fff; border-color: #7C3AED; box-shadow: 0 2px 8px rgba(124,58,237,.2); }
+@keyframes tagIn { from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)} }
+
+/* Filter Row */
+.qr-filter-row {
+  display: flex; gap: 6px; margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.qr-filter {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .74rem; font-weight: 700;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: all .15s;
+}
+.qr-filter:hover { background: var(--border); color: var(--text); }
+.qr-filter.active { background: var(--text); color: #fff; border-color: var(--text); }
+.qr-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* Question Card */
+.qr-q-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: all .2s;
+  animation: fadeUp .3s ease both;
+}
+.qr-q-card:hover { border-color: var(--p-b); box-shadow: 0 4px 14px rgba(37,99,235,.06); }
+.qr-q-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.qr-q-skill {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: .68rem; font-weight: 700;
+  background: #F5F3FF; border: 1px solid #DDD6FE; color: #7C3AED;
+}
+.qr-q-diff {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: .64rem; font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.qr-diff-basic        { background: #F0FDF4; border: 1px solid #BBF7D0; color: #16A34A; }
+.qr-diff-intermediate { background: #FFFBEB; border: 1px solid #FDE68A; color: #D97706; }
+.qr-diff-advanced     { background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; }
+.qr-q-text { font-size: .86rem; font-weight: 600; color: var(--text); line-height: 1.55; }
+
+/* CTA */
+.qr-cta {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.qr-cta-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--p), var(--s));
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .88rem; font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(37,99,235,.25);
+  transition: all .2s;
+}
+.qr-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,.35); color: #fff; text-decoration: none; }
+
+/* Skill Group Header */
+.qr-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  margin-top: 10px;
+}
+.qr-group-ico {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7C3AED, #8B5CF6);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: .78rem;
+  box-shadow: 0 2px 8px rgba(124,58,237,.2);
+}
+.qr-group-name { font-size: .88rem; font-weight: 800; color: var(--text); }
+.qr-group-count { font-size: .68rem; color: var(--faint); font-weight: 600; }
+
+@media (max-width: 640px) {
+  .qgen-steps { flex-direction: column; gap: 4px; }
+  .qs-connector { transform: rotate(90deg); flex: 0 0 24px; }
+  .qgen-panel { padding: 20px 16px; }
+}
+
+
 </style>
 
 <!-- ══════ TOPNAV ══════ -->
@@ -1204,12 +1603,11 @@ table.t tbody tr:nth-child(5){animation-delay:.20s}
           </div>
           <div class="ac-content">
             <div class="ac-title">AI Question Generator</div>
-            <div class="ac-desc">Generate tailored interview questions automatically based on your resume and skill profile.</div>
+            <div class="ac-desc">Upload a resume to generate personalized interview questions grouped by skill and difficulty.</div>
           </div>
-<a href="{{ url_for('interview.start_interview') }}" class="ac-btn ac-btn-white" id="btn-generate-questions">
-
+          <button class="ac-btn ac-btn-white" id="btn-open-qgen" onclick="document.getElementById('qgenSection').scrollIntoView({behavior:'smooth',block:'start'})">
             <i class="bi bi-lightning-charge-fill"></i> Generate Questions
-          </a>
+          </button>
           <div class="ac-badge">Smart AI</div>
         </div>
       </div>
@@ -1233,6 +1631,134 @@ table.t tbody tr:nth-child(5){animation-delay:.20s}
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ══════ AI QUESTION GENERATOR PANEL ══════ -->
+  <div class="mb-4 ani-3" id="qgenSection">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div style="width:4px;height:18px;border-radius:99px;background:linear-gradient(180deg,#7C3AED,#8B5CF6);flex-shrink:0;"></div>
+      <span style="font-size:.88rem;font-weight:800;color:var(--text);letter-spacing:-.01em;">AI Question Generator</span>
+      <span style="font-size:.64rem;font-weight:700;color:#8B5CF6;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:99px;padding:2px 10px;margin-left:4px;">BETA</span>
+    </div>
+
+    <div class="qgen-panel" id="qgenPanel">
+      <!-- Step Indicator -->
+      <div class="qgen-steps" id="qgenSteps">
+        <div class="qgen-step active" id="qgenStep1">
+          <div class="qs-num">1</div>
+          <div class="qs-info">
+            <div class="qs-label">Upload</div>
+            <div class="qs-sub">Resume PDF</div>
+          </div>
+        </div>
+        <div class="qs-connector"><div class="qs-line" id="qgenLine1"></div></div>
+        <div class="qgen-step" id="qgenStep2">
+          <div class="qs-num">2</div>
+          <div class="qs-info">
+            <div class="qs-label">Analyze</div>
+            <div class="qs-sub">Extract Skills</div>
+          </div>
+        </div>
+        <div class="qs-connector"><div class="qs-line" id="qgenLine2"></div></div>
+        <div class="qgen-step" id="qgenStep3">
+          <div class="qs-num">3</div>
+          <div class="qs-info">
+            <div class="qs-label">Generate</div>
+            <div class="qs-sub">AI Questions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE 1: Upload -->
+      <div id="qgenUpload" class="qgen-state">
+        <form id="qgenForm" enctype="multipart/form-data">
+          <label class="qgen-dropzone" id="qgenDropzone" for="qgenFile">
+            <div class="qd-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
+            <div class="qd-text">
+              <strong>Click to upload</strong> or drag &amp; drop<br/>
+              <span class="qd-hint">PDF format only · Max 10 MB</span>
+            </div>
+          </label>
+          <input type="file" id="qgenFile" name="resume" accept=".pdf,application/pdf" style="display:none"/>
+
+          <div class="qgen-file-preview" id="qgenFilePreview">
+            <div class="qfp-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+            <div class="qfp-info">
+              <div class="qfp-name" id="qgenFileName"></div>
+              <div class="qfp-size" id="qgenFileSize"></div>
+            </div>
+            <button type="button" class="qfp-remove" onclick="qgenClearFile()"><i class="bi bi-x-lg"></i></button>
+          </div>
+
+          <button type="submit" class="qgen-submit" id="qgenSubmit" disabled>
+            <i class="bi bi-stars"></i> Generate Interview Questions
+          </button>
+        </form>
+      </div>
+
+      <!-- STATE 2: Loading / Processing -->
+      <div id="qgenLoading" class="qgen-state" style="display:none;">
+        <div class="qgen-loader">
+          <div class="ql-spinner"></div>
+          <div class="ql-status" id="qgenStatus">Uploading resume...</div>
+          <div class="ql-progress-track">
+            <div class="ql-progress-fill" id="qgenProgress"></div>
+          </div>
+          <div class="ql-sub" id="qgenStatusSub">This may take 15–30 seconds</div>
+        </div>
+      </div>
+
+      <!-- STATE 3: Error -->
+      <div id="qgenError" class="qgen-state" style="display:none;">
+        <div class="qgen-error-box">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div class="qe-msg" id="qgenErrorMsg">Something went wrong</div>
+          <button class="qe-retry" onclick="qgenReset()"><i class="bi bi-arrow-clockwise"></i> Try Again</button>
+        </div>
+      </div>
+
+      <!-- STATE 4: Results -->
+      <div id="qgenResults" class="qgen-state" style="display:none;">
+        <!-- Skills Header -->
+        <div class="qr-header">
+          <div class="qr-header-left">
+            <div class="qr-ico"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+              <div class="qr-title">Questions Generated!</div>
+              <div class="qr-sub" id="qrSummary">0 questions across 0 skills</div>
+            </div>
+          </div>
+          <button class="qr-reset-btn" onclick="qgenReset()"><i class="bi bi-arrow-clockwise"></i> New Upload</button>
+        </div>
+
+        <!-- Skills Tags -->
+        <div class="qr-skills" id="qrSkills"></div>
+
+        <!-- Filter Tabs -->
+        <div class="qr-filter-row">
+          <button class="qr-filter active" data-level="all" onclick="qgenFilterLevel('all',this)">All</button>
+          <button class="qr-filter" data-level="basic" onclick="qgenFilterLevel('basic',this)">
+            <span class="qr-dot" style="background:#10B981;"></span> Basic
+          </button>
+          <button class="qr-filter" data-level="intermediate" onclick="qgenFilterLevel('intermediate',this)">
+            <span class="qr-dot" style="background:#F59E0B;"></span> Intermediate
+          </button>
+          <button class="qr-filter" data-level="advanced" onclick="qgenFilterLevel('advanced',this)">
+            <span class="qr-dot" style="background:#EF4444;"></span> Advanced
+          </button>
+        </div>
+
+        <!-- Questions List -->
+        <div class="qr-questions" id="qrQuestions"></div>
+
+        <!-- CTA -->
+        <div class="qr-cta">
+          <a href="{{ url_for('interview.start_interview') }}" class="qr-cta-btn">
+            <i class="bi bi-play-circle-fill"></i> Start Interview with Generated Questions
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2028,6 +2554,264 @@ function showDlToast(e, btn) {
       btn.style.pointerEvents = '';
       setTimeout(() => { toast.className = 'dl-toast'; }, 3000);
     });
+}
+</script>
+
+<!-- ══════ AI QUESTION GENERATOR JS ══════ -->
+<script>
+/* ─── QGEN State ─── */
+var qgenData = null;         // { skills:[], questions:{} }
+var qgenActiveSkill = null;  // filter by skill
+var qgenActiveLevel = 'all'; // filter by difficulty
+
+/* ─── File Handling ─── */
+var qgenFileInput = document.getElementById('qgenFile');
+var qgenDropzone  = document.getElementById('qgenDropzone');
+
+qgenFileInput.addEventListener('change', function() {
+  if (this.files[0]) qgenShowFile(this.files[0]);
+});
+
+['dragenter','dragover'].forEach(function(e) {
+  qgenDropzone.addEventListener(e, function(ev) {
+    ev.preventDefault();
+    qgenDropzone.classList.add('dragging');
+  });
+});
+['dragleave','drop'].forEach(function(e) {
+  qgenDropzone.addEventListener(e, function(ev) {
+    ev.preventDefault();
+    qgenDropzone.classList.remove('dragging');
+  });
+});
+qgenDropzone.addEventListener('drop', function(ev) {
+  var file = ev.dataTransfer.files[0];
+  if (file) {
+    qgenFileInput.files = ev.dataTransfer.files;
+    qgenShowFile(file);
+  }
+});
+
+function qgenShowFile(file) {
+  document.getElementById('qgenFileName').textContent = file.name;
+  document.getElementById('qgenFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+  document.getElementById('qgenFilePreview').classList.add('visible');
+  qgenDropzone.style.display = 'none';
+  document.getElementById('qgenSubmit').disabled = false;
+}
+
+function qgenClearFile() {
+  qgenFileInput.value = '';
+  document.getElementById('qgenFilePreview').classList.remove('visible');
+  qgenDropzone.style.display = '';
+  document.getElementById('qgenSubmit').disabled = true;
+}
+
+/* ─── Step Indicator ─── */
+function qgenSetStep(step) {
+  var s1 = document.getElementById('qgenStep1');
+  var s2 = document.getElementById('qgenStep2');
+  var s3 = document.getElementById('qgenStep3');
+  var l1 = document.getElementById('qgenLine1');
+  var l2 = document.getElementById('qgenLine2');
+
+  s1.className = 'qgen-step' + (step >= 1 ? (step > 1 ? ' done' : ' active') : '');
+  s2.className = 'qgen-step' + (step >= 2 ? (step > 2 ? ' done' : ' active') : '');
+  s3.className = 'qgen-step' + (step >= 3 ? (step > 3 ? ' done' : ' active') : '');
+
+  l1.className = 'qs-line' + (step > 1 ? ' filled' : (step === 1 ? ' filling' : ''));
+  l2.className = 'qs-line' + (step > 2 ? ' filled' : (step === 2 ? ' filling' : ''));
+}
+
+/* ─── State Switching ─── */
+function qgenShowState(state) {
+  document.getElementById('qgenUpload').style.display  = state === 'upload'  ? '' : 'none';
+  document.getElementById('qgenLoading').style.display = state === 'loading' ? '' : 'none';
+  document.getElementById('qgenError').style.display   = state === 'error'   ? '' : 'none';
+  document.getElementById('qgenResults').style.display = state === 'results' ? '' : 'none';
+}
+
+/* ─── Reset ─── */
+function qgenReset() {
+  qgenClearFile();
+  qgenSetStep(1);
+  qgenShowState('upload');
+  qgenData = null;
+  qgenActiveSkill = null;
+  qgenActiveLevel = 'all';
+}
+
+/* ─── Form Submit ─── */
+document.getElementById('qgenForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  var formData = new FormData();
+  var file = qgenFileInput.files[0];
+  if (!file) return;
+  formData.append('resume', file);
+
+  // Switch to loading
+  qgenShowState('loading');
+  qgenSetStep(1);
+
+  var progress = document.getElementById('qgenProgress');
+  var status   = document.getElementById('qgenStatus');
+  var sub      = document.getElementById('qgenStatusSub');
+
+  // Simulate progress phases
+  progress.style.width = '15%';
+  status.textContent = 'Uploading resume...';
+  sub.textContent = 'Sending your PDF to the server';
+
+  setTimeout(function() {
+    progress.style.width = '35%';
+    status.textContent = 'Analyzing resume...';
+    sub.textContent = 'Extracting text and detecting skills';
+    qgenSetStep(2);
+  }, 1200);
+
+  setTimeout(function() {
+    progress.style.width = '60%';
+    status.textContent = 'Generating questions...';
+    sub.textContent = 'AI is creating personalized questions per skill';
+    qgenSetStep(3);
+  }, 3000);
+
+  setTimeout(function() {
+    progress.style.width = '80%';
+  }, 6000);
+
+  fetch('/interviewer/generate-questions', {
+    method: 'POST',
+    body: formData
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    progress.style.width = '100%';
+
+    if (!data.success) {
+      setTimeout(function() {
+        document.getElementById('qgenErrorMsg').textContent = data.error || 'Something went wrong';
+        qgenShowState('error');
+        qgenSetStep(1);
+      }, 400);
+      return;
+    }
+
+    // Success!
+    qgenData = data;
+    setTimeout(function() {
+      qgenSetStep(4); // All done
+      qgenRenderResults();
+      qgenShowState('results');
+    }, 600);
+  })
+  .catch(function(err) {
+    console.error('[QGEN] Error:', err);
+    document.getElementById('qgenErrorMsg').textContent = 'Network error. Please check your connection and try again.';
+    qgenShowState('error');
+    qgenSetStep(1);
+  });
+});
+
+/* ─── Render Results ─── */
+function qgenRenderResults() {
+  if (!qgenData) return;
+
+  var skills = qgenData.skills || [];
+  var questions = qgenData.questions || {};
+  var totalQ = qgenData.total_questions || 0;
+
+  // Summary
+  document.getElementById('qrSummary').textContent =
+    totalQ + ' questions across ' + skills.length + ' skills from ' + (qgenData.resume_name || 'resume');
+
+  // Skill tags
+  var skillsEl = document.getElementById('qrSkills');
+  skillsEl.innerHTML = '';
+  skills.forEach(function(sk, i) {
+    var tag = document.createElement('span');
+    tag.className = 'qr-skill-tag';
+    tag.textContent = sk;
+    tag.style.animationDelay = (i * 0.05) + 's';
+    tag.onclick = function() { qgenFilterSkill(sk, tag); };
+    skillsEl.appendChild(tag);
+  });
+
+  // Render questions
+  qgenRenderQuestions();
+}
+
+function qgenRenderQuestions() {
+  if (!qgenData) return;
+
+  var container = document.getElementById('qrQuestions');
+  container.innerHTML = '';
+  var questions = qgenData.questions || {};
+  var idx = 0;
+
+  Object.keys(questions).forEach(function(skill) {
+    // Filter by skill
+    if (qgenActiveSkill && qgenActiveSkill !== skill) return;
+
+    var levels = questions[skill];
+    if (typeof levels !== 'object') return;
+
+    // Group header
+    var header = document.createElement('div');
+    header.className = 'qr-group-header';
+    var levelCount = Object.keys(levels).length;
+    header.innerHTML =
+      '<div class="qr-group-ico"><i class="bi bi-code-slash"></i></div>' +
+      '<div class="qr-group-name">' + skill + '</div>' +
+      '<div class="qr-group-count">' + levelCount + ' questions</div>';
+    container.appendChild(header);
+
+    ['basic', 'intermediate', 'advanced'].forEach(function(level) {
+      if (!levels[level]) return;
+      // Filter by difficulty
+      if (qgenActiveLevel !== 'all' && qgenActiveLevel !== level) return;
+
+      var card = document.createElement('div');
+      card.className = 'qr-q-card';
+      card.style.animationDelay = (idx * 0.04) + 's';
+      card.setAttribute('data-skill', skill);
+      card.setAttribute('data-level', level);
+
+      card.innerHTML =
+        '<div class="qr-q-top">' +
+          '<span class="qr-q-skill">' + skill + '</span>' +
+          '<span class="qr-q-diff qr-diff-' + level + '">' + level + '</span>' +
+        '</div>' +
+        '<div class="qr-q-text">' + levels[level] + '</div>';
+      container.appendChild(card);
+      idx++;
+    });
+  });
+
+  if (idx === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--faint);font-size:.85rem;">No questions match the current filter.</div>';
+  }
+}
+
+/* ─── Filters ─── */
+function qgenFilterSkill(skill, el) {
+  if (qgenActiveSkill === skill) {
+    qgenActiveSkill = null;
+    document.querySelectorAll('.qr-skill-tag').forEach(function(t) { t.classList.remove('active'); });
+  } else {
+    qgenActiveSkill = skill;
+    document.querySelectorAll('.qr-skill-tag').forEach(function(t) { t.classList.remove('active'); });
+    el.classList.add('active');
+  }
+  qgenRenderQuestions();
+}
+
+function qgenFilterLevel(level, el) {
+  qgenActiveLevel = level;
+  document.querySelectorAll('.qr-filter').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  qgenRenderQuestions();
 }
 </script>
 {% endblock %}
